@@ -71,3 +71,15 @@ module.exports.getVehicleDetails = function(elem, $) {
 module.exports.hasValidData = function (vehicle) {
 	return vehicle.title && vehicle.title !== "" && vehicle.brand && vehicle.brand !== "" && vehicle.model && vehicle.model !== "" && vehicle.regFrom && vehicle.regFrom !== "";
 }
+
+module.exports.logMemoryUsage = (prefix = '') => {
+	const used = process.memoryUsage().heapUsed / 1024 / 1024;
+	console.log(`${prefix}. The script uses approximately ${Math.round(used * 100) / 100} MB`);
+}
+
+module.exports.logMemoryUsageLong = (prefix = '') => {
+	const used = process.memoryUsage();
+	for (let key in used) {
+		console.log(`${prefix}. ${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+	}
+}

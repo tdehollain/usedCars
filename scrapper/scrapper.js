@@ -49,7 +49,7 @@ async function processVehicles(vehicleData) {
 
 			// only process the vehicles for this time stamp
 			if(vehicleDay === currentDay && vehicleHour === currentHour) {
-				console.log(`<-----   Processinsg: ${vehicle.title}   ----->`);
+				console.log(`<-----   Processing: ${vehicle.title}   ----->`);
 				let nbResults = await getNumberOfResults(vehicle); // get number of pages
 				console.log(`Number of results: ${nbResults}`);
 				if(nbResults > 400) {
@@ -89,19 +89,51 @@ async function processVehicles(vehicleData) {
 									let vehicleByYearAndMileageDesc = {...vehicleByYearAndMileage[j], sorting: "desc"};
 
 									console.log(`         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}. Order: ascending`);
-									await processPage(vehicleByYearAndMileageAsc);
+									let hasNextPage = true;
+									let page = 1;
+									do {
+										hasNextPage = await processPage(vehicleByYearAndMileageAsc, page);
+										page++;
+									} while (hasNextPage);
+									
 									console.log(`         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}. Order: descending`);
-									await processPage(vehicleByYearAndMileageDesc);
+									hasNextPage = true;
+									page = 1;
+									do {
+										hasNextPage = await processPage(vehicleByYearAndMileageDesc, page);
+										page++;
+									} while (hasNextPage);
 								} else {
-									if(nbResultsByYearAndMileage > 0) await processPage(vehicleByYearAndMileage[j]);
+									if(nbResultsByYearAndMileage > 0) {
+										let hasNextPage = true;
+										let page = 1;
+										do {
+											hasNextPage = await processPage(vehicleByYearAndMileage[j], page);
+											page++;
+										} while (hasNextPage);
+									}
 								}
 							}
 						} else {
-							if(nbResultsByYear > 0) await processPage(vehicleByYear);
+							if(nbResultsByYear > 0) {
+								let hasNextPage = true;
+								let page = 1;
+								do {
+									hasNextPage = await processPage(vehicleByYear, page);
+									page++;
+								} while (hasNextPage);
+							}
 						}
 					}
 				} else {
-					if(nbResults > 0) await processPage(vehicle);
+					if(nbResults > 0) {
+						let hasNextPage = true;
+						let page = 1;
+						do {
+							hasNextPage = await processPage(vehicle, page);
+							page++;
+						} while (hasNextPage);
+					}
 				}
 				// update last count for this vehicle
 				await db.updateLastCount(vehicle.title, nbResults);
@@ -118,12 +150,13 @@ async function processVehicles(vehicleData) {
 
 async function processPage(vehicle, page = 1) {
 	// console.log('processing: ' + vehicle.title + ' - page ' + page);
+	// util.logMemoryUsage();
 	let url = util.buildURL(vehicle, page);
 	// page === 1 && console.log(`url: ${url}`);
 	let res = await fetch(url);
 	let body = await res.text();
 
-	const $ = cheerio.load(body);
+	let $ = cheerio.load(body);
 
 	let mainSelector = '.cl-list-element > .cldt-summary-full-item';
 
@@ -140,9 +173,9 @@ async function processPage(vehicle, page = 1) {
 			let { success, id } = await db.addVehicleRecord(vehicle.title, vehicleDetails);
 			if(success) {
 				processedVehicles.push(vehicleDetails.url);
-				console.log('Successfully saved record for vehicle [' + vehicle.title + ']. URL: ' + vehicleDetails.url);
+				// console.log('Successfully saved record for vehicle [' + vehicle.title + ']. URL: ' + vehicleDetails.url);
 			} else {
-				console.log('Record for vehicle [' + vehicle.title + '] already present. URL: ' + vehicleDetails.url);	
+				// console.log('Record for vehicle [' + vehicle.title + '] already present. URL: ' + vehicleDetails.url);	
 			}
 		}
 	}
@@ -155,11 +188,7 @@ async function processPage(vehicle, page = 1) {
 	// console.log('total items: ' + numberOfResults);
 	// console.log('has next page: ' + hasNextPage);
 	// move on to next page
-	if(hasNextPage) {
-		await processPage(vehicle, page+1);
-	} else {
-		return false;
-	}
+	return hasNextPage;
 }
 
 async function getNumberOfResults(vehicle) {
