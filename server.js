@@ -32,7 +32,12 @@ app.set('view engine', 'pug');
 
 // Routes =================================================
 // Base route
-router.get("/*", (req, res) => {
+router.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/build', 'index.html'));
+});
+
+// Admin page
+router.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, 'views/build', 'index.html'));
 });
 
