@@ -1,0 +1,115 @@
+@import "~normalize.css/normalize.css";
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+@import '~@blueprintjs/table/lib/css/table.css';
+ 
+body {
+  background: #293742;
+}
+
+.navbar-link {
+  text-decoration: none;
+  color: #f5f8fa!important;
+}
+
+.navbar-link:hover {
+  text-decoration: none!important;
+}
+
+
+.adminView form {
+  width: 500px;
+  margin: 2rem auto;
+}
+
+.adminView .form-header p {
+  font-size: 1.3rem;
+  font-weight: 300;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.adminView .form-top input {
+  width: 100%;
+}
+
+.adminView .form-columns {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.adminView .form-columns section {
+  width: 50%;
+}
+
+.adminView .form-left {
+  padding-right: 3%;;
+}
+
+.adminView .form-right {
+  padding-left: 3%;
+}
+
+.adminView .form-right label {
+  margin-bottom: 5px;
+}
+
+.adminView .form-right input {
+  margin-bottom: 15px;
+}
+
+.adminView .form-bottom {
+  clear: both;
+  display: flex;
+  justify-content: left;
+}
+
+.adminView .form-bottom section {
+  margin-right: 6%;
+}
+
+.adminView .form-bottom .pt-checkbox {
+  font-size: 0.8rem;
+}
+
+.adminView .form-left input {
+  width: 100%;
+}
+
+.adminView .form-right input {
+  width: 50%;
+}
+
+.adminView .form-submit {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.adminView .form-submit a, .adminView .form-submit button {
+  width: 160px;
+}
+
+
+
+.vehicleList {
+  width: 1359px;
+  margin: 20px auto 300px;
+}
+
+.vehicleList a {
+  color: #f5f8fa;
+}
+.vehicleList a:hover {
+  color: #f5f8fa;
+}
+
+.vehicleList .deleteVehicle {
+  padding: 5px 9px 0;
+  cursor: pointer;
+}
+
+.vehicleList .trans p, .vehicleList .fuel p, .vehicleList .bodyType p {
+  margin: 0;
+}
