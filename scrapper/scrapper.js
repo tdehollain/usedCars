@@ -117,7 +117,7 @@ async function processVehicles(vehicleData) {
 
 
 async function processPage(vehicle, page = 1) {
-	console.log('processing: ' + vehicle.title + ' - page ' + page);
+	// console.log('processing: ' + vehicle.title + ' - page ' + page);
 	let url = util.buildURL(vehicle, page);
 	// page === 1 && console.log(`url: ${url}`);
 	let res = await fetch(url);
@@ -136,7 +136,7 @@ async function processPage(vehicle, page = 1) {
 	for(vehicleDetails of vehicles) {
 		// check if vehicle was already processed
 		if(!processedVehicles.includes(vehicleDetails.url)) {
-			// console.log('#' + processedVehicles.length + ':' + vehicleDetails.model + ' - ' + vehicleDetails.version);
+			console.log('#' + processedVehicles.length + ':' + vehicleDetails.model + ' - ' + vehicleDetails.version);
 			let { success, id } = await db.addVehicleRecord(vehicle.title, vehicleDetails);
 			if(success) {
 				processedVehicles.push(vehicleDetails.url);
