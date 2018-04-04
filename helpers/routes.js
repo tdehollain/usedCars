@@ -3,7 +3,7 @@ module.exports = async function(router, db) {
 	// Get vehicle list
 	router.get('/api/getVehicleList', async (req, res) => {
 		let outcome = await db.getVehicleList();
-		console.log(`outcome: ${JSON.stringify(outcome)}`);
+		// console.log(`outcome: ${JSON.stringify(outcome)}`);
 		res.json(outcome);
 	});
 

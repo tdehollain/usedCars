@@ -117,7 +117,7 @@ async function processVehicles(vehicleData) {
 
 
 async function processPage(vehicle, page = 1) {
-	// console.log('processing: ' + vehicle.title + ' - page ' + page);
+	console.log('processing: ' + vehicle.title + ' - page ' + page);
 	let url = util.buildURL(vehicle, page);
 	// page === 1 && console.log(`url: ${url}`);
 	let res = await fetch(url);
