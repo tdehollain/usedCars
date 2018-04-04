@@ -18,7 +18,8 @@ async function start() {
 	const { success, vehicleList } = await db.getVehicleList();
 	if(success) {
 		await processVehicles(vehicleList);
-		console.log(`Complete. ${processedVehicles.length} vehicles processed.`);
+		let d = new Date();
+		console.log(`${('0'+d.getDate()).slice(-2)}/${('0'+(d.getMonth()+1)).slice(-2)}/${d.getFullYear()} - ${d.getHours()}:${d.getMinutes()}. Complete. ${processedVehicles.length} vehicles processed.`);
 		process.exit(0);
 	} else {
 		console.log('Error getting the list of tracked vehicles');
