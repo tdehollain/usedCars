@@ -136,13 +136,13 @@ async function processPage(vehicle, page = 1) {
 	for(vehicleDetails of vehicles) {
 		// check if vehicle was already processed
 		if(!processedVehicles.includes(vehicleDetails.url)) {
-			console.log('#' + processedVehicles.length + ':' + vehicleDetails.model + ' - ' + vehicleDetails.version);
+			// console.log('#' + processedVehicles.length + ':' + vehicleDetails.model + ' - ' + vehicleDetails.version);
 			let { success, id } = await db.addVehicleRecord(vehicle.title, vehicleDetails);
 			if(success) {
 				processedVehicles.push(vehicleDetails.url);
-				// console.log('Successfully saved record for vehicle [' + vehicle.title + ']. URL: ' + vehicleDetails.url);
+				console.log('Successfully saved record for vehicle [' + vehicle.title + ']. URL: ' + vehicleDetails.url);
 			} else {
-				// console.log('Record for vehicle [' + vehicle.title + '] already present. URL: ' + vehicleDetails.url);	
+				console.log('Record for vehicle [' + vehicle.title + '] already present. URL: ' + vehicleDetails.url);	
 			}
 		}
 	}
