@@ -21,16 +21,19 @@ module.exports.buildURL = function buildURL(vehicle, page=1) {
 	if(vehicle.checkedBodySUV) body += "&body=4";
 	if(vehicle.checkedBodySedan) body += "&body=6";
 	if(vehicle.checkedBodySW) body += "&body=5";
+	if(vehicle.checkedBodyCompact && vehicle.checkedBodyConvertible && vehicle.checkedBodyCoupe && vehicle.checkedBodySUV && vehicle.checkedBodySedan && vehicle.checkedBodySUV) body = '';
 
 	let fuel = vehicle.checkedFuelPetrol ? "&fuel=B" : "";
 	if(vehicle.checkedFuelDiesel) fuel += "&fuel=D";
 	if(vehicle.checkedFuelElec) fuel += "&fuel=E";
 	if(vehicle.checkedFuelElecPetrol) fuel += "&fuel=2";
 	if(vehicle.checkedFuelElecDiesel) fuel += "&fuel=3";
+	if(vehicle.checkedFuelPetrol && vehicle.checkedFuelDiesel && vehicle.checkedFuelElec && vehicle.checkedFuelElecDiesel && vehicle.checkedFuelElecPetrol) fuel = '';
 
 	let gear = vehicle.checkedTransAuto ? "&gear=A" : "";
 	if(vehicle.checkedTransMan) gear += "&gear=M";
 	if(vehicle.checkedTransSemi) gear += "&gear=S";
+	if(vehicle.checkedTransAuto && vehicle.checkedTransMan && vehicle.checkedTransSemi) gear = '';
 
 	let sort = vehicle.sorting ? "&sort=price&desc=" + (vehicle.sorting === "desc" ? "1" : "0") : "&sort=price&desc=0";
 
