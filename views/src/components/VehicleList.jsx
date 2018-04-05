@@ -10,8 +10,8 @@ export default class VehicleList extends Component {
 			if(numTrans === 3) numTrans = 1;
 			let numFuel = el.checkedFuelDiesel + el.checkedFuelElec + el.checkedFuelElecDiesel + el.checkedFuelElecPetrol + el.checkedFuelPetrol;
 			if(numFuel === 5) numFuel = 1;
-			let numBody = el.checkedBodyConvertible + el.checkedBodyCoupe + el.checkedBodySedan + el.checkedBodySUV + el.checkedBodySW;
-			if(numBody === 5) numBody = 1;
+			let numBody = el.checkedBodyCompact + el.checkedBodyConvertible + el.checkedBodyCoupe + el.checkedBodySedan + el.checkedBodySUV + el.checkedBodySW;
+			if(numBody === 6) numBody = 1;
 			return 20*Math.max(numTrans, numFuel, numBody);
 		});
 
@@ -67,7 +67,7 @@ export default class VehicleList extends Component {
 			if(this.props.vehicleList[row].checkedBodySUV) str.push("SUV/Offroad");
 			if(this.props.vehicleList[row].checkedBodySedan) str.push("Sedan");
 			if(this.props.vehicleList[row].checkedBodySW) str.push("Station-wagon");
-			if(str.length === 5) str=['-'];
+			if(str.length === 6) str=['-'];
 			return <Cell>{str.map((el, i) => <p key={i}>{el}</p>)}</Cell>
 		}
 
