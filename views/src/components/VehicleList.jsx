@@ -87,7 +87,7 @@ export default class VehicleList extends Component {
 			<Table 
 				className='vehicleList' 
 				numRows={this.props.vehicleList.length} 
-				columnWidths={[290, 70, 70, 100, 100, 100, 80, 110, 105, 105, 80, 90, 30]}
+				columnWidths={[280, 70, 70, 100, 100, 100, 80, 110, 105, 105, 90, 90, 30]}
 				rowHeights={rowHeights}
 				enableColumnResizing={false}>
 				<Column className='tile' name='Title' cellRenderer={cellRendererTitle} />
