@@ -15,6 +15,7 @@ export default class AddVehicleFormContainer extends Component {
 			checkedFuelElec: true,
 			checkedFuelElecPetrol: true,
 			checkedFuelElecDiesel: true,
+			checkedBodyCompact: true,
 			checkedBodyConvertible: true,
 			checkedBodyCoupe: true,
 			checkedBodySUV: true,
@@ -40,6 +41,7 @@ export default class AddVehicleFormContainer extends Component {
 		this.changeFuelElec = this.changeFuelElec.bind(this);
 		this.changeFuelElecPetrol = this.changeFuelElecPetrol.bind(this);
 		this.changeFuelElecDiesel = this.changeFuelElecDiesel.bind(this);
+		this.changeBodyCompact = this.changeBodyCompact.bind(this);
 		this.changeBodyConvertible = this.changeBodyConvertible.bind(this);
 		this.changeBodyCoupe = this.changeBodyCoupe.bind(this);
 		this.changeBodySUV = this.changeBodySUV.bind(this);
@@ -96,6 +98,7 @@ export default class AddVehicleFormContainer extends Component {
 	changeFuelElec() { this.setState({ checkedFuelElec: !this.state.checkedFuelElec }, () => { this.updateVehicleURL(); }) }
 	changeFuelElecPetrol() { this.setState({ checkedFuelElecPetrol: !this.state.checkedFuelElecPetrol }, () => { this.updateVehicleURL(); }) }
 	changeFuelElecDiesel() { this.setState({ checkedFuelElecDiesel: !this.state.checkedFuelElecDiesel }, () => { this.updateVehicleURL(); }) }
+	changeBodyCompact() { this.setState({ checkedBodyCompact: !this.state.checkedBodyCompact }, () => { this.updateVehicleURL(); }) }
 	changeBodyConvertible() { this.setState({ checkedBodyConvertible: !this.state.checkedBodyConvertible }, () => { this.updateVehicleURL(); }) }
 	changeBodyCoupe() { this.setState({ checkedBodyCoupe: !this.state.checkedBodyCoupe }, () => { this.updateVehicleURL(); }) }
 	changeBodySUV() { this.setState({ checkedBodySUV: !this.state.checkedBodySUV }, () => { this.updateVehicleURL(); }) }
@@ -128,6 +131,7 @@ export default class AddVehicleFormContainer extends Component {
 				checkedFuelElec={this.state.checkedFuelElec} changeFuelElec={this.changeFuelElec}
 				checkedFuelElecPetrol={this.state.checkedFuelElecPetrol} changeFuelElecPetrol={this.changeFuelElecPetrol}
 				checkedFuelElecDiesel={this.state.checkedFuelElecDiesel} changeFuelElecDiesel={this.changeFuelElecDiesel}
+				checkedBodyCompact={this.state.checkedBodyCompact} changeBodyCompact={this.changeBodyCompact}
 				checkedBodyConvertible={this.state.checkedBodyConvertible} changeBodyConvertible={this.changeBodyConvertible}
 				checkedBodyCoupe={this.state.checkedBodyCoupe} changeBodyCoupe={this.changeBodyCoupe}
 				checkedBodySUV={this.state.checkedBodySUV} changeBodySUV={this.changeBodySUV}

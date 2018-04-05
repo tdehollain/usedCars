@@ -15,6 +15,7 @@ module.exports = function(mongoose){
 		chTo: Number,
 		doorsFrom: Number,
 		doorsTo: Number,
+		checkedBodyCompact: Boolean,
 		checkedBodyConvertible: Boolean,
 		checkedBodyCoupe: Boolean,
 		checkedBodySUV: Boolean,

@@ -9,7 +9,7 @@ module.exports = async function(router, db) {
 
 	// Delete vehicle from list
 	router.get('/api/deleteVehicle/:id', async (req, res) => {
-		console.log(`id: ${req.params.id}`);
+		// console.log(`id: ${req.params.id}`);
 		let outcome = await db.deleteVehicle(req.params.id);
 		res.json(outcome);
 	});

@@ -93,6 +93,11 @@ export default class AddVehicleForm extends Component {
 					<section className=''>
 						<Label text='Body type'></Label>
 						<label className='pt-control pt-checkbox'>
+							<input type='checkbox' checked={this.props.checkedBodyCompact} onChange={this.props.changeBodyCompact}/>
+							<span className='pt-control-indicator'></span>
+							Compact
+						</label>
+						<label className='pt-control pt-checkbox'>
 							<input type='checkbox' checked={this.props.checkedBodyConvertible} onChange={this.props.changeBodyConvertible}/>
 							<span className='pt-control-indicator'></span>
 							Convertible

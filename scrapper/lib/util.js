@@ -15,7 +15,8 @@ module.exports.buildURL = function buildURL(vehicle, page=1) {
 	let powerFrom = vehicle.chFrom ? "&powerfrom=" + kwFrom : "";
 	let powerTo = vehicle.chTo ? "&powerto=" + kwTo : "";
 
-	let body = vehicle.checkedBodyConvertible ? "&body=2" : "";
+	let body = vehicle.checkedBodyCompact ? "&body=1" : "";
+	if(vehicle.checkedBodyConvertible) body += "&body=2";
 	if(vehicle.checkedBodyCoupe) body += "&body=3";
 	if(vehicle.checkedBodySUV) body += "&body=4";
 	if(vehicle.checkedBodySedan) body += "&body=6";

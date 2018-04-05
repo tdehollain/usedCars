@@ -61,6 +61,7 @@ export default class VehicleList extends Component {
 		}
 		const cellRendererBodyType = row =>  {
 			let str = [];
+			if(this.props.vehicleList[row].checkedBodyCompact) str.push("Compact");
 			if(this.props.vehicleList[row].checkedBodyConvertible) str.push("Convertible");
 			if(this.props.vehicleList[row].checkedBodyCoupe) str.push("Coupe");
 			if(this.props.vehicleList[row].checkedBodySUV) str.push("SUV/Offroad");
