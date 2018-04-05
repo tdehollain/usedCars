@@ -6,11 +6,11 @@ export default class VehicleList extends Component {
 
 	render() {
 		let rowHeights = this.props.vehicleList.map(el => {
-			let numTrans = el.checkedTransAuto + el.checkedTransMan + el.checkedTransSemi;
+			let numTrans = el.checkedTransAuto || 0 + el.checkedTransMan || 0 + el.checkedTransSemi;
 			if(numTrans === 3) numTrans = 1;
-			let numFuel = el.checkedFuelDiesel + el.checkedFuelElec + el.checkedFuelElecDiesel + el.checkedFuelElecPetrol + el.checkedFuelPetrol;
+			let numFuel = el.checkedFuelDiesel || 0 + el.checkedFuelElec || 0 + el.checkedFuelElecDiesel || 0 + el.checkedFuelElecPetrol || 0 + el.checkedFuelPetrol;
 			if(numFuel === 5) numFuel = 1;
-			let numBody = el.checkedBodyCompact + el.checkedBodyConvertible + el.checkedBodyCoupe + el.checkedBodySedan + el.checkedBodySUV + el.checkedBodySW;
+			let numBody = el.checkedBodyCompact || 0 + el.checkedBodyConvertible || 0 + el.checkedBodyCoupe || 0 + el.checkedBodySedan || 0 + el.checkedBodySUV || 0 + el.checkedBodySW;
 			if(numBody === 6) numBody = 1;
 			return 20*Math.max(numTrans, numFuel, numBody);
 		});
