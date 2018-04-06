@@ -7,6 +7,10 @@ body {
   background: #293742;
 }
 
+/**********************
+*****   Nav Bar   *****
+**********************/
+
 .navbar-link {
   text-decoration: none;
   color: #f5f8fa!important;
@@ -16,6 +20,21 @@ body {
   text-decoration: none!important;
 }
 
+
+
+/************************
+*****   Home View   *****
+************************/
+
+.testView {
+  width: 1200px;
+  margin: 30px auto;
+}
+
+
+/*************************
+*****   Admin View   *****
+*************************/
 
 .adminView form {
   width: 500px;

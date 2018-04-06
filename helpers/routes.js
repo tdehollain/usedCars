@@ -20,4 +20,13 @@ module.exports = async function(router, db) {
 		let outcome = await db.addVehicle(vehicle);
 		res.json(outcome);
 	});
+
+
+
+	// Get vehicle data
+	router.post('/api/getVehicledata', async (req, res) => {
+		let title = req.body.title;
+		let outcome = await db.getVehicleData(title);
+		res.json(outcome);
+	});
 }

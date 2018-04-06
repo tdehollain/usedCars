@@ -6,6 +6,7 @@
     "@blueprintjs/core": "^2.0.0",
     "@blueprintjs/table": "^2.0.0",
     "ajv": "^6.3.0",
+    "mathjs": "^4.0.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.7",

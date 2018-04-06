@@ -32,13 +32,29 @@ const vehicleListReducer = (state=vehicleListState, action) => {
 	}
 };
 
+/*==========================
+=====   Vehicle data   =====
+==========================*/
+const vehicleDataState = {
+	vehicleData: []
+};
+
+const vehicleDataReducer = (state=vehicleDataState, action) => {
+	switch(action.type) {
+		case "UPDATE_VEHICLE_DATA":
+			return { vehicleData: action.vehicleData };
+		default: return state
+	}
+};
+
 
 /*======================
 =====   Reducers   =====
 ======================*/
 const reducers = combineReducers({
 	userState: userReducer,
-	vehicleListState: vehicleListReducer
+	vehicleListState: vehicleListReducer,
+	vehicleDataState: vehicleDataReducer
 });
 
 export const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());

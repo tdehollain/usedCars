@@ -88,10 +88,16 @@ module.exports = function(mongoose){
 		}
 	}
 
+	const getVehicleData = async (title) => {
+		let data = await vehicleModel.find({ title: title }).sort({ measureDate: 1 });
+		return { success: true, data: data };
+	}
+
 	return {
 		url,
 		addVehicle,
 		getVehicleList,
-		deleteVehicle
+		deleteVehicle,
+		getVehicleData
 	}
 }
