@@ -57,7 +57,7 @@ module.exports = function(mongoose){
 	const vehicleModel = mongoose.model('vehicleColl', vehicleSchema, 'vehicleColl');
 
 	const getVehicleList = async () => {
-		let vehicleList = await vehicleListModel.find().sort({ dateAdded: 1 });
+		let vehicleList = await vehicleListModel.find().sort({ dateAdded: -1 });
 		return { success: true, vehicleList: vehicleList };
 	}
 

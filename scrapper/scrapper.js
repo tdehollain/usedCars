@@ -39,7 +39,7 @@ async function processVehicles(vehicleData) {
 				currentDay = parseInt(process.argv[2], 10);
 				currentHour = parseInt(process.argv[3], 10);
 				if(currentDay < 1 || currentDay > 28) throw new Error('Day to process must be between 1 and 28');
-				if(currentHour < 0 || currentHour > 23) throw new Error('Hour to process must be between 1 and 28');
+				if(currentHour < 0 || currentHour > 23) throw new Error('Hour to process must be between 0 and 23');
 			} else {
 				currentDay = new Date().getDate();
 				currentHour = new Date().getHours();
