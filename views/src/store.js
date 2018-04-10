@@ -23,7 +23,7 @@ const vehicleListState = {
 const vehicleListReducer = (state=vehicleListState, action) => {
 	switch(action.type) {
 		case "ADD_VEHICLE":
-			return {...state, vehicleList: [...state.vehicleList, action.vehicle] };
+			return {...state, vehicleList: [action.vehicle, ...state.vehicleList] };
 		case "DELETE_VEHICLE":
 			return {...state, vehicleList: state.vehicleList.filter(el => el._id !== action.id) };
 		case "UPDATE_VEHICLE_LIST":
