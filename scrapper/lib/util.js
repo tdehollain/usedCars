@@ -10,8 +10,8 @@ module.exports.buildURL = function buildURL(vehicle, page=1) {
 	let doorFrom = vehicle.doorsFrom ? "&doorfrom=" + vehicle.doorsFrom : "";
 	let doorTo = vehicle.doorsTo ? "&doorto=" + vehicle.doorsTo : "";
 
-	let kwFrom = Math.round(parseInt(vehicle.chFrom, 10) / 1.341, 1).toString(10);
-	let kwTo = Math.round(parseInt(vehicle.chTo, 10) / 1.341, 1).toString(10);
+	let kwFrom = Math.round(parseInt(vehicle.chFrom, 10) / 1.36, 1).toString(10);
+	let kwTo = Math.round(parseInt(vehicle.chTo, 10) / 1.36, 1).toString(10);
 	let powerFrom = vehicle.chFrom ? "&powerfrom=" + kwFrom : "";
 	let powerTo = vehicle.chTo ? "&powerto=" + kwTo : "";
 

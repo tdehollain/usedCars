@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
-import SingleVehicleData from './SingleVehicleData';
+import Histogram from './Histogram';
 
 export default class TestView extends Component {
 	render() {
-		let vehicleDataComponent = this.props.vehicleData.length ? <SingleVehicleData vehicleData={this.props.vehicleData} /> : null;
+		let histo = this.props.vehiclesData.length
+		? <Histogram
+				data = {this.props.vehiclesData}
+			/>
+		: null;
+
 		return (
 			<div className='testView'>
 				<form>
@@ -18,7 +23,7 @@ export default class TestView extends Component {
 					</label>
 				</form>
 				<div>
-					{vehicleDataComponent}
+					{histo}
 				</div>
 			</div>
 		)

@@ -9,7 +9,7 @@ class TestViewContainer extends Component {
 
 		this.state = {
 			selectedVehicle: '',
-			vehicleData: []
+			vehiclesData: []
 		}
 
 		this.changeSelectedVehicle = this.changeSelectedVehicle.bind(this);
@@ -23,11 +23,15 @@ class TestViewContainer extends Component {
 				"type": "UPDATE_VEHICLE_LIST",
 				vehicleList: res.vehicleList
 			});
+			let selectedVehicle = localStorage.getItem('selectedVehicle');
+			this.setState({ selectedVehicle });
+			this.updateVehicleData(selectedVehicle);
 		});
 	}
 
 	changeSelectedVehicle(e) {
 		this.setState({ selectedVehicle: e.target.value });
+		localStorage.setItem('selectedVehicle', e.target.value);
 		this.updateVehicleData(e.target.value);
 	}
 
@@ -43,8 +47,8 @@ class TestViewContainer extends Component {
 		.then(res => res.json())
 		.then(res => {
 			store.dispatch({
-				"type": "UPDATE_VEHICLE_DATA",
-				vehicleData: res.data
+				"type": "UPDATE_VEHICLES_DATA",
+				vehiclesData: res.data
 			});
 		});
 	}
@@ -55,7 +59,7 @@ class TestViewContainer extends Component {
 				vehicleList={this.props.vehicleList}
 				selectedVehicle={this.state.selectedVehicle}
 				changeSelectedVehicle={this.changeSelectedVehicle}
-				vehicleData={this.props.vehicleData}
+				vehiclesData={this.props.vehiclesData}
 			/>
 		)
 	}
@@ -64,7 +68,7 @@ class TestViewContainer extends Component {
 const mapStateToProps = (store) => {
 	return { 
 		vehicleList: store.vehicleListState.vehicleList,
-		vehicleData: store.vehicleDataState.vehicleData
+		vehiclesData: store.vehiclesDataState.vehiclesData
 	 };
 }
 
