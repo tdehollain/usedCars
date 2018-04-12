@@ -39,6 +39,7 @@ export default class ChartsView extends Component {
 						</div>
 					</label>
 				</form>
+				<a href={this.props.selectedVehicleURL} target ='_blank'>Link</a>
 				<div>
 					{priceDistribution}
 					{kmDistribution}

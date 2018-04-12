@@ -9,6 +9,7 @@ class ChartsViewContainer extends Component {
 
 		this.state = {
 			selectedVehicle: '',
+			selectedVehicleURL: '',
 			vehiclesData: []
 		}
 
@@ -36,6 +37,13 @@ class ChartsViewContainer extends Component {
 	}
 
 	updateVehicleData(title) {
+		// get selected vehicle URL
+		for(let el of this.props.vehicleList) {
+			if(el.title === title) {
+				this.setState({ selectedVehicleURL: el.vehicleURL })
+				break;
+			}
+		}
 		fetch('/api/getVehicleData', {
 			'method': 'POST',
 			'body': JSON.stringify({ title }),
@@ -58,6 +66,7 @@ class ChartsViewContainer extends Component {
 			<ChartsView 
 				vehicleList={this.props.vehicleList}
 				selectedVehicle={this.state.selectedVehicle}
+				selectedVehicleURL={this.state.selectedVehicleURL}
 				changeSelectedVehicle={this.changeSelectedVehicle}
 				vehiclesData={this.props.vehiclesData}
 			/>
