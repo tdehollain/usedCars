@@ -44,4 +44,5 @@ router.get("/admin", (req, res) => {
 // API routes
 require("./helpers/routes")(router, db);
 
+console.log(`Server is running on port 8004`);
 app.listen(8004);
