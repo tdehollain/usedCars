@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Plot from 'react-plotly.js';
+import math from 'mathjs';
 import { getBinData, groupBy } from '../lib/mathUtil';
 
 export default class KmDistribution extends Component {
@@ -27,8 +28,10 @@ export default class KmDistribution extends Component {
 		for(let key in kmBinsPriceMedians) {
 			lineChartData.push({ binFrom: key, median: kmBinsPriceMedians[key]});
 		}
+		let minLineChart = math.min(lineChartData.map(el => el.binFrom));
+		let maxLineChart = math.max(lineChartData.map(el => el.binFrom));
 
-		let fontColor = '#E1E8ED';
+		let fontColor = this.props.fontColor;
 		let barColor = this.props.barColor;
 		let lineColor = this.props.lineColor;
 
@@ -79,6 +82,7 @@ export default class KmDistribution extends Component {
 						color: fontColor,
 						rangemode: 'tozero',
 						zeroline: false,
+						range: [minLineChart - (maxLineChart-minLineChart)*0.07, maxLineChart*1.07]
 					},
 					yaxis: {
 						title: 'count',
@@ -93,7 +97,8 @@ export default class KmDistribution extends Component {
 						side: 'right',
 						gridcolor: '#394B59'
 					},
-					showlegend: false
+					showlegend: false,
+					hovermode: 'closest'
 				}}
 				config = {{
 					displayModeBar: false

@@ -21,7 +21,7 @@ export default class PriceDistribution extends Component {
 		hoverTexts.push(`${barChartData[barChartData.length - 1].binFrom/1000}k - ${(barChartData[barChartData.length - 1].binFrom/1000 + (barChartData[barChartData.length - 1].binFrom/1000 - barChartData[barChartData.length - 2].binFrom/1000))}k`);
 		
 
-		let fontColor = '#E1E8ED';
+		let fontColor = this.props.fontColor;
 		let barColor = this.props.barColor;
 		let lineColor = this.props.lineColor;
 
