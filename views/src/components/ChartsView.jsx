@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import Histogram from './Histogram';
+// import Histogram from './Histogram';
 import PriceDistribution from './PriceDistribution';
 import KmDistribution from './KmDistribution';
 import PriceKmScatter from './PriceKmScatter';
 
 export default class ChartsView extends Component {
+
 	render() {
 		
 		// let histo = this.props.vehiclesData.length ? <Histogram	data = {this.props.vehiclesData} />	: null;

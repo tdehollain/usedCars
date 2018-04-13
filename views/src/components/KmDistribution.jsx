@@ -82,7 +82,7 @@ export default class KmDistribution extends Component {
 						color: fontColor,
 						rangemode: 'tozero',
 						zeroline: false,
-						range: [minLineChart - (maxLineChart-minLineChart)*0.07, maxLineChart*1.07]
+						range: [-1*(maxLineChart-minLineChart)*0.07, maxLineChart*1.07]
 					},
 					yaxis: {
 						title: 'count',

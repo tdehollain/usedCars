@@ -1,50 +1,65 @@
 import React, { Component } from 'react';
 import Plot from 'react-plotly.js';
 import math from 'mathjs';
-import { getBinData, groupBy } from '../lib/mathUtil';
+import { getBinData, groupBy, linearRegression } from '../lib/mathUtil';
 
 export default class PriceKmScatter extends Component {
-	render() {
+	constructor() {
+		super();
+		this.state = {
+			km: [0],
+			price: [0],
+			predictedPrice: []
+		}
+	}
 
-		let kmBinsData = getBinData(this.props.data.map(el => el.km || 0), this.props.nbins).data;
-		let kmBinsCounts = groupBy(kmBinsData, 'binFrom', 'count');
-		let barChartData = [];
-		for(let key in kmBinsCounts) {
-			barChartData.push({ binFrom: key, count: kmBinsCounts[key]});
-		}
+	// shouldComponentUpdate(nextProps, nextState) {
+	// 	console.log((nextProps.data[0].title !== this.props.data[0].title) || this.state.predictedPrice.length === 0);
+	// 	// return nextProps.data[0].title === this.props.data[0].title;
+	// 	return true;
+	// }
+
+	componentDidMount() {
+		// order data by ascending km
+		let vehicleData = this.props.data.sort((a,b) => {
+			return a.km - b.km;
+		});
+
+		let km = vehicleData.map(el => el.km || 0);
+		let price = vehicleData.map(el => el.price);
+		this.setState({ km, price	}, () => {
+			this.updateRegression(km, price);
+		});
 		
-		// add price to kmBinsCount
-		let kmBinsPriceData = [];
-		for(let dataPoint of this.props.data) {
-			for(let key in kmBinsCounts) {
-				if(dataPoint.km <= key) {
-					kmBinsPriceData.push({ binFrom: key, price: dataPoint.price});
-					break;
-				}
-			}
-		}
-		let kmBinsPriceMedians = groupBy(kmBinsPriceData, 'binFrom', 'median', 'price');
-		let lineChartData = [];
-		for(let key in kmBinsPriceMedians) {
-			lineChartData.push({ binFrom: parseInt(key), median: kmBinsPriceMedians[key]});
-		}
-		let binSize = lineChartData[1].binFrom - lineChartData[0].binFrom;
-		console.log(lineChartData);
-		
+	}
+
+	// componentDidUpdate() {
+	// 	console.log(this.props.data[0].title);
+	// 	// this.updateRegression();
+	// }
+
+	async updateRegression(km, price) {
+		let predictedPrice = await linearRegression(km, price);
+		// console.log(predict);
+		// this.setState({ predictedPrice: predict });
+		this.setState({	predictedPrice });
+	}
+
+	render() {
 
 		let fontColor = this.props.fontColor;
 		let lineColor = this.props.lineColor;
 		let markerColor = this.props.markerColor;
 
-		let min = math.min(this.props.data.map(el => el.km || 0));
-		let max = math.max(this.props.data.map(el => el.km || 0));
+		let min = math.min(this.state.km);
+		let max = math.max(this.state.km);
 
 		return (
 			<Plot
 				data = {[
 					{
-						x: this.props.data.map(el => el.km || 0),
-						y: this.props.data.map(el => el.price),
+						x: this.state.km,
+						y: this.state.price,
 						type: 'scatter',
 						mode: 'markers',
 						marker:{
@@ -53,14 +68,23 @@ export default class PriceKmScatter extends Component {
 							size: 3
 						},
 					},
+					// {
+					// 	x: this.state.lineChartData.map(el => el.binFrom + this.state.binSize/2),
+					// 	y: this.state.lineChartData.map(el => el.median),
+					// 	type: 'scatter',
+					// 	mode: 'lines',
+					// 	marker: {
+					// 		color: lineColor
+					// 	}
+					// },
 					{
-						x: lineChartData.map(el => el.binFrom + binSize/2),
-						y: lineChartData.map(el => el.median),
+						x: this.state.km,
+						y: this.state.predictedPrice,
 						type: 'scatter',
 						mode: 'lines',
-						marker: {
-
-							color: lineColor
+						line: {
+							color: lineColor,
+							width: 1
 						}
 					}
 				]}
@@ -78,8 +102,8 @@ export default class PriceKmScatter extends Component {
 						title: 'Mileage (km)',
 						color: fontColor,
 						showgrid: false,
-						// rangemode: 'nonnegative',
-						range: [min - (max-min)*0.01, max*1.01],
+						// rangemode: 'tozero',
+						range: [-1*(max-min)*0.01, max*1.01],
 						zeroline: false,
 						hoverformat: ',.1'
 					},
