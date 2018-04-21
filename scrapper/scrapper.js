@@ -56,12 +56,12 @@ async function processVehicles(vehicleData) {
 				if(nbResults > 400) {
 					console.log(`More than 20 pages. Querying by year.`);
 					// do it year by year
-					let lastYear = vehicle.regTo === "" ? vehicle.regTo : (new Date()).getFullYear();
+					let lastYear = vehicle.regTo !== "" ? vehicle.regTo : (new Date()).getFullYear();
 					for(i=parseInt(vehicle.regFrom, 10); i <= lastYear; i++) {
 						console.log(`   Processing: ${vehicle.title} - year ${i}`);
 						let vehicleByYear = vehicle;
 						vehicleByYear.regFrom = i;
-						vehicleByYear.regTo = i === lastYear ? '' : i;
+						vehicleByYear.regTo = i === (new Date()).getFullYear() ? '' : i;
 
 						let nbResultsByYear = await getNumberOfResults(vehicleByYear); // get number of pages
 						console.log(`   nbResultsByYear: ${nbResultsByYear}`);
