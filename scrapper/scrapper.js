@@ -57,7 +57,7 @@ async function processVehicles(vehicleData) {
 					console.log(`More than 20 pages. Querying by year.`);
 					// do it year by year
 					console.log(`regTo: ${vehicle.regTo}`);
-					let lastYear = (vehicle.regTo !== "" && vehicle.regTo !== undefined) ? vehicle.regTo : (new Date()).getFullYear();
+					let lastYear = vehicle.regTo || (new Date()).getFullYear();
 					console.log(`lastYear: ${lastYear}`);
 					for(i=parseInt(vehicle.regFrom, 10); i <= lastYear; i++) {
 						console.log(`   Processing: ${vehicle.title} - year ${i}`);
