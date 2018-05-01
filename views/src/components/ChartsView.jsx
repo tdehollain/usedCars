@@ -1,12 +1,24 @@
 import React, { Component } from 'react';
-// import Histogram from './Histogram';
 import PriceDistribution from './PriceDistribution';
 import KmDistribution from './KmDistribution';
 import PriceKmScatter from './PriceKmScatter';
 
 export default class ChartsView extends Component {
 
+	shouldComponentUpdate(nextProps, nextState) {
+		if(
+			nextProps.selectedVehicle === this.props.selectedVehicle &&
+			nextProps.vehiclesData.length === this.props.vehiclesData.length
+		) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	render() {
+		// console.log('Rendering ChartsView');
+		
 		
 		// let histo = this.props.vehiclesData.length ? <Histogram	data = {this.props.vehiclesData} />	: null;
 
@@ -42,18 +54,7 @@ export default class ChartsView extends Component {
 
 		return (
 			<div className='chartsView'>
-				<form>
-					<label className='pt-label'>
-						Vehicle
-						<div className='pt-select'>
-							<select className='pt-select' value={this.props.selectedVehicle} onChange={this.props.changeSelectedVehicle}>
-								<option></option>
-								{this.props.vehicleList.map(el => <option key={el._id}>{el.title}</option>)}
-							</select>
-						</div>
-					</label>
-				</form>
-				<a href={this.props.selectedVehicleURL} target ='_blank'>Link</a>
+				<a className='vehicleLink' href={this.props.selectedVehicleURL} target ='_blank'>Link</a>
 				<div>
 					{priceDistribution}
 					{kmDistribution}

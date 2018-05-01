@@ -4,7 +4,17 @@ import math from 'mathjs';
 import Plot from 'react-plotly.js';
 
 export default class PriceDistribution extends Component {
+
+	shouldComponentUpdate(nextProps, nextState) {
+		if(nextProps.data.length === this.props.data.length) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	render() {
+		// console.log('Rendering PriceDistribution');
 
 		let priceBinData = getBinData(this.props.data.map(el => el.price), this.props.nbins).data;
 		let priceBinsCounts = groupBy(priceBinData, 'binFrom', 'count');

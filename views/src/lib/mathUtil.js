@@ -93,7 +93,7 @@ export function groupBy(arr, prop, func, attr) {
 	return output;
 }
 
-export async function linearRegression(km, price) {
+export function linearRegression(km, price) {
 
 	const x = tf.tensor1d(km.map(el => el/math.max(km)));
 	const y = tf.tensor1d(price.map(el => el/math.max(price)));
@@ -104,8 +104,8 @@ export async function linearRegression(km, price) {
 
 	const a = tf.variable(tf.scalar(Math.random()));
 	const b = tf.variable(tf.scalar(Math.random()));
-	const c = tf.variable(tf.scalar(Math.random()));
-	const d = tf.variable(tf.scalar(Math.random()));
+	// const c = tf.variable(tf.scalar(Math.random()));
+	// const d = tf.variable(tf.scalar(Math.random()));
 
 	function loss(prediction, labels) {
 		const meanSquareError = prediction.sub(labels).square().mean();
@@ -113,13 +113,13 @@ export async function linearRegression(km, price) {
 		return meanSquareError;
 	}
 
-	async function train(xs, ys, numIterations = 75) {
+	function train(xs, ys, numIterations = 75) {
 		for(let iter=0; iter < numIterations; iter++) {
 			optimizer.minimize(() => {
 				const predsYs = predict(xs);
 				return loss(predsYs, ys);
 			});
-			await tf.nextFrame();
+			tf.nextFrame();
 		}
 	}
 
@@ -127,26 +127,34 @@ export async function linearRegression(km, price) {
 		// y = a*x + b
 		return tf.tidy(() => {
 			// return a; // y = a
-			// return a.mul(x).add(b); // y = a*x + b
+			return a.mul(x).add(b); // y = a*x + b
 			// return a.mul(x.square()).add(b.mul(x)).add(c); // y = a*xˆ2 + b*x + c
 			// return a.mul(x.pow(tf.scalar(3, 'int32'))) // y = a*xˆ2 + b*xˆ2 + c*x + d
 			// 	.add(b.mul(x.square()))
 			// 	.add(c.mul(x))
 			// 	.add(d);
-			return a.mul(tf.log(x.add(c))).add(b); // y = a*log(x+c) + b
+			// return a.mul(tf.log(x.add(c))).add(b); // y = a*log(x+c) + b
 			// return a.mul(x.add(c).pow(tf.scalar(-1, 'int32'))).add(b); // y = a * 1/(x+c) + b
 		});
 	}
 
-	async function learnCoefficients(x, y) {
-		await train(x, y, nbIterations);
+	function learnCoefficients(x, y) {
+		train(x, y, nbIterations);
 	}
 
-	await learnCoefficients(x, y);
-	let predictedPrice = await predict(x);
+	learnCoefficients(x, y);
+	let predictedPrice = predict(x);
 	let output = predictedPrice.dataSync().map(el => el*math.max(price));
 	// console.log(output);
-	// console.log({ a: a.dataSync(), b: b.dataSync(), c: c.dataSync(), d: d.dataSync() })
+	// console.log({ a: a.dataSync(), b: b.dataSync() })
 	return output;
 	
+}
+
+export function numberWithCommas(x) {
+	if(!x) {
+		return 'N/A';
+	} else {
+		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
 }

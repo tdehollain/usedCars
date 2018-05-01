@@ -4,70 +4,33 @@ import { store } from '../store';
 import ChartsView from './ChartsView';
 
 class ChartsViewContainer extends Component {
-	constructor() {
-		super();
 
-		this.state = {
-			selectedVehicle: '',
-			selectedVehicleURL: '',
-			vehiclesData: []
+	shouldComponentUpdate(nextProps, nextState) {
+		if(
+			nextProps.selectedVehicle === this.props.selectedVehicle &&
+			nextProps.vehiclesData.length === this.props.vehiclesData.length
+		) {
+			return false;
+		} else {
+			// console.log(`selectedVehicle: ${this.props.selectedVehicle} >> ${nextProps.selectedVehicle}`);
+			// console.log(`vehiclesData.length: ${this.props.vehiclesData.length} >> ${nextProps.vehiclesData.length}`);
+			return true;
 		}
-
-		this.changeSelectedVehicle = this.changeSelectedVehicle.bind(this);
 	}
 
 	componentDidMount() {
-		fetch('/api/getVehicleList')
-		.then(res => res.json())
-		.then(res => {
-			store.dispatch({
-				"type": "UPDATE_VEHICLE_LIST",
-				vehicleList: res.vehicleList
-			});
-			let selectedVehicle = localStorage.getItem('selectedVehicle');
-			this.setState({ selectedVehicle });
-			this.updateVehicleData(selectedVehicle);
-		});
+		this.props.selectedVehicle && this.updateVehicleData(this.props.selectedVehicle);
 	}
 
-	changeSelectedVehicle(e) {
-		this.setState({ selectedVehicle: e.target.value });
-		localStorage.setItem('selectedVehicle', e.target.value);
-		this.updateVehicleData(e.target.value);
-	}
-
-	updateVehicleData(title) {
-		// get selected vehicle URL
-		for(let el of this.props.vehicleList) {
-			if(el.title === title) {
-				this.setState({ selectedVehicleURL: el.vehicleURL })
-				break;
-			}
-		}
-		fetch('/api/getVehicleData', {
-			'method': 'POST',
-			'body': JSON.stringify({ title }),
-			"headers": {
-				"Accept": "application/json",
-				"Content-Type": "application/json"
-			}
-		})
-		.then(res => res.json())
-		.then(res => {
-			store.dispatch({
-				"type": "UPDATE_VEHICLES_DATA",
-				vehiclesData: res.data
-			});
-		});
+	componentDidUpdate() {
+		this.props.selectedVehicle && this.updateVehicleData(this.props.selectedVehicle);
 	}
 
 	render() {
+		console.log('Rendering ChartsViewContainer');
 		return (
 			<ChartsView 
-				vehicleList={this.props.vehicleList}
-				selectedVehicle={this.state.selectedVehicle}
-				selectedVehicleURL={this.state.selectedVehicleURL}
-				changeSelectedVehicle={this.changeSelectedVehicle}
+				selectedVehicle={this.props.selectedVehicle}
 				vehiclesData={this.props.vehiclesData}
 			/>
 		)
@@ -76,7 +39,6 @@ class ChartsViewContainer extends Component {
 
 const mapStateToProps = (store) => {
 	return { 
-		vehicleList: store.vehicleListState.vehicleList,
 		vehiclesData: store.vehiclesDataState.vehiclesData
 	 };
 }

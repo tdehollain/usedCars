@@ -31,6 +31,76 @@ body {
   margin: 30px auto;
 }
 
+.statisticsContainer {
+  height: 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.statisticsBox {
+  border: 1px solid;
+  border-right: none;
+  flex: 1 1 0;
+}
+
+.statisticsBoxIcon {
+  width: 70px;
+  float: left;
+
+}
+
+.statisticsBoxIcon .pt-icon {
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  margin: 30px 15px;
+}
+
+.statisticsBoxData {
+  float: left;
+  width: 168px;
+}
+
+.statisticsNumber {
+  font-size: 1.6rem;
+  margin-top: 16px;
+}
+
+.statisticsCaption {
+  color: #bbb;
+}
+
+.statisticsBox:nth-child(3) .statisticsNumber {
+  font-size: 0.9rem;
+  margin-top: 28px;
+}
+
+.statisticsBox:nth-child(3) .statisticsCaption {
+  font-size: 0.8rem;
+}
+
+.statisticsBox:nth-child(4) .statisticsNumber {
+  font-size: 0.9rem;
+  margin-top: 28px;
+}
+
+.statisticsBox:nth-child(4) .statisticsCaption {
+  font-size: 0.75rem;
+}
+
+.statisticsBox:nth-child(5) .statisticsNumber {
+  font-size: 0.9rem;
+  margin-top: 28px;
+}
+
+.statisticsBox:nth-child(5) .statisticsCaption {
+  font-size: 0.75rem;
+}
+
+.statisticsBox:nth-child(5) {
+  border: 1px solid;
+}
+
 
 /*************************
 *****   Admin View   *****
@@ -114,7 +184,7 @@ body {
 
 .vehicleList {
   width: 1360px;
-  height: 500px;
+  height: 1500px;
   margin: 20px auto 300px;
 }
 
@@ -132,4 +202,14 @@ body {
 
 .vehicleList .trans p, .vehicleList .fuel p, .vehicleList .bodyType p {
   margin: 0;
+}
+
+
+/************************
+*****   Home View   *****
+************************/
+
+.chartsView {
+  clear: both;
+  margin-top: 10px;
 }

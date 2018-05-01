@@ -1,65 +1,72 @@
 import React, { Component } from 'react';
+import { store } from '../store';
 import Plot from 'react-plotly.js';
 import math from 'mathjs';
-import { getBinData, groupBy, linearRegression } from '../lib/mathUtil';
+import { linearRegression } from '../lib/mathUtil';
 
 export default class PriceKmScatter extends Component {
-	constructor() {
-		super();
-		this.state = {
-			km: [0],
-			price: [0],
-			predictedPrice: []
-		}
-	}
 
-	// shouldComponentUpdate(nextProps, nextState) {
-	// 	console.log((nextProps.data[0].title !== this.props.data[0].title) || this.state.predictedPrice.length === 0);
-	// 	// return nextProps.data[0].title === this.props.data[0].title;
-	// 	return true;
-	// }
+	render() {
 
-	componentDidMount() {
 		// order data by ascending km
 		let vehicleData = this.props.data.sort((a,b) => {
 			return a.km - b.km;
 		});
-
 		let km = vehicleData.map(el => el.km || 0);
 		let price = vehicleData.map(el => el.price);
-		this.setState({ km, price	}, () => {
-			this.updateRegression(km, price);
+		// separte km and price between <10,000 km and >10,000 km
+		let km1 = [];
+		let km2 = [];
+		let price1 = [];
+		let price2 = [];
+		for(let i=0; i<km.length; i++) {
+			if(km[i] <= 10000) {
+				km1.push(km[i]);
+				price1.push(price[i]);
+			} else {
+				km2.push(km[i]);
+				price2.push(price[i]);
+			}
+		}
+
+		let predictedPrice = [];
+		let slope1, slope2;
+
+		if(km1.length <= 2 && km2.length <= 2) {
+			predictedPrice = [];
+		}	else if(km1.length <= 2) {
+			predictedPrice = linearRegression(km2, price2);
+			slope2 = (predictedPrice[predictedPrice.length-1] - predictedPrice[0]) / (km2[km2.length-1] - km2[0]);
+		} else if(km2.length <= 2) {
+			predictedPrice = linearRegression(km1, price1);
+			slope1 = (predictedPrice[predictedPrice.length-1] - predictedPrice[0]) / (km1[km1.length-1] - km1[0]);
+		} else {
+			let predictedPrice1 = linearRegression(km1, price1);
+			let predictedPrice2 = linearRegression(km2, price2);
+			predictedPrice = [...predictedPrice1, ...predictedPrice2];
+			slope1 = (predictedPrice1[predictedPrice1.length-1] - predictedPrice1[0]) / (km1[km1.length-1] - km1[0]);
+			slope2 = (predictedPrice2[predictedPrice2.length-1] - predictedPrice2[0]) / (km2[km2.length-1] - km2[0]);
+		}
+
+		store.dispatch({
+			type: 'UPDATE_REGRESSION_SLOPES',
+			data: { slope1, slope2 }
 		});
 		
-	}
-
-	// componentDidUpdate() {
-	// 	console.log(this.props.data[0].title);
-	// 	// this.updateRegression();
-	// }
-
-	async updateRegression(km, price) {
-		let predictedPrice = await linearRegression(km, price);
-		// console.log(predict);
-		// this.setState({ predictedPrice: predict });
-		this.setState({	predictedPrice });
-	}
-
-	render() {
 
 		let fontColor = this.props.fontColor;
 		let lineColor = this.props.lineColor;
 		let markerColor = this.props.markerColor;
 
-		let min = math.min(this.state.km);
-		let max = math.max(this.state.km);
+		let min = math.min(km);
+		let max = math.max(km);
 
 		return (
 			<Plot
 				data = {[
 					{
-						x: this.state.km,
-						y: this.state.price,
+						x: km,
+						y: price,
 						type: 'scatter',
 						mode: 'markers',
 						marker:{
@@ -68,18 +75,9 @@ export default class PriceKmScatter extends Component {
 							size: 3
 						},
 					},
-					// {
-					// 	x: this.state.lineChartData.map(el => el.binFrom + this.state.binSize/2),
-					// 	y: this.state.lineChartData.map(el => el.median),
-					// 	type: 'scatter',
-					// 	mode: 'lines',
-					// 	marker: {
-					// 		color: lineColor
-					// 	}
-					// },
 					{
-						x: this.state.km,
-						y: this.state.predictedPrice,
+						x: km,
+						y: predictedPrice,
 						type: 'scatter',
 						mode: 'lines',
 						line: {
