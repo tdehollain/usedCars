@@ -5,10 +5,10 @@ import { Route, Switch } from 'react-router-dom';
 import HomeView from './components/HomeView';
 import AdminView from './components/AdminView';
 
-if (process.env.NODE_ENV !== 'production') {
-  const {whyDidYouUpdate} = require('why-did-you-update');
-  whyDidYouUpdate(React);
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   const {whyDidYouUpdate} = require('why-did-you-update');
+//   whyDidYouUpdate(React);
+// }
 
 class App extends Component {
   render() {

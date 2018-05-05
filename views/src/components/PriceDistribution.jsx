@@ -24,11 +24,11 @@ export default class PriceDistribution extends Component {
 		}
 		// console.log(priceBinsCounts);
 
-		let hoverTexts = [];
-		for(let i=0; i<barChartData.length-1; i++) {
-			hoverTexts.push(`${barChartData[i].binFrom/1000}k - ${barChartData[i+1].binFrom/1000}k`)
-		}
-		hoverTexts.push(`${barChartData[barChartData.length - 1].binFrom/1000}k - ${(barChartData[barChartData.length - 1].binFrom/1000 + (barChartData[barChartData.length - 1].binFrom/1000 - barChartData[barChartData.length - 2].binFrom/1000))}k`);
+		// let hoverTexts = [];
+		// for(let i=0; i<barChartData.length-1; i++) {
+		// 	hoverTexts.push(`${barChartData[i].binFrom/1000}k - ${barChartData[i+1].binFrom/1000}k`)
+		// }
+		// hoverTexts.push(`${barChartData[barChartData.length - 1].binFrom/1000}k - ${(barChartData[barChartData.length - 1].binFrom/1000 + (barChartData[barChartData.length - 1].binFrom/1000 - barChartData[barChartData.length - 2].binFrom/1000))}k`);
 		
 
 		let fontColor = this.props.fontColor;
@@ -47,7 +47,7 @@ export default class PriceDistribution extends Component {
 						// outsidetextfont: {
 						// 	color: fontColor
 						// },
-						hovertext: hoverTexts,
+						// hovertext: hoverTexts,
 						marker: { 
 							color: barColor
 						},

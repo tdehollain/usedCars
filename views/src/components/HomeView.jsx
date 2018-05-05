@@ -43,6 +43,7 @@ export default class HomeView extends Component {
 				vehicleList: res.vehicleList
 			});
 			let selectedVehicle = localStorage.getItem('selectedVehicle');
+			if(!selectedVehicle) selectedVehicle = '';
 			this.updateSelectedVehicle(selectedVehicle);
 		});
 	}
@@ -82,25 +83,44 @@ export default class HomeView extends Component {
 		})
 		.then(res => res.json())
 		.then(res => {
-			this.setState({
-				vehiclesData: res.data
-			});
-
-			// Update vehicle statistics
-			let sortedData = res.data.sort((a,b) => {
+			let vehicleData = res.data;
+			let sortedData = vehicleData.sort((a,b) => {
 				return a.price - b.price;
 			});
-			let nbVehicles = res.data.length;
-			let priceP10 = sortedData[Math.floor(0.1*nbVehicles)].price;
-			let priceP90 = sortedData[Math.floor(0.9*nbVehicles)].price;
+			
+			let nbVehicles = vehicleData.length;
+			// remove price outliers
+			let priceQ1 = sortedData[Math.floor(0.25*nbVehicles)].price; // 1st quartile
+			let priceQ3 = sortedData[Math.floor(0.75*nbVehicles)].price; // 3rd quartile
+			let IQrange = priceQ3 - priceQ1;
+			let lowerOuterFence = priceQ1 - 3*IQrange;
+			let upperOuterFence = priceQ3 + 3*IQrange;
+			let vehicleData_filtered = [];
+			for(let i=0; i<vehicleData.length; i++) {
+				if(vehicleData[i].price < upperOuterFence && vehicleData[i].price > lowerOuterFence) vehicleData_filtered.push(vehicleData[i]);
+			}
+			let sortedData_filtered = vehicleData_filtered.sort((a,b) => {
+				return a.price - b.price;
+			});
+			
+			nbVehicles = sortedData_filtered.length;
+
+			// Update vehicle statistics
+			let priceP10 = sortedData_filtered[Math.floor(0.1*nbVehicles)].price;
+			let priceP90 = sortedData_filtered[Math.floor(0.9*nbVehicles)].price;
+			
 			store.dispatch({
 				type: 'UPDATE_VEHICLE_STATISTICS',
 				data: { 
 					nbVehicles, 
-					medianPrice: math.median(res.data.map(el => el.price)),
+					medianPrice: math.median(sortedData_filtered.map(el => el.price)),
 					priceP10,
 					priceP90
 				}
+			});
+
+			this.setState({
+				vehiclesData: sortedData_filtered
 			});
 		});
 	}
