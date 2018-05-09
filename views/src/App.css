@@ -209,6 +209,10 @@ body {
 *****   Home View   *****
 ************************/
 
+.measureDate {
+  margin-top: 5px;
+}
+
 .chartsView {
   clear: both;
   margin-top: 10px;

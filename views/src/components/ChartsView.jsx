@@ -52,9 +52,18 @@ export default class ChartsView extends Component {
 				/>
 			: null;
 
+		let measureDateRaw = this.props.vehiclesData.length ? this.props.vehiclesData[0].measureDate : null;
+		let measureDate;
+		let measureDateString = 'N/A';
+		if(measureDateRaw) {
+			measureDate = new Date(measureDateRaw);
+			measureDateString = ('0'+measureDate.getDate()).slice(-2) + '/' + ('0'+(measureDate.getMonth()+1)).slice(-2) + '/' + measureDate.getFullYear();
+		}
+
 		return (
 			<div className='chartsView'>
 				<a className='vehicleLink' href={this.props.selectedVehicleURL} target ='_blank'>Link</a>
+				<p className='measureDate'>Last Update: {measureDateString}</p>
 				<div>
 					{priceDistribution}
 					{kmDistribution}
