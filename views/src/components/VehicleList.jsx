@@ -1,109 +1,81 @@
 import React, { Component } from 'react';
-import { Icon } from '@blueprintjs/core';
-import { Table, Column, Cell } from '@blueprintjs/table';
 
 export default class VehicleList extends Component {
-
 	render() {
-		let rowHeights = this.props.vehicleList.map(el => {
-			let numTrans = el.checkedTransAuto || 0 + el.checkedTransMan || 0 + el.checkedTransSemi;
-			if(numTrans === 3) numTrans = 1;
-			let numFuel = el.checkedFuelDiesel || 0 + el.checkedFuelElec || 0 + el.checkedFuelElecDiesel || 0 + el.checkedFuelElecPetrol || 0 + el.checkedFuelPetrol;
-			if(numFuel === 5) numFuel = 1;
-			let numBody = el.checkedBodyCompact || 0 + el.checkedBodyConvertible || 0 + el.checkedBodyCoupe || 0 + el.checkedBodySedan || 0 + el.checkedBodySUV || 0 + el.checkedBodySW;
-			if(numBody === 6) numBody = 1;
-			return 20*Math.max(numTrans, numFuel, numBody);
-		});
 
-		const cellRendererDeleteVehicle = row => {
-			return <Cell><Icon className='deleteIcon' icon='trash' iconSize={12}  onClick={() => { this.props.deleteVehicle(this.props.vehicleList[row]._id) }}/></Cell>
-		}
-
-		const cellRendererTitle = row => <Cell wrapText tooltip={this.props.vehicleList[row].title || '-'}>{this.props.vehicleList[row].title || '-'}</Cell>;
-		const cellRendererBrand = row => <Cell>{this.props.vehicleList[row].brand || '-'}</Cell>;
-		const cellRendererModel = row => <Cell>{this.props.vehicleList[row].model || '-'}</Cell>;
-		const cellRendererVersion = row => <Cell>{this.props.vehicleList[row].version || '-'}</Cell>;
-		const cellRendererFirstReg = row => {
-			let str = "";
-			str+=this.props.vehicleList[row].regFrom + ' - ';
-			if(this.props.vehicleList[row].regTo) str+=this.props.vehicleList[row].regTo;
-			return <Cell>{str || '-'}</Cell>;
-		}
-		const cellRendererPower = row => {
-			let str = "";
-			if(this.props.vehicleList[row].chFrom) str+=this.props.vehicleList[row].chFrom + ' - ';
-			if(this.props.vehicleList[row].chTo) str+=this.props.vehicleList[row].chTo;
-			return <Cell>{str || '-'}</Cell>;
-		}
-		const cellRendererDoors = row =>  {
-			let str = "";
-			if(this.props.vehicleList[row].doorsFrom) str+=this.props.vehicleList[row].doorsFrom + ' - ';
-			if(this.props.vehicleList[row].doorsTo) str+=this.props.vehicleList[row].doorsTo;
-			return <Cell>{str || '-'}</Cell>;
-		}
-		const cellRendererTrans = row => {
-			let str = [];
-			if(this.props.vehicleList[row].checkedTransAuto) str.push("Automatic");
-			if(this.props.vehicleList[row].checkedTransMan) str.push("Manual");
-			if(this.props.vehicleList[row].checkedTransSemi) str.push("Semi-automatic");
-			if(str.length === 3) str=['-'];
-			return <Cell>{str.map((el, i) => <p key={i}>{el}</p>)}</Cell>
-		}
-		const cellRendererFuel = row =>  {
-			let str = [];
-			if(this.props.vehicleList[row].checkedFuelPetrol) str.push("Petrol");
-			if(this.props.vehicleList[row].checkedFuelDiesel) str.push("Diesel");
-			if(this.props.vehicleList[row].checkedFuelElec) str.push("Electric");
-			if(this.props.vehicleList[row].checkedFuelElecPetrol) str.push("Petrol-Electric");
-			if(this.props.vehicleList[row].checkedFuelElecDiesel) str.push("Diesel-Electric");
-			if(str.length === 5) str=['-'];
-			return <Cell>{str.map((el, i) => <p key={i}>{el}</p>)}</Cell>
-		}
-		const cellRendererBodyType = row =>  {
-			let str = [];
-			if(this.props.vehicleList[row].checkedBodyCompact) str.push("Compact");
-			if(this.props.vehicleList[row].checkedBodyConvertible) str.push("Convertible");
-			if(this.props.vehicleList[row].checkedBodyCoupe) str.push("Coupe");
-			if(this.props.vehicleList[row].checkedBodySUV) str.push("SUV/Offroad");
-			if(this.props.vehicleList[row].checkedBodySedan) str.push("Sedan");
-			if(this.props.vehicleList[row].checkedBodySW) str.push("Station-wagon");
-			if(str.length === 6) str=['-'];
-			return <Cell>{str.map((el, i) => <p key={i}>{el}</p>)}</Cell>
-		}
-
-		const cellRendererTiming = row => {
-			let th = 'th';
-			if(this.props.vehicleList[row].timingDay === 1 || this.props.vehicleList[row].timingDay === 21) th = 'st';
-			if(this.props.vehicleList[row].timingDay === 2 || this.props.vehicleList[row].timingDay === 22) th = 'nd';
-			if(this.props.vehicleList[row].timingDay === 3 || this.props.vehicleList[row].timingDay === 23) th = 'rd';
-			return <Cell>{this.props.vehicleList[row].timingDay}<sup>{th}</sup> - {this.props.vehicleList[row].timingHour}:10</Cell>
-		}
-
-		const cellRendererLastCount = row => {
-			return <Cell><a href={this.props.vehicleList[row].vehicleURL || '#'} target='_blank'>{this.props.vehicleList[row].lastCount || '-'}</a></Cell>
-		}
-	
 		return (
-			<Table 
-				className='vehicleList' 
-				numRows={this.props.vehicleList.length} 
-				columnWidths={[280, 70, 70, 100, 100, 100, 80, 110, 105, 105, 90, 90, 30]}
-				rowHeights={rowHeights}
-				enableColumnResizing={false}>
-				<Column className='tile' name='Title' cellRenderer={cellRendererTitle} />
-				<Column className='brand' name='Brand' cellRenderer={cellRendererBrand} />
-				<Column className='model' name='Model' cellRenderer={cellRendererModel} />
-				<Column className='version' name='Version' cellRenderer={cellRendererVersion} />
-				<Column className='firstReg' name='Year' cellRenderer={cellRendererFirstReg} />
-				<Column className='power' name='Power' cellRenderer={cellRendererPower} />
-				<Column className='doors' name='# Doors' cellRenderer={cellRendererDoors} />
-				<Column className='trans' name='Transmission' cellRenderer={cellRendererTrans} />
-				<Column className='fuel' name='Fuel' cellRenderer={cellRendererFuel} />
-				<Column className='bodyType' name='Body type' cellRenderer={cellRendererBodyType} />
-				<Column className='timing' name='Timing' cellRenderer={cellRendererTiming} />
-				<Column className='lastCount' name='Last count' cellRenderer={cellRendererLastCount} />
-				<Column className='deleteVehicle' name='' cellRenderer={cellRendererDeleteVehicle} />
-			</Table>
-		)
+			<div className='vehicleListContainer'>
+				<table className='vehicleList'>
+					<tr>
+						<th>#</th>
+						<th>Title</th>
+						<th>Brand</th>
+						<th>Model</th>
+						<th>Version</th>
+						<th>Year</th>
+						<th>Power</th>
+						<th># Doors</th>
+						<th>Transmission</th>
+						<th>Fuel</th>
+						<th>Body</th>
+						<th>Timing</th>
+						<th>Last count</th>
+					</tr>
+					{this.props.vehicleList.map((el, i) => {
+						return (
+							<tr>
+								<td className='number'>{i+1}</td>
+								<td className='title'>{el.title}</td>
+								<td className='brand'>{el.brand}</td>
+								<td className='model'>{el.model}</td>
+								<td className='version'>{el.version}</td>
+								<td className='year'>{el.regFrom} - {el.regTo}</td>
+								<td className='power'>{el.chFrom} - {el.chTo}</td>
+								<td className='doors'>{el.doorsFrom} - {el.doorsTo}</td>
+								<td className='tranmission'>
+									{(el.checkedTransAuto && 
+									el.checkedTransMan && 
+									el.checkedTransSemi) ?
+									' - ' : 
+									(el.checkedTransAuto ? 'Automatic; ' : '') + '; ' +
+									(el.checkedTransMan ? 'Manual; ' : '') + '; ' +
+									(el.checkedTransSemi ? 'Semi-automatic; ' : '')}
+								</td>
+								<td className='fuel'>
+									{(el.checkedFuelPetrol && 
+									el.checkedFuelDiesel && 
+									el.checkedFuelElec && 
+									el.checkedFuelElecPetrol && 
+									el.checkedFuelElecDiesel) ?
+									' - ' : 
+									(el.checkedFuelPetrol ? 'Petrol; ' : '') +
+									(el.checkedFuelDiesel ? 'Diesel; ' : '') +
+									(el.checkedFuelElec ? 'Electric; ' : '') +
+									(el.checkedFuelElecPetrol ? 'Petrol-electric; ' : '') +
+									(el.checkedFuelElecDiesel ? 'Diesel-electric; ' : '')}
+								</td>
+								<td className='body'>
+									{(el.checkedBodyCompact && 
+									el.checkedBodyConvertible && 
+									el.checkedBodyCoupe && 
+									el.checkedBodySUV && 
+									el.checkedBodySedan && 
+									el.checkedBodySW) ?
+									' - ' : 
+									(el.checkedBodyCompact ? 'Compact; ' : '') +
+									(el.checkedBodyConvertible ? 'Convertible; ' : '') +
+									(el.checkedBodyCoupe ? 'Coupe; ' : '') +
+									(el.checkedBodySUV ? 'SUV; ' : '') +
+									(el.checkedBodySedan ? 'Sedan; ' : '') +
+									(el.checkedBodySW ? 'SW; ' : '')}
+								</td>
+								<td>{el.timingDay}<sup>{el.timingDay===1 ? 'st' : el.timingDay===2 ? 'nd' : 'th'}</sup> - {el.timingHour}:10</td>
+								<td className='lastCount'><a href={el.vehicleURL} target='_blank'>{el.lastCount}</a></td>
+							</tr>
+						)
+					})}
+				</table>
+			</div>
+		);
 	}
 }

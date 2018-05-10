@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { store } from '../store';
 import VehicleList from './VehicleList';
+// import VehicleListBluePrint from './VehicleListBluePrint';
 
 class VehicleListContainer extends Component {
 
@@ -40,10 +41,14 @@ class VehicleListContainer extends Component {
 		});
 
 		return (
-			<VehicleList 
+			<VehicleList
 				vehicleList={sortedList}
 				deleteVehicle={this.deleteVehicle}
 			/>
+			// <VehicleListBluePrint
+			// 	vehicleList={sortedList}
+			// 	deleteVehicle={this.deleteVehicle}
+			// />
 		)
 	}
 }

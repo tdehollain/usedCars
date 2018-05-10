@@ -182,25 +182,46 @@ body {
 
 
 
-.vehicleList {
+table.vehicleList {
   width: 1360px;
-  height: 6000px;
-  margin: 20px auto 300px;
+  margin: 20px auto 30px;
+  border-collapse: collapse;
 }
 
-.vehicleList a {
+table.vehicleList tr th {
+  background: #30404d;
+  color: #f6f8fa;
+  font-weight: normal;
+  font-size: 0.9rem;
+  border: 1px solid #1f2b32;
+  padding: 5px;
+}
+
+table.vehicleList tr td {
+  color: #f6f8fa;
+  font-size: 0.7rem;
+  border: 1px solid #1f2b32;
+  padding: 3px 6px;
+}
+
+table.vehicleList tr td.number {
+  color: #bfccd6;
+  text-align: center;
+}
+
+table.vehicleList a {
   color: #f5f8fa;
 }
-.vehicleList a:hover {
+table.vehicleList a:hover {
   color: #f5f8fa;
 }
 
-.vehicleList .deleteVehicle {
+table.vehicleList .deleteVehicle {
   padding: 5px 9px 0;
   cursor: pointer;
 }
 
-.vehicleList .trans p, .vehicleList .fuel p, .vehicleList .bodyType p {
+table.vehicleList .trans p, table.vehicleList .fuel p, table.vehicleList .bodyType p {
   margin: 0;
 }
 
