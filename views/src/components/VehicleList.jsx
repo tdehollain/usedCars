@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Icon } from '@blueprintjs/core';
 
 export default class VehicleList extends Component {
 	render() {
@@ -20,6 +21,7 @@ export default class VehicleList extends Component {
 						<th>Body</th>
 						<th>Timing</th>
 						<th>Last count</th>
+						<th></th>
 					</tr>
 					{this.props.vehicleList.map((el, i) => {
 						return (
@@ -69,8 +71,16 @@ export default class VehicleList extends Component {
 									(el.checkedBodySedan ? 'Sedan; ' : '') +
 									(el.checkedBodySW ? 'SW; ' : '')}
 								</td>
-								<td>{el.timingDay}<sup>{el.timingDay===1 ? 'st' : el.timingDay===2 ? 'nd' : 'th'}</sup> - {el.timingHour}:10</td>
+								<td className='timing'>{el.timingDay}<sup>{el.timingDay===1 ? 'st' : el.timingDay===2 ? 'nd' : 'th'}</sup> - {el.timingHour}:10</td>
 								<td className='lastCount'><a href={el.vehicleURL} target='_blank'>{el.lastCount}</a></td>
+								<td className='delete'>
+									<Icon 
+										className='deleteIcon' 
+										icon='trash' 
+										iconSize={12} 
+										onClick={() => { this.props.deleteVehicle(el._id) }}
+									/>
+								</td>
 							</tr>
 						)
 					})}

@@ -188,6 +188,10 @@ table.vehicleList {
   border-collapse: collapse;
 }
 
+table.vehicleList tr:hover {
+  background: #3a4f5f;
+}
+
 table.vehicleList tr th {
   background: #30404d;
   color: #f6f8fa;
@@ -207,6 +211,12 @@ table.vehicleList tr td {
 table.vehicleList tr td.number {
   color: #bfccd6;
   text-align: center;
+}
+
+table.vehicleList tr td.delete {
+  color: #bfccd6;
+  text-align: center;
+  cursor: pointer;
 }
 
 table.vehicleList a {
