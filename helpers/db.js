@@ -95,7 +95,6 @@ module.exports = function(mongoose){
 		let latestDate = data.map(el => el.measureDate).sort((a,b) => new Date(b) - new Date(a))[0];
 		let dateThreshold = new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
 		let latestData = data.filter(el => el.measureDate > dateThreshold);
-		console.log(`latestDate: ${latestDate}`);
 		return { success: true, data: latestData };
 	}
 
