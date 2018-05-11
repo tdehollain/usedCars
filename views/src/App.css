@@ -31,6 +31,15 @@ body {
   margin: 30px auto;
 }
 
+.measureDate {
+  margin-top: 5px;
+}
+
+.chartsView {
+  clear: both;
+  margin-top: 10px;
+}
+
 .statisticsContainer {
   height: 100px;
   display: flex;
@@ -99,6 +108,16 @@ body {
 
 .statisticsBox:nth-child(5) {
   border: 1px solid;
+}
+
+
+/*****************************
+*****   Evolution View   *****
+*****************************/
+
+.evolutionView {
+  width: 1200px;
+  margin: 30px auto;
 }
 
 
@@ -241,18 +260,4 @@ table.vehicleList .deleteVehicle {
 
 table.vehicleList .trans p, table.vehicleList .fuel p, table.vehicleList .bodyType p {
   margin: 0;
-}
-
-
-/************************
-*****   Home View   *****
-************************/
-
-.measureDate {
-  margin-top: 5px;
-}
-
-.chartsView {
-  clear: both;
-  margin-top: 10px;
 }

@@ -100,11 +100,18 @@ module.exports = function(mongoose){
 		return { success: true, data: latestData };
 	}
 
+	const getAllVehicleData = async (title) => {
+		let data = await vehicleModel.find({ title: title }).sort({ measureDate: 1 });
+		let success = data.length ? true : false;
+		return { success, data };
+	}
+
 	return {
 		url,
 		addVehicle,
 		getVehicleList,
 		deleteVehicle,
-		getVehicleData
+		getVehicleData,
+		getAllVehicleData
 	}
 }

@@ -9,7 +9,8 @@ export default class MyNavBar extends Component {
 				<NavbarGroup align={Alignment.LEFT}>
 					<NavbarHeading>Used Cars</NavbarHeading>
 					<NavbarDivider />
-					<Link to='/'><Button className='pt-minimal navbar-link' icon='home' text='Home'/></Link>
+					<Link to='/'><Button className='pt-minimal navbar-link' icon='grouped-bar-chart' text='Latest'/></Link>
+					<Link to='/evolution'><Button className='pt-minimal navbar-link' icon='series-derived' text='Evolution' /></Link>
 					<Link to='/admin'><Button className='pt-minimal navbar-link' icon='cog' text='Admin' /></Link>
 				</NavbarGroup>
 			</Navbar>

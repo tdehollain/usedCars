@@ -41,6 +41,11 @@ router.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, 'views/build', 'index.html'));
 });
 
+// Evolution page
+router.get("/evolution", (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/build', 'index.html'));
+});
+
 // API routes
 require("./helpers/routes")(router, db);
 

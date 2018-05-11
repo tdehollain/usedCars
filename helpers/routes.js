@@ -23,10 +23,17 @@ module.exports = async function(router, db) {
 
 
 
-	// Get vehicle data
+	// Get vehicle data for latest month
 	router.post('/api/getVehicledata', async (req, res) => {
 		let title = req.body.title;
 		let outcome = await db.getVehicleData(title);
+		res.json(outcome);
+	});
+
+	// Get all vehicle data
+	router.post('/api/getAllVehicledata', async (req, res) => {
+		let title = req.body.title;
+		let outcome = await db.getAllVehicleData(title);
 		res.json(outcome);
 	});
 }

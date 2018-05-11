@@ -4,6 +4,7 @@ import MyNavBar from './components/MyNavBar';
 import { Route, Switch } from 'react-router-dom';
 import HomeView from './components/HomeView';
 import AdminView from './components/AdminView';
+import EvolutionView from './components/EvolutionView';
 
 // if (process.env.NODE_ENV !== 'production') {
 //   const {whyDidYouUpdate} = require('why-did-you-update');
@@ -19,6 +20,7 @@ class App extends Component {
         <MyNavBar />
         <Switch>
           <Route exact path='/' component={HomeView} />
+          <Route path='/evolution/' component={EvolutionView} />
           <Route path='/admin/' component={AdminView} />
         </Switch>
       </div>
