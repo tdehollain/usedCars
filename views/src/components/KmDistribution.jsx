@@ -12,7 +12,6 @@ export default class KmDistribution extends Component {
 			barChartData.push({ binFrom: key, count: kmBinsCounts[key]});
 		}
 		
-		
 		// add price to kmBinsCount
 		let kmBinsPriceData = [];
 		for(let dataPoint of this.props.data) {
@@ -24,12 +23,13 @@ export default class KmDistribution extends Component {
 			}
 		}
 		let kmBinsPriceMedians = groupBy(kmBinsPriceData, 'binFrom', 'median', 'price');
+		
 		let lineChartData = [];
 		for(let key in kmBinsPriceMedians) {
 			lineChartData.push({ binFrom: key, median: kmBinsPriceMedians[key]});
 		}
-		let minLineChart = math.min(lineChartData.map(el => el.binFrom));
-		let maxLineChart = math.max(lineChartData.map(el => el.binFrom));
+		let minLineChart = lineChartData.length ? math.min(lineChartData.map(el => el.binFrom)) : math.min(this.props.data.map(el => el.price));
+		let maxLineChart = lineChartData.length ? math.max(lineChartData.map(el => el.binFrom)) : math.max(this.props.data.map(el => el.price));
 
 		let fontColor = this.props.fontColor;
 		let barColor = this.props.barColor;
