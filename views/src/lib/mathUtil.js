@@ -152,7 +152,9 @@ export function linearRegression(km, price) {
 }
 
 export function numberWithCommas(x) {
-	if(!x) {
+	if(x === 0) {
+		return '0';
+	} else if(!x) {
 		return 'N/A';
 	} else {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

@@ -89,35 +89,59 @@ export default class HomeView extends Component {
 			});
 			
 			let nbVehicles = vehicleData.length;
+			let medianPrice;
+			let priceP10;
+			let priceP90;
+			let sortedData_filtered;
 			// remove price outliers
-			let priceQ1 = sortedData[Math.floor(0.25*nbVehicles)].price; // 1st quartile
-			let priceQ3 = sortedData[Math.floor(0.75*nbVehicles)].price; // 3rd quartile
-			let IQrange = priceQ3 - priceQ1;
-			let lowerOuterFence = priceQ1 - 3*IQrange;
-			let upperOuterFence = priceQ3 + 3*IQrange;
-			let vehicleData_filtered = [];
-			for(let i=0; i<vehicleData.length; i++) {
-				if(vehicleData[i].price < upperOuterFence && vehicleData[i].price > lowerOuterFence) vehicleData_filtered.push(vehicleData[i]);
-			}
-			let sortedData_filtered = vehicleData_filtered.sort((a,b) => {
-				return a.price - b.price;
-			});
-			
-			nbVehicles = sortedData_filtered.length;
-
-			// Update vehicle statistics
-			let priceP10 = sortedData_filtered[Math.floor(0.1*nbVehicles)].price;
-			let priceP90 = sortedData_filtered[Math.floor(0.9*nbVehicles)].price;
-			
-			store.dispatch({
-				type: 'UPDATE_VEHICLE_STATISTICS',
-				data: { 
-					nbVehicles, 
-					medianPrice: math.median(sortedData_filtered.map(el => el.price)),
-					priceP10,
-					priceP90
+			if(nbVehicles) {
+				let priceQ1 = nbVehicles ? sortedData[Math.floor(0.25*nbVehicles)].price : 'N/A'; // 1st quartile
+				let priceQ3 = nbVehicles ? sortedData[Math.floor(0.75*nbVehicles)].price : 'N/A'; // 3rd quartile
+				let IQrange = nbVehicles ? priceQ3 - priceQ1 : 'N/A';
+				let lowerOuterFence = nbVehicles ? priceQ1 - 3*IQrange : 'N/A';
+				let upperOuterFence = nbVehicles ? priceQ3 + 3*IQrange : 'N/A';
+				let vehicleData_filtered = [];
+				for(let i=0; i<vehicleData.length; i++) {
+					if(vehicleData[i].price < upperOuterFence && vehicleData[i].price > lowerOuterFence) vehicleData_filtered.push(vehicleData[i]);
 				}
-			});
+				sortedData_filtered = vehicleData_filtered.sort((a,b) => {
+					return a.price - b.price;
+				});
+				
+				nbVehicles = sortedData_filtered.length;
+
+				// Update vehicle statistics
+				medianPrice = math.median(sortedData_filtered.map(el => el.price));
+				priceP10 = sortedData_filtered[Math.floor(0.1*nbVehicles)].price;
+				priceP90 = sortedData_filtered[Math.floor(0.9*nbVehicles)].price;
+
+				store.dispatch({
+					type: 'UPDATE_VEHICLE_STATISTICS',
+					data: { 
+						nbVehicles, 
+						medianPrice,
+						priceP10,
+						priceP90
+					}
+				});
+			} else {
+				medianPrice = 'N/A';
+				priceP10 = 'N/A';
+				priceP90 = 'N/A';
+				sortedData_filtered = sortedData;
+
+				store.dispatch({
+					type: 'UPDATE_VEHICLE_STATISTICS',
+					data: { 
+						nbVehicles, 
+						medianPrice,
+						priceP10,
+						priceP90,
+						slope1: 'N/A',
+						slope2: 'N/A',
+					}
+				});
+			}
 
 			this.setState({
 				vehiclesData: sortedData_filtered

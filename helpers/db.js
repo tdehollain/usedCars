@@ -91,6 +91,8 @@ module.exports = function(mongoose){
 	const getVehicleData = async (title) => {
 		let data = await vehicleModel.find({ title: title }).sort({ measureDate: 1 });
 
+		if(!data.length) return { success: false, data: data };
+		
 		// get distinct measure dates
 		let latestDate = data.map(el => el.measureDate).sort((a,b) => new Date(b) - new Date(a))[0];
 		let dateThreshold = new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
