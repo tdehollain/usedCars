@@ -138,7 +138,6 @@ export default class MedianPriceEvolution extends Component {
               color: fontColor,
               gridcolor: '#394B59',
               rangemode: 'tozero',
-              showgrid: false,
               hoverformat: ',.1'
             },
             yaxis2: {
