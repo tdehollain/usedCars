@@ -1,7 +1,7 @@
-const fetch = require('node-fetch');
-const cheerio = require('cheerio');
+// const fetch = require('node-fetch');
+// const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
-const fs = require('fs');
+// const fs = require('fs');
 const util = require('./lib/util');
 const mongoose = require('mongoose');
 
@@ -171,7 +171,7 @@ async function processPage(vehicle, browserPage, page = 1) {
   let url = util.buildURL(vehicle, page);
   // page === 1 && console.log(`url: ${url}`);
 
-  await browserPage.goto(url);
+  await browserPage.goto(url, { timeout: 300000 });
   await browserPage.waitFor(2000);
 
   let vehicles = await browserPage.evaluate(() => {
@@ -265,7 +265,7 @@ async function getNumberOfResults(vehicle, browserPage) {
   let url = util.buildURL(vehicle);
   // console.log(`url: ${url}`);
 
-  await browserPage.goto(url);
+  await browserPage.goto(url, { timeout: 300000 });
   await browserPage.waitFor(2000);
 
   let numberOfResults = await browserPage.evaluate(() => {
