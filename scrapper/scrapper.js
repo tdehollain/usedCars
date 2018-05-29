@@ -171,8 +171,10 @@ async function processPage(vehicle, browserPage, page = 1) {
   let url = util.buildURL(vehicle, page);
   // page === 1 && console.log(`url: ${url}`);
 
-  await browserPage.goto(url, { timeout: 300000 });
+  console.log(`heapTotal1: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
+  await browserPage.goto(url);
   await browserPage.waitFor(2000);
+  console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
 
   let vehicles = await browserPage.evaluate(() => {
     let vehiclesSelector = '.cldt-summary-full-item';
@@ -265,7 +267,7 @@ async function getNumberOfResults(vehicle, browserPage) {
   let url = util.buildURL(vehicle);
   // console.log(`url: ${url}`);
 
-  await browserPage.goto(url, { timeout: 300000 });
+  await browserPage.goto(url);
   await browserPage.waitFor(2000);
 
   let numberOfResults = await browserPage.evaluate(() => {
