@@ -166,15 +166,15 @@ async function processVehicles(vehicleData) {
 }
 
 async function processPage(vehicle, browserPage, page = 1) {
-  // console.log('processing: ' + vehicle.title + ' - page ' + page);
+  console.log('processing page: ' + page);
   // util.logMemoryUsage();
   let url = util.buildURL(vehicle, page);
   // page === 1 && console.log(`url: ${url}`);
 
-  console.log(`heapTotal1: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
+  // console.log(`heapTotal1: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
   await browserPage.goto(url);
   await browserPage.waitFor(2000);
-  console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
+  // console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
 
   let vehicles = await browserPage.evaluate(() => {
     let vehiclesSelector = '.cldt-summary-full-item';
