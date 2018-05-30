@@ -150,7 +150,7 @@ async function processVehicles(vehicleData) {
           }
         }
         //update last count for this vehicle
-        // await db.updateLastCount(vehicle.title, nbResults);
+        await db.updateLastCount(vehicle.title, nbResults);
         browser.close();
       } else {
         // console.log('not now');
@@ -191,7 +191,7 @@ async function processPage(vehicle, browserPage, page = 1) {
       let version = versionElement ? versionElement.textContent : '';
 
       let priceElement = vehicleElement.querySelector('.cldt-price');
-      let price = priceElement ? priceElement.textContent.replace(/\D/g, '') : '';
+      let price = priceElement ? priceElement.childNodes[0].textContent.replace(/\D/g, '') : '';
 
       let kmElement = vehicleElement.querySelector('li:nth-child(1)');
       let km = kmElement ? kmElement.textContent.replace(/\D/g, '') : '';
