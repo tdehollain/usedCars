@@ -1,4 +1,4 @@
-node scrapper.js 22 8
+#node scrapper.js 22 8
 node scrapper.js 22 9
 node scrapper.js 22 10
 node scrapper.js 22 11
