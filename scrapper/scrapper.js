@@ -173,7 +173,7 @@ async function processPage(vehicle, browserPage, page = 1) {
 
   // console.log(`heapTotal1: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
   await browserPage.goto(url);
-  await browserPage.waitFor(2000);
+  await browserPage.waitFor(4000);
   // console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
 
   let vehicles = await browserPage.evaluate(() => {
@@ -268,7 +268,7 @@ async function getNumberOfResults(vehicle, browserPage) {
   // console.log(`url: ${url}`);
 
   await browserPage.goto(url);
-  await browserPage.waitFor(2000);
+  await browserPage.waitFor(4000);
 
   let numberOfResults = await browserPage.evaluate(() => {
     let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
