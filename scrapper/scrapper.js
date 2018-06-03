@@ -64,7 +64,7 @@ async function processVehicles(vehicleData) {
         const browserPage = await browser.newPage();
 
         console.log(`<-----   Processing: ${vehicle.title}   ----->`);
-        let nbResults = await getNumberOfResults(vehicle, browserPage); // get number of pages
+        let nbResults = await waitTillPageReady(vehicle, browserPage); // get number of pages
         console.log(`Number of results: ${nbResults}`);
         if (nbResults > 400) {
           console.log(`More than 20 pages. Querying by year.`);
@@ -76,7 +76,7 @@ async function processVehicles(vehicleData) {
             vehicleByYear.regFrom = i;
             vehicleByYear.regTo = i === new Date().getFullYear() ? '' : i;
 
-            let nbResultsByYear = await getNumberOfResults(vehicleByYear, browserPage); // get number of pages
+            let nbResultsByYear = await waitTillPageReady(vehicleByYear, browserPage); // get number of pages
             console.log(`   nbResultsByYear: ${nbResultsByYear}`);
             if (nbResultsByYear > 400) {
               console.log('   More than 20 pages, even by year. Querying by year and mileage.');
@@ -92,7 +92,7 @@ async function processVehicles(vehicleData) {
               ];
               for (j = 0; j < 7; j++) {
                 console.log(`      Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}`);
-                let nbResultsByYearAndMileage = await getNumberOfResults(vehicleByYearAndMileage[j], browserPage); // get number of pages
+                let nbResultsByYearAndMileage = await waitTillPageReady(vehicleByYearAndMileage[j], browserPage); // get number of pages
                 console.log(`      nbResultsByYearAndMileage: ${nbResultsByYearAndMileage}`);
                 if (nbResultsByYearAndMileage > 800) {
                   console.log('      More than 40 pages, even by year AND mileage. Skipping vehicle.');
@@ -167,14 +167,16 @@ async function processVehicles(vehicleData) {
 
 async function processPage(vehicle, browserPage, page = 1) {
   console.log('processing page: ' + page);
-  // util.logMemoryUsage();
-  let url = util.buildURL(vehicle, page);
-  // page === 1 && console.log(`url: ${url}`);
+  let nbResultsThisPage = await waitTillPageReady(vehicle, browserPage, page);
+  console.log(`Number of results for page ${page}: ${nbResultsThisPage}`);
+  // // util.logMemoryUsage();
+  // let url = util.buildURL(vehicle, page);
+  // // page === 1 && console.log(`url: ${url}`);
 
-  // console.log(`heapTotal1: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
-  await browserPage.goto(url);
-  await browserPage.waitFor(4000);
-  // console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
+  // // console.log(`heapTotal1: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
+  // await browserPage.goto(url);
+  // await browserPage.waitFor(1000);
+  // // console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
 
   let vehicles = await browserPage.evaluate(() => {
     let vehiclesSelector = '.cldt-summary-full-item';
@@ -263,20 +265,25 @@ async function processPage(vehicle, browserPage, page = 1) {
   // return false;
 }
 
-async function getNumberOfResults(vehicle, browserPage) {
+async function waitTillPageReady(vehicle, browserPage, page = 1) {
   let url = util.buildURL(vehicle);
   // console.log(`url: ${url}`);
-
   await browserPage.goto(url);
-  await browserPage.waitFor(4000);
 
-  let numberOfResults = await browserPage.evaluate(() => {
-    let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
-    return document
-      .querySelectorAll(counterSelector)[0]
-      .textContent.slice(0, -8)
-      .replace(/,/g, '');
-  });
+  let numberOfResults = 0;
+  let iterator = 0;
+  do {
+    console.log(`Waiting ${iterator + 1} seconds`);
+    await browserPage.waitFor(1000);
+    numberOfResults = await browserPage.evaluate(() => {
+      let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
+      return document
+        .querySelectorAll(counterSelector)[0]
+        .textContent.slice(0, -8)
+        .replace(/,/g, '');
+    });
+    iterator = numberOfResults > 10000 ? iterator + 1 : 100;
+  } while (iterator <= 15);
 
   // console.log(`Number of results: ${numberOfResults}`);
   return numberOfResults;
