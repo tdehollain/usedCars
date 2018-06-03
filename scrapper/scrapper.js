@@ -266,7 +266,7 @@ async function processPage(vehicle, browserPage, page = 1) {
 }
 
 async function waitTillPageReady(vehicle, browserPage, page = 1) {
-  let url = util.buildURL(vehicle);
+  let url = util.buildURL(vehicle, page);
   // console.log(`url: ${url}`);
   await browserPage.goto(url);
 
