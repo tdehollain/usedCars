@@ -1,4 +1,4 @@
-module.exports = function(mongoose){
+module.exports = function (mongoose) {
 
 	const url = 'mongodb://localhost:9001/usedCarsDB';
 
@@ -29,6 +29,7 @@ module.exports = function(mongoose){
 		dateAdded: Date,
 		timingDay: Number,
 		timingHour: Number,
+		lastScanDate: Date,
 		lastCount: Number,
 		vehicleURL: String
 	});
@@ -54,26 +55,32 @@ module.exports = function(mongoose){
 	const vehicleListModel = mongoose.model('vehicleListColl', vehicleListSchema, 'vehicleListColl');
 	const vehicleModel = mongoose.model('vehicleColl', vehicleSchema, 'vehicleColl');
 
+
+
 	const getVehicleList = async () => {
-		let vehicleList = await vehicleListModel.find().lean().sort({ dateAdded: 1 });
-		return { success: true, vehicleList: vehicleList };
+		try {
+			let vehicleFullList = await vehicleListModel.find().lean().sort({ dateAdded: 1 });
+			return { err: null, vehicleFullList };
+		} catch (err) {
+			return { err, vehicleFullList: [] }
+		}
 	}
 
 	const addVehicleRecord = async (title, vehicleDetails) => {
 		// check if record already exists for this vehicle
 		let recordAlreadyPresent = false;
 		let existingRecord;
-		let docs = await vehicleModel.find({title: title, url: vehicleDetails.url});
-		for(doc of docs) {
-			if(doc.measureDate && (doc.measureDate.getMonth() === vehicleDetails.measureDate.getMonth())) {
+		let docs = await vehicleModel.find({ title: title, url: vehicleDetails.url });
+		for (doc of docs) {
+			if (doc.measureDate && (doc.measureDate.getMonth() === vehicleDetails.measureDate.getMonth())) {
 				recordAlreadyPresent = true;
 			}
 			existingRecord = doc;
 		}
-		if(!recordAlreadyPresent) {
-			let recordEntry = new vehicleModel({...vehicleDetails, title: title});
+		if (!recordAlreadyPresent) {
+			let recordEntry = new vehicleModel({ ...vehicleDetails, title: title });
 			let entry = await recordEntry.save();
-			return { success: true, id: entry._id }; 
+			return { success: true, id: entry._id };
 		} else {
 			return { success: false, id: existingRecord._id };
 		}
@@ -88,6 +95,6 @@ module.exports = function(mongoose){
 		url,
 		getVehicleList,
 		addVehicleRecord,
-		updateLastCount	
+		updateLastCount
 	}
 }

@@ -60,8 +60,9 @@ async function processVehicles(vehicleData) {
       // only process the vehicles for this time stamp
       if (vehicleDay === currentDay && vehicleHour === currentHour) {
         // Browser ================================================
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({ headless: false });
         const browserPage = await browser.newPage();
+        browserPage.on('console', msg => { console.log(msg.text()); });
 
         console.log(`<-----   Processing: ${vehicle.title}   ----->`);
         let nbResults = await waitTillPageReady(vehicle, browserPage); // get number of pages
@@ -177,53 +178,52 @@ async function processPage(vehicle, browserPage, page = 1) {
   // await browserPage.goto(url);
   // await browserPage.waitFor(1000);
   // // console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
-
   let vehicles = await browserPage.evaluate(() => {
     let vehiclesSelector = '.cldt-summary-full-item';
     let vehiclesElements = Array.from(
       document.querySelectorAll(vehiclesSelector)
     );
+
+    function getAttribute(name, vehicleElement, parameters) {
+      let DOMElement = name === 'country' ?
+        vehicleElement.querySelector(parameters.selector1) || vehicleElement.querySelector(parameters.selector2)
+        : vehicleElement.querySelector(parameters.selector);
+      try {
+        let outputContent = name === 'price' ? DOMElement.childNodes[0].textContent : DOMElement.textContent;
+        let output = parameters.numerical ? outputContent.trim().replace(/\D/g, '') : outputContent.trim();
+        if (name === 'firstReg') {
+          let firstRegArr = output.split('/');
+          let firstRegMonth = firstRegArr[0] ? firstRegArr[0].replace(/\D/g, '') : '';
+          let firstRegYear = firstRegArr[1] ? firstRegArr[1].replace(/\D/g, '') : '';
+          return { firstRegMonth, firstRegYear };
+        } else {
+          return output;
+        }
+      } catch (error) {
+        console.log('Warning: no content for attribute [' + name + ']');
+        return '';
+      }
+    }
+
     return vehiclesElements.map(vehicleElement => {
       let url = 'https://www.autoscout24.com' + vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a').href.split('?')[0];
 
-      let modelElement = vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-makemodel');
-      let model = modelElement ? modelElement.textContent : '';
+      let model = getAttribute('model', vehicleElement, { numerical: false, selector: '.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-makemodel' });
+      let version = getAttribute('version', vehicleElement, { numerical: false, selector: '.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-version' });
+      let price = getAttribute('price', vehicleElement, { numerical: true, selector: '.cldt-price' });
+      let km = getAttribute('km', vehicleElement, { numerical: true, selector: 'li:nth-child(1)' });
+      let { firstRegMonth, firstRegYear } = getAttribute('firstReg', vehicleElement, { numerical: false, selector: 'li:nth-child(2)' });
+      let power = getAttribute('power', vehicleElement, { numerical: false, selector: 'li:nth-child(3)' });
+      let used = getAttribute('used', vehicleElement, { numerical: false, selector: 'li:nth-child(4)' });
+      let prevOwners = getAttribute('prevOwners', vehicleElement, { numerical: true, selector: 'li:nth-child(5)' });
+      let transmissionType = getAttribute('transmissionType', vehicleElement, { numerical: false, selector: 'li:nth-child(6)' });
+      let fuelType = getAttribute('fuelType', vehicleElement, { numerical: false, selector: 'li:nth-child(7)' });
+      let country = getAttribute('country', vehicleElement, { numerical: false, selector1: '.cldt-summary-seller-contact-country', selector2: '.cldf-summary-seller-contact-country' });
 
-      let versionElement = vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-version');
-      let version = versionElement ? versionElement.textContent : '';
-
-      let priceElement = vehicleElement.querySelector('.cldt-price');
-      let price = priceElement ? priceElement.childNodes[0].textContent.replace(/\D/g, '') : '';
-
-      let kmElement = vehicleElement.querySelector('li:nth-child(1)');
-      let km = kmElement ? kmElement.textContent.replace(/\D/g, '') : '';
-
-      let firstRegistrationElement = vehicleElement.querySelector('li:nth-child(2)');
-      let firstRegistration = firstRegistrationElement ? firstRegistrationElement.textContent.trim() : '';
-      let firstRegArr = firstRegistration.split('/');
-      let firstRegMonth = firstRegArr[0].replace(/\D/g, '');
-      let firstRegYear = firstRegArr[1].replace(/\D/g, '');
-
-      let powerElement = vehicleElement.querySelector('li:nth-child(3)');
-      let power = powerElement ? powerElement.textContent.trim() : '';
-
-      let usedElement = vehicleElement.querySelector('li:nth-child(4)');
-      let used = usedElement ? usedElement.textContent.trim() : '';
-
-      let prevOwnersElement = vehicleElement.querySelector('li:nth-child(5)');
-      let prevOwners = prevOwnersElement ? prevOwnersElement.textContent.trim().replace(/\D/g, '') : '';
-
-      let transmissionTypeElement = vehicleElement.querySelector('li:nth-child(6)');
-      let transmissionType = transmissionTypeElement ? transmissionTypeElement.textContent.trim() : '';
-
-      let fuelTypeElement = vehicleElement.querySelector('li:nth-child(7)');
-      let fuelType = fuelTypeElement ? fuelTypeElement.textContent.trim() : '';
-
-      let countryElement = vehicleElement.querySelector('.cldt-summary-seller-contact-country') || vehicleElement.querySelector('.cldf-summary-seller-contact-country');
-      let country = countryElement ? countryElement.textContent.trim() : '';
       return { url, model, version, price, km, firstRegMonth, firstRegYear, power, used, prevOwners, transmissionType, fuelType, country };
     });
   });
+
 
   // Add measureDate
   vehicles = vehicles.map(el => {
@@ -250,41 +250,57 @@ async function processPage(vehicle, browserPage, page = 1) {
   }
 
   // Check if there is a next page
-  let numberOfResults = await browserPage.evaluate(() => {
-    let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
-    return document
-      .querySelectorAll(counterSelector)[0]
-      .textContent.slice(0, -8)
-      .replace(/,/g, '');
-  });
+  let numberOfResults = await getNbOfResults(browserPage);
   let hasNextPage = numberOfResults / page > 20 ? true : false;
-  // console.log('total items: ' + numberOfResults);
-  // console.log('has next page: ' + hasNextPage);
-  // move on to next page
   return hasNextPage;
-  // return false;
 }
 
 async function waitTillPageReady(vehicle, browserPage, page = 1) {
   let url = util.buildURL(vehicle, page);
   // console.log(`url: ${url}`);
-  await browserPage.goto(url);
+  let nbTimeouts = 0;
+  loadPage(url);
+
+  async function loadPage(url) {
+    try {
+      await browserPage.goto(url);
+    } catch (error) {
+      console.log('error loading page (timeout #' + nbTimeouts + '): ' + error);
+      nbTimeouts++;
+      if (nbTimeouts <= 5) {
+        loadPage(url);
+      } else {
+        return 0;
+      }
+    }
+  }
 
   let numberOfResults = 0;
   let iterator = 0;
   do {
-    console.log(`Waiting ${iterator + 1} seconds`);
+    if (iterator > 0) console.log(`Waiting ${iterator + 1} seconds`);
     await browserPage.waitFor(1000);
-    numberOfResults = await browserPage.evaluate(() => {
-      let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
-      return document
-        .querySelectorAll(counterSelector)[0]
-        .textContent.slice(0, -8)
-        .replace(/,/g, '');
-    });
-    iterator = numberOfResults > 10000 ? iterator + 1 : 100;
+    numberOfResults = await getNbOfResults(browserPage);
+    iterator = numberOfResults > 50000 ? iterator + 1 : 100;
   } while (iterator <= 15);
 
   // console.log(`Number of results: ${numberOfResults}`);
   return numberOfResults;
+}
+
+async function getNbOfResults(browserPage) {
+  try {
+    return await browserPage.evaluate(() => {
+      let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
+      try {
+        let output = document.querySelectorAll(counterSelector)[0].textContent.slice(0, -8).replace(/,/g, '');
+        return output;
+      } catch (error) {
+        console.log('Error getting number of results: ' + error);
+        throw new Error('STOP');
+      }
+    });
+  } catch (error) {
+    console.log('Unknown error');
+  }
 }
