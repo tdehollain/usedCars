@@ -52,8 +52,8 @@ class Vehicle {
 	buildURL(page = 1) {
 		let attributes = this.attributes;
 
-		let brand = attributes.brand ? '&mmvmk0=' + attributes.brand : '';
-		let model = attributes.model ? '&mmvmd0=' + attributes.model : '';
+		let brand = attributes.brandId ? '&mmvmk0=' + attributes.brandId : '';
+		let model = attributes.modelId ? '&mmvmd0=' + attributes.modelId : '';
 		let ver = attributes.version ? '&version0=' + attributes.version : '';
 		let regFrom = attributes.regFrom ? '&fregfrom=' + attributes.regFrom : '';
 		let regTo = attributes.regTo ? '&fregto=' + attributes.regTo : '';

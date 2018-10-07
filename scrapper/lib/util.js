@@ -51,10 +51,18 @@ const getTimeStamp = function () {
   return `${day}/${month}/${year} - ${hour}:${minute}`;
 }
 
+const buildTimeStamp = (measureTimeStamp) => {
+  let measureDate = new Date(measureTimeStamp);
+  let measureYear = measureDate.getFullYear();
+  let measureMonth = measureDate.getMonth() + 1;
+  return measureYear.toString() + "-" + measureMonth.toString();
+}
+
 module.exports = {
   alreadyIncluded,
   hasValidData,
   getTimeStamp,
+  buildTimeStamp,
   logMemoryUsage,
   logMemoryUsageLong
 }

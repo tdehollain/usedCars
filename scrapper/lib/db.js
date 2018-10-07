@@ -1,100 +1,69 @@
-module.exports = function (mongoose) {
+const fetch = require('node-fetch');
+// API Gateway
+const env = 'development';
+const baseURL = 'https://6e9r69v0xj.execute-api.eu-west-1.amazonaws.com/' + env;
 
-	const url = 'mongodb://localhost:9001/usedCarsDB';
-
-	const vehicleListSchema = new mongoose.Schema({
-		title: String,
-		brand: String,
-		model: String,
-		version: String,
-		regFrom: Number,
-		regTo: Number,
-		chFrom: Number,
-		chTo: Number,
-		doorsFrom: Number,
-		doorsTo: Number,
-		checkedBodyConvertible: Boolean,
-		checkedBodyCoupe: Boolean,
-		checkedBodySUV: Boolean,
-		checkedBodySedan: Boolean,
-		checkedBodySW: Boolean,
-		checkedFuelPetrol: Boolean,
-		checkedFuelDiesel: Boolean,
-		checkedFuelElec: Boolean,
-		checkedFuelElecPetrol: Boolean,
-		checkedFuelElecDiesel: Boolean,
-		checkedTransAuto: Boolean,
-		checkedTransMan: Boolean,
-		checkedTransSemi: Boolean,
-		dateAdded: Date,
-		timingDay: Number,
-		timingHour: Number,
-		lastScanDate: Date,
-		lastCount: Number,
-		vehicleURL: String
-	});
-
-	const vehicleSchema = new mongoose.Schema({
-		title: String,
-		url: String,
-		model: String,
-		version: String,
-		measureDate: Date,
-		price: Number,
-		km: Number,
-		firstRegMonth: Number,
-		firstRegYear: Number,
-		power: String,
-		used: String,
-		prevOwners: Number,
-		transmissionType: String,
-		fuelType: String,
-		country: String
-	});
-
-	const vehicleListModel = mongoose.model('vehicleListColl', vehicleListSchema, 'vehicleListColl');
-	const vehicleModel = mongoose.model('vehicleColl', vehicleSchema, 'vehicleColl');
-
-
-
-	const getVehicleList = async () => {
-		try {
-			let vehicleFullList = await vehicleListModel.find().lean().sort({ dateAdded: 1 });
-			return { err: null, vehicleFullList };
-		} catch (err) {
-			return { err, vehicleFullList: [] }
-		}
-	}
-
-	const addVehicleRecord = async (title, vehicleDetails) => {
-		// check if record already exists for this vehicle
-		let recordAlreadyPresent = false;
-		let existingRecord;
-		let docs = await vehicleModel.find({ title: title, url: vehicleDetails.url });
-		for (doc of docs) {
-			if (doc.measureDate && (doc.measureDate.getMonth() === vehicleDetails.measureDate.getMonth())) {
-				recordAlreadyPresent = true;
-			}
-			existingRecord = doc;
-		}
-		if (!recordAlreadyPresent) {
-			let recordEntry = new vehicleModel({ ...vehicleDetails, title: title });
-			let entry = await recordEntry.save();
-			return { success: true, id: entry._id };
-		} else {
-			return { success: false, id: existingRecord._id };
-		}
-	}
-
-	const updateLastCount = async (title, count) => {
-		// update last count
-		await vehicleListModel.update({ title: title }, { $set: { lastCount: count } });
-	}
-
-	return {
-		url,
-		getVehicleList,
-		addVehicleRecord,
-		updateLastCount
+const getVehicleList = async function () {
+	let URL = baseURL + '/vehiclelist';
+	try {
+		let raw_response = await fetch(URL, { method: 'GET' });
+		let output = await raw_response.json();
+		return { err: null, vehicleFullList: output.list };
+	} catch (err) {
+		return { err, vehicleFullList: null };
 	}
 }
+
+const putVehicleRecords = async function (vehicleRecords) {
+	let URL = baseURL + '/vehiclerecord';
+	try {
+		let options = {
+			method: 'PUT',
+			headers: {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(vehicleRecords)
+		};
+		let raw_response = await fetch(URL, options);
+		let res = await raw_response.json();
+		if (res.success) {
+			return { err: null, res };
+		} else {
+			return { err: res.message, res: null };
+		}
+	} catch (err) {
+		console.log("err: " + err);
+		return { err, res: null };
+	}
+}
+
+const deleteVehicleRecords = async function (vehicleTitle, month) {
+	let URL = baseURL + '/vehiclerecord';
+	try {
+		let options = {
+			method: 'DELETE',
+			headers: {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ vehicleTitle, month })
+		};
+		let raw_response = await fetch(URL, options);
+		let res = await raw_response.json();
+		if (res.success) {
+			return { err: null, res };
+		} else {
+			return { err: res.message, res: null };
+		}
+	} catch (err) {
+		console.log("err: " + err);
+		return { err, res: null };
+	}
+}
+
+module.exports = {
+	getVehicleList,
+	putVehicleRecords,
+	deleteVehicleRecords
+};

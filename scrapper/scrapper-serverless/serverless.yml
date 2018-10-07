@@ -1,0 +1,64 @@
+# serverless.yml
+
+service: usedCars-service
+
+custom: 
+  tableName: usedCars-vehicle-list-${self:provider.stage}
+
+provider:
+  name: aws
+  profile: usedCars-serverless-admin
+  runtime: nodejs8.10
+  stage: dev
+  region: eu-west-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["VehicleListTable", "Arn" ] }
+  environment:
+    VEHICLE_LIST_TABLE: ${self:custom.tableName}
+
+functions:
+  addVehicle:
+    handler: addVehicle.handler
+    events:
+      - http: PUT /vehiclelist
+  getVehicleList:
+    handler: getVehicleList.handler
+    events:
+      - http: GET /vehiclelist
+  deleteVehicle:
+    handler: deleteVehicle.handler
+    events:
+      - http: DELETE /vehiclelist
+  loadExistingVehicles:
+    handler: loadExistingVehicles.handler
+    timeout: 180
+  deleteAllVehicles:
+    handler: deleteAllVehicles.handler
+    timeout: 180
+
+resources:
+  Resources:
+    VehicleListTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - 
+            AttributeName: title
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: title
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}

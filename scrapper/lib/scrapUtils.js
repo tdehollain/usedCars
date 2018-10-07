@@ -1,3 +1,5 @@
+
+
 async function getNumberOfResults(url, browserPage) {
 	let nbTimeouts = 0;
 	await loadPage(url);
@@ -76,9 +78,9 @@ async function processPage(url, browserPage, page = 1) {
 			let transmissionType = measureAttribute('transmissionType', vehicleElement, { numerical: false, selector: 'li:nth-child(6)' });
 			let fuelType = measureAttribute('fuelType', vehicleElement, { numerical: false, selector: 'li:nth-child(7)' });
 			let country = measureAttribute('country', vehicleElement, { numerical: false, selector1: '.cldt-summary-seller-contact-country', selector2: '.cldf-summary-seller-contact-country' });
-			let measureDate = new Date();
+			let measureTimeStamp = (new Date()).getTime();
 
-			return { measureDate, url, model, version, price, km, firstRegMonth, firstRegYear, power, used, prevOwners, transmissionType, fuelType, country };
+			return { measureTimeStamp, url, model, version, price, km, firstRegMonth, firstRegYear, power, used, prevOwners, transmissionType, fuelType, country };
 		});
 
 		function measureAttribute(name, vehicleElement, parameters) {
@@ -101,6 +103,7 @@ async function processPage(url, browserPage, page = 1) {
 				return '';
 			}
 		}
+
 	});
 
 	// Check if there is a next page

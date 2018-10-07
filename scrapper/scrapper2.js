@@ -1,20 +1,19 @@
 // Requires
+const uuid = require('uuid');
 const util = require('./lib/util');
 const browserUtils = require('./lib/browserUtils');
 const scrapUtils = require('./lib/scrapUtils');
 const Vehicle = require('./Vehicle.js');
-const mongoose = require('mongoose');
+
 
 // DB =====================================================
-const db = require('./lib/db')(mongoose);
-// mongoose.set('debug', true);
+const db = require('./lib/db');
 
-try {
-	mongoose.connect(db.url);
-	start();
-} catch (err) {
-	throw new Error("Error connecting to MongoDB: " + err);
-}
+// try {
+start();
+// } catch (err) {
+
+// }
 
 let allScannedData = [];
 let processedVehicles = [];
@@ -24,22 +23,53 @@ async function start() {
 
 	// get list of vehicles to track: vehicleFullList
 	const { err, vehicleFullList } = await db.getVehicleList();
-
 	if (err) {
-		console.log('Error getting the list of tracked vehicles: ' + err);
-		process.exit(0);
+		throw new Error("Error getting list : " + err);
 	} else {
 		// await processVehicles(vehicleList);
-		for (vehicleAttributes of vehicleFullList) {
+		for (let vehicleAttributes of vehicleFullList) {
 			let currentVehicle = new Vehicle(vehicleAttributes);
+			let vehicleTitle = currentVehicle.attributes.title;
 
 			if (currentVehicle.hasValidData() && currentVehicle.shouldBeScanned()) {
 				let { err, output } = await processVehicle(currentVehicle);
 				console.log("Number of vehicles scanned: " + output.length);
 				if (err) {
-					console.log("Error while scanning vehicle " + vehicle.name + ": " + err);
+					console.log("Error while scanning vehicle " + vehicleTitle + ": " + err);
 				} else {
 					// push output to API Gateway
+					let vehicleRecords = output.map(record => {
+						return {
+							...record,
+							vehicleTitle: vehicleTitle,
+							recordID: uuid.v4()
+						}
+					})
+					// console.log(JSON.stringify(vehicleRecords));
+
+					// [AWS specific] Start by removing records for the same vehicleTitle and month
+					let measureTimeStamp = (new Date()).getTime();
+					let month = util.buildTimeStamp(measureTimeStamp);
+					await db.deleteVehicleRecords(vehicleTitle, month);
+
+					if (vehicleRecords.length < 100) {
+						let { err, res } = await db.putVehicleRecords(vehicleRecords);
+						if (err) {
+							console.log("Error while saving records for vehicle " + vehicleTitle + ": " + err);
+						} else {
+							console.log("Saved records: " + JSON.stringify(res));
+						}
+					} else {
+						for (let i = 0; i < Math.ceil(vehicleRecords.length / 100); i++) {
+							let vehicleRecords_slice = vehicleRecords.slice(i * 100, (i + 1) * 100);
+							let { err, res } = await db.putVehicleRecords(vehicleRecords_slice);
+							if (err) {
+								console.log("Error while saving records for vehicle " + vehicleTitle + ": " + err);
+							} else {
+								console.log("Saved records: " + JSON.stringify(res));
+							}
+						}
+					}
 				}
 				processedVehicles.push(currentVehicle.title);
 			}
