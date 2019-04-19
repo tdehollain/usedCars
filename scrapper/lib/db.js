@@ -1,16 +1,26 @@
 const fetch = require('node-fetch');
 // API Gateway
-const env = 'development';
-const baseURL = 'https://6e9r69v0xj.execute-api.eu-west-1.amazonaws.com/' + env;
+const env = 'dev';
+const baseURL = 'https://h5gywnncj1.execute-api.eu-west-1.amazonaws.com/' + env;
 
 const getVehicleList = async function () {
 	let URL = baseURL + '/vehiclelist';
 	try {
-		let raw_response = await fetch(URL, { method: 'GET' });
-		let output = await raw_response.json();
-		return { err: null, vehicleFullList: output.list };
+		let options = {
+			method: 'GET',
+			headers: {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			}
+		};
+		let raw_response = await fetch(URL, options);
+		if (raw_response.status !== 200) {
+			return { err: raw_response.status + ':' + raw_response.statusText }
+		}
+		let list = await raw_response.json();
+		return { vehicleFullList: list };
 	} catch (err) {
-		return { err, vehicleFullList: null };
+		return { err };
 	}
 }
 
@@ -26,14 +36,17 @@ const putVehicleRecords = async function (vehicleRecords) {
 			body: JSON.stringify(vehicleRecords)
 		};
 		let raw_response = await fetch(URL, options);
+		if (raw_response.status !== 201) {
+			return { err: raw_response.status + ':' + raw_response.statusText }
+		}
 		let res = await raw_response.json();
 		if (res.success) {
-			return { err: null, res };
+			return { res };
 		} else {
-			return { err: res.message, res: null };
+			return { err: res.message };
 		}
 	} catch (err) {
-		console.log("err: " + err);
+		// console.log("err: " + err);
 		return { err, res: null };
 	}
 }

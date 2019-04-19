@@ -39,7 +39,7 @@ async function evaluateNbOfResults(browserPage) {
 		return await browserPage.evaluate(() => {
 			let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
 			try {
-				let output = document.querySelectorAll(counterSelector)[0].textContent.slice(0, -8).replace(/,/g, '');
+				let output = document.querySelectorAll(counterSelector)[0].textContent.slice(0, -7).replace(/,/g, '');
 				return parseInt(output, 10);
 			} catch (error) {
 				console.log('Error getting number of results: ' + error);

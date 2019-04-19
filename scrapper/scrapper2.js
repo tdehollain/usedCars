@@ -41,23 +41,25 @@ async function start() {
 					let vehicleRecords = output.map(record => {
 						return {
 							...record,
-							vehicleTitle: vehicleTitle,
+							title: vehicleTitle,
 							recordID: uuid.v4()
 						}
 					})
 					// console.log(JSON.stringify(vehicleRecords));
 
 					// [AWS specific] Start by removing records for the same vehicleTitle and month
-					let measureTimeStamp = (new Date()).getTime();
-					let month = util.buildTimeStamp(measureTimeStamp);
-					await db.deleteVehicleRecords(vehicleTitle, month);
+					// let measureTimeStamp = (new Date()).getTime();
+					// let month = util.buildTimeStamp(measureTimeStamp);
+					// await db.deleteVehicleRecords(vehicleTitle, month);
 
 					if (vehicleRecords.length < 100) {
+						// console.log(vehicleRecords);
 						let { err, res } = await db.putVehicleRecords(vehicleRecords);
+						// let res = await db.putVehicleRecords(vehicleRecords)
 						if (err) {
 							console.log("Error while saving records for vehicle " + vehicleTitle + ": " + err);
 						} else {
-							console.log("Saved records: " + JSON.stringify(res));
+							console.log("Saved records: " + JSON.stringify(res.count));
 						}
 					} else {
 						for (let i = 0; i < Math.ceil(vehicleRecords.length / 100); i++) {
@@ -66,7 +68,7 @@ async function start() {
 							if (err) {
 								console.log("Error while saving records for vehicle " + vehicleTitle + ": " + err);
 							} else {
-								console.log("Saved records: " + JSON.stringify(res));
+								console.log(`Saved records (slice ${i + 1} of ${Math.ceil(vehicleRecords.length / 100)}: ${res.count}`);
 							}
 						}
 					}
@@ -77,7 +79,7 @@ async function start() {
 
 		//log result
 		let timeStamp = util.getTimeStamp();
-		console.log(`${timeStamp}. Complete. ${processedVehicles.length} vehicles processed.`);
+		console.log(`${timeStamp}. Complete. ${processedVehicles.length} vehicle${processedVehicles.length > 1 ? 's' : ''} processed.`);
 		process.exit(0);
 	}
 }
@@ -100,6 +102,7 @@ async function processVehicle(vehicle) {
 		let sorting = currentUniqueVehicle.attributes.sorting;
 		console.log(`Unique vehicle # ${i + 1}: Year=${regFrom} to ${regTo}, Mileage=${kmFrom} to ${kmTo}, sorting=${sorting}`);
 		let results = await currentUniqueVehicle.simpleScan(browserPage);
+		console.log(`simpleScan: ${results.length}`);
 		vehicleScannedData = [...vehicleScannedData, ...results];
 	}
 	console.log("Unfiltered number of vehicles scanned: " + vehicleScannedData.length);

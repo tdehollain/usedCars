@@ -50,11 +50,13 @@ class Vehicle {
 	}
 
 	buildURL(page = 1) {
+		const baseURL = 'https://www.autoscout24.com/lst';
+
 		let attributes = this.attributes;
 
-		let brand = attributes.brandId ? '&mmvmk0=' + attributes.brandId : '';
-		let model = attributes.modelId ? '&mmvmd0=' + attributes.modelId : '';
-		let ver = attributes.version ? '&version0=' + attributes.version : '';
+		// let brand = attributes.brandId ? '&mmvmk0=' + attributes.brandId : '';
+		// let model = attributes.modelId ? '&mmvmd0=' + attributes.modelId : '';
+		let version = attributes.version ? '&version0=' + attributes.version : '';
 		let regFrom = attributes.regFrom ? '&fregfrom=' + attributes.regFrom : '';
 		let regTo = attributes.regTo ? '&fregto=' + attributes.regTo : '';
 		let kmTo = attributes.kmTo ? '&kmto=' + attributes.kmTo : '';
@@ -111,7 +113,14 @@ class Vehicle {
 			? '&sort=price&desc=' + (attributes.sorting === 'desc' ? '1' : '0')
 			: '&sort=price&desc=0';
 
-		return `https://www.autoscout24.com/results?${brand}${model}${ver}&mmvco=1${body}${regFrom}${regTo}${fuel}${kmFrom}${kmTo}${powerFrom}${powerTo}${gear}${doorFrom}${doorTo}&powertype=kw&atype=C&ustate=N%2CU${sort}&page=${page}&size=20`;
+		let other = '&atype=C';
+
+		// OLD VERSION
+		// return `https://www.autoscout24.com/results?${brand}${model}${ver}&mmvco=1${body}${regFrom}${regTo}${fuel}${kmFrom}${kmTo}${powerFrom}${powerTo}${gear}${doorFrom}${doorTo}&powertype=kw&atype=C&ustate=N%2CU${sort}&page=${page}&size=20`;
+		// NEW VERSION
+		const result = `${baseURL}/${attributes.brand}/${attributes.model}?sort=price&desc=0&ustate=N%2CU&size=20${version}${body}${regFrom}${regTo}${fuel}${kmFrom}${kmTo}${powerFrom}${powerTo}${gear}${doorFrom}${doorTo}${sort}&page=${page}&size=20${other}`;
+		// console.log(`result: ${result}`);
+		return result;
 	};
 
 	async simpleScan(browserPage) {
