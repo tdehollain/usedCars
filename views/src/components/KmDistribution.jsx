@@ -5,10 +5,7 @@ import { getBinData, groupBy } from '../lib/mathUtil';
 
 export default class KmDistribution extends Component {
   render() {
-    let kmBinsData = getBinData(
-      this.props.data.map(el => el.km || 0),
-      this.props.nbins
-    ).data;
+    let kmBinsData = getBinData(this.props.data.map(el => el.km || 0), this.props.nbins).data;
     let kmBinsCounts = groupBy(kmBinsData, 'binFrom', 'count');
     let barChartData = [];
     for (let key in kmBinsCounts) {
@@ -25,23 +22,14 @@ export default class KmDistribution extends Component {
         }
       }
     }
-    let kmBinsPriceMedians = groupBy(
-      kmBinsPriceData,
-      'binFrom',
-      'median',
-      'price'
-    );
+    let kmBinsPriceMedians = groupBy(kmBinsPriceData, 'binFrom', 'median', 'price');
 
     let lineChartData = [];
     for (let key in kmBinsPriceMedians) {
       lineChartData.push({ binFrom: key, median: kmBinsPriceMedians[key] });
     }
-    let minLineChart = lineChartData.length
-      ? math.min(lineChartData.map(el => el.binFrom))
-      : math.min(this.props.data.map(el => el.price));
-    let maxLineChart = lineChartData.length
-      ? math.max(lineChartData.map(el => el.binFrom))
-      : math.max(this.props.data.map(el => el.price));
+    let minLineChart = lineChartData.length ? math.min(lineChartData.map(el => el.binFrom)) : math.min(this.props.data.map(el => el.price));
+    let maxLineChart = lineChartData.length ? math.max(lineChartData.map(el => el.binFrom)) : math.max(this.props.data.map(el => el.price));
 
     let fontColor = this.props.fontColor;
     let barColor = this.props.barColor;
@@ -94,10 +82,7 @@ export default class KmDistribution extends Component {
             color: fontColor,
             rangemode: 'tozero',
             zeroline: false,
-            range: [
-              -1 * (maxLineChart - minLineChart) * 0.07,
-              maxLineChart * 1.07
-            ]
+            range: [-1 * (maxLineChart - minLineChart) * 0.07, maxLineChart * 1.07]
           },
           yaxis: {
             title: 'count',
