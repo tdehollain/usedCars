@@ -21,9 +21,7 @@ async function start() {
     await processVehicles(vehicleList);
     let d = new Date();
     console.log(
-      `${('0' + d.getDate()).slice(-2)}/${('0' + (d.getMonth() + 1)).slice(
-        -2
-      )}/${d.getFullYear()} - ${('0' + d.getHours()).slice(-2)}:${(
+      `${('0' + d.getDate()).slice(-2)}/${('0' + (d.getMonth() + 1)).slice(-2)}/${d.getFullYear()} - ${('0' + d.getHours()).slice(-2)}:${(
         '0' + d.getMinutes()
       ).slice(-2)}. Complete. ${processedVehicles.length} vehicles processed.`
     );
@@ -45,10 +43,8 @@ async function processVehicles(vehicleData) {
       if (process.argv[2] && process.argv[3]) {
         currentDay = parseInt(process.argv[2], 10);
         currentHour = parseInt(process.argv[3], 10);
-        if (currentDay < 1 || currentDay > 28)
-          throw new Error('Day to process must be between 1 and 28');
-        if (currentHour < 0 || currentHour > 23)
-          throw new Error('Hour to process must be between 0 and 23');
+        if (currentDay < 1 || currentDay > 28) throw new Error('Day to process must be between 1 and 28');
+        if (currentHour < 0 || currentHour > 23) throw new Error('Hour to process must be between 0 and 23');
       } else {
         currentDay = new Date().getDate();
         currentHour = new Date().getHours();
@@ -62,7 +58,9 @@ async function processVehicles(vehicleData) {
         // Browser ================================================
         const browser = await puppeteer.launch({ headless: false });
         const browserPage = await browser.newPage();
-        browserPage.on('console', msg => { console.log(msg.text()); });
+        browserPage.on('console', msg => {
+          console.log(msg.text());
+        });
 
         console.log(`<-----   Processing: ${vehicle.title}   ----->`);
         let nbResults = await waitTillPageReady(vehicle, browserPage); // get number of pages
@@ -92,18 +90,28 @@ async function processVehicles(vehicleData) {
                 { ...vehicle, kmFrom: '80000', kmTo: '' }
               ];
               for (j = 0; j < 7; j++) {
-                console.log(`      Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}`);
+                console.log(
+                  `      Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
+                    vehicleByYearAndMileage[j].kmTo
+                  }`
+                );
                 let nbResultsByYearAndMileage = await waitTillPageReady(vehicleByYearAndMileage[j], browserPage); // get number of pages
                 console.log(`      nbResultsByYearAndMileage: ${nbResultsByYearAndMileage}`);
                 if (nbResultsByYearAndMileage > 800) {
                   console.log('      More than 40 pages, even by year AND mileage. Skipping vehicle.');
                   return;
                 } else if (nbResultsByYearAndMileage > 400) {
-                  console.log('      Between 20 and 40 pages, even by year AND mileage. Doing it once in ascending price and once in descending price.');
+                  console.log(
+                    '      Between 20 and 40 pages, even by year AND mileage. Doing it once in ascending price and once in descending price.'
+                  );
                   let vehicleByYearAndMileageAsc = { ...vehicleByYearAndMileage[j], sorting: 'asc' };
                   let vehicleByYearAndMileageDesc = { ...vehicleByYearAndMileage[j], sorting: 'desc' };
 
-                  console.log(`         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}. Order: ascending`);
+                  console.log(
+                    `         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
+                      vehicleByYearAndMileage[j].kmTo
+                    }. Order: ascending`
+                  );
                   let hasNextPage = true;
                   let page = 1;
                   do {
@@ -111,7 +119,11 @@ async function processVehicles(vehicleData) {
                     page++;
                   } while (hasNextPage);
 
-                  console.log(`         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}. Order: descending`);
+                  console.log(
+                    `         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
+                      vehicleByYearAndMileage[j].kmTo
+                    }. Order: descending`
+                  );
                   hasNextPage = true;
                   page = 1;
                   do {
@@ -157,11 +169,7 @@ async function processVehicles(vehicleData) {
         // console.log('not now');
       }
     } else {
-      console.log(
-        'Invalid data for vehicle [' + vehicle.title !== ''
-          ? vehicle.title
-          : 'no title provided' + ']. Skipping vehicle'
-      );
+      console.log('Invalid data for vehicle [' + vehicle.title !== '' ? vehicle.title : 'no title provided' + ']. Skipping vehicle');
     }
   }
 }
@@ -180,14 +188,13 @@ async function processPage(vehicle, browserPage, page = 1) {
   // // console.log(`heapTotal2: ${process.memoryUsage().heapUsed / 1024 / 1024} MB`);
   let vehicles = await browserPage.evaluate(() => {
     let vehiclesSelector = '.cldt-summary-full-item';
-    let vehiclesElements = Array.from(
-      document.querySelectorAll(vehiclesSelector)
-    );
+    let vehiclesElements = Array.from(document.querySelectorAll(vehiclesSelector));
 
     function getAttribute(name, vehicleElement, parameters) {
-      let DOMElement = name === 'country' ?
-        vehicleElement.querySelector(parameters.selector1) || vehicleElement.querySelector(parameters.selector2)
-        : vehicleElement.querySelector(parameters.selector);
+      let DOMElement =
+        name === 'country'
+          ? vehicleElement.querySelector(parameters.selector1) || vehicleElement.querySelector(parameters.selector2)
+          : vehicleElement.querySelector(parameters.selector);
       try {
         let outputContent = name === 'price' ? DOMElement.childNodes[0].textContent : DOMElement.textContent;
         let output = parameters.numerical ? outputContent.trim().replace(/\D/g, '') : outputContent.trim();
@@ -206,10 +213,18 @@ async function processPage(vehicle, browserPage, page = 1) {
     }
 
     return vehiclesElements.map(vehicleElement => {
-      let url = 'https://www.autoscout24.com' + vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a').href.split('?')[0];
+      let url =
+        'https://www.autoscout24.com' +
+        vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a').href.split('?')[0];
 
-      let model = getAttribute('model', vehicleElement, { numerical: false, selector: '.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-makemodel' });
-      let version = getAttribute('version', vehicleElement, { numerical: false, selector: '.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-version' });
+      let model = getAttribute('model', vehicleElement, {
+        numerical: false,
+        selector: '.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-makemodel'
+      });
+      let version = getAttribute('version', vehicleElement, {
+        numerical: false,
+        selector: '.cldt-summary-headline > .cldt-summary-titles > a > .cldt-summary-title > .cldt-summary-version'
+      });
       let price = getAttribute('price', vehicleElement, { numerical: true, selector: '.cldt-price' });
       let km = getAttribute('km', vehicleElement, { numerical: true, selector: 'li:nth-child(1)' });
       let { firstRegMonth, firstRegYear } = getAttribute('firstReg', vehicleElement, { numerical: false, selector: 'li:nth-child(2)' });
@@ -218,12 +233,15 @@ async function processPage(vehicle, browserPage, page = 1) {
       let prevOwners = getAttribute('prevOwners', vehicleElement, { numerical: true, selector: 'li:nth-child(5)' });
       let transmissionType = getAttribute('transmissionType', vehicleElement, { numerical: false, selector: 'li:nth-child(6)' });
       let fuelType = getAttribute('fuelType', vehicleElement, { numerical: false, selector: 'li:nth-child(7)' });
-      let country = getAttribute('country', vehicleElement, { numerical: false, selector1: '.cldt-summary-seller-contact-country', selector2: '.cldf-summary-seller-contact-country' });
+      let country = getAttribute('country', vehicleElement, {
+        numerical: false,
+        selector1: '.cldt-summary-seller-contact-country',
+        selector2: '.cldf-summary-seller-contact-country'
+      });
 
       return { url, model, version, price, km, firstRegMonth, firstRegYear, power, used, prevOwners, transmissionType, fuelType, country };
     });
   });
-
 
   // Add measureDate
   vehicles = vehicles.map(el => {
@@ -236,10 +254,7 @@ async function processPage(vehicle, browserPage, page = 1) {
     // check if vehicle was already processed
     if (!processedVehicles.includes(vehicleDetails.url)) {
       // console.log('#' + processedVehicles.length + ':' + vehicleDetails.model + ' - ' + vehicleDetails.version);
-      let { success, id } = await db.addVehicleRecord(
-        vehicle.title,
-        vehicleDetails
-      );
+      let { success, id } = await db.addVehicleRecord(vehicle.title, vehicleDetails);
       if (success) {
         processedVehicles.push(vehicleDetails.url);
         // console.log('Successfully saved record for vehicle [' + vehicle.title + ']. URL: ' + vehicleDetails.url);
@@ -293,7 +308,10 @@ async function getNbOfResults(browserPage) {
     return await browserPage.evaluate(() => {
       let counterSelector = '.cl-listings-summary .cl-filters-summary-counter';
       try {
-        let output = document.querySelectorAll(counterSelector)[0].textContent.slice(0, -8).replace(/,/g, '');
+        let output = document
+          .querySelectorAll(counterSelector)[0]
+          .textContent.slice(0, -8)
+          .replace(/,/g, '');
         return output;
       } catch (error) {
         console.log('Error getting number of results: ' + error);

@@ -1,0 +1,48 @@
+# serverless.yml
+
+service: usedCars-scrapper-service
+
+custom:
+  vehicleListTableName: usedCars-vehicle-list-${self:provider.stage}
+  vehicleRecordsTableName: usedCars-vehicle-records1-${self:provider.stage}
+
+provider:
+  name: aws
+  profile: usedCars-serverless-admin
+  runtime: nodejs8.10
+  stage: dev
+  region: eu-west-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+      Resource:
+        - arn:aws:dynamodb:eu-west-1:072129581133:table/${self:custom.vehicleListTableName}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:eu-west-1:072129581133:table/${self:custom.vehicleRecordsTableName}
+    - Effect: Allow
+      Action:
+        - lambda:GetLayerVersion
+      Resource:
+        - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:1
+  environment:
+    VEHICLE_LIST_TABLE: ${self:custom.vehicleListTableName}
+    VEHICLE_RECORDS_TABLE: ${self:custom.vehicleRecordsTableName}
+
+functions:
+  scrapVehicle:
+    handler: scrapInit.handler
+    timeout: 180
+    memorySize: 2048
+    layers:
+      - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:1
