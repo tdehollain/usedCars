@@ -3,6 +3,7 @@ const scrapVehicle = require('./scrapVehicle.js');
 
 exports.handler = async (event, context, callback) => {
   console.log('Starting');
+
   let browser;
   try {
     browser = await chromium.puppeteer.launch({
@@ -11,15 +12,17 @@ exports.handler = async (event, context, callback) => {
       executablePath: await chromium.executablePath,
       headless: chromium.headless
     });
+    let browserPage = await browser.newPage();
+    await browserPage.setViewport({
+      width: 1440,
+      height: 4000,
+      deviceScaleFactor: 1
+    });
 
-    // let page = await browser.newPage();
-    // await page.goto(event.url || 'https://www.bbc.com');
-    // result = await page.title();
-
-    let processedVehicles = await scrapVehicle.start();
+    let processedVehicles = await scrapVehicle.start(browserPage);
     console.log(`Job Complete. ${processedVehicles.length} vehicles processed.`);
-
-    callback(null, 'Processed vehicles: ' + processedVehicles.length);
+    // callback(null, 'Processed vehicles: ' + processedVehicles.length);
+    callback(null, processedVehicles);
     return;
   } catch (error) {
     callback(error);
