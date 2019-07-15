@@ -10,7 +10,8 @@ exports.handler = async (event, context, callback) => {
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
-      headless: chromium.headless
+      headless: true,
+      slowMo: 50
     });
     let browserPage = await browser.newPage();
     await browserPage.setViewport({
@@ -22,7 +23,7 @@ exports.handler = async (event, context, callback) => {
     let processedVehicles = await scrapVehicle.start(browserPage);
     console.log(`Job Complete. ${processedVehicles.length} vehicles processed.`);
     // callback(null, 'Processed vehicles: ' + processedVehicles.length);
-    callback(null, processedVehicles);
+    callback(null, `Job Complete. ${processedVehicles.length} vehicles processed.`);
     return;
   } catch (error) {
     callback(error);

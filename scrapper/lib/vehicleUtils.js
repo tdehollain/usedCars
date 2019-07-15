@@ -17,8 +17,8 @@ const filterVehiclesToProcessNow = vehicle => {
   let vehicleDay = vehicle.timingDay;
   let vehicleHour = vehicle.timingHour;
 
-  currentDay = 2;
-  currentHour = 17;
+  currentDay = 5;
+  currentHour = 4;
 
   // only process the vehicles for this time stamp
   return hasValidData(vehicle) && vehicleDay === currentDay && vehicleHour === currentHour;
@@ -37,6 +37,21 @@ const hasValidData = function(vehicle) {
   );
 };
 
+const addRecordsToList = (vehicleRecords, vehicleRecordsThisPage) => {
+  // console.log(`vehicleRecords.length: ${vehicleRecords.length}`);
+  for (record of vehicleRecordsThisPage) {
+    // check if vehicle was already processed
+    let filteredVehicleRecords = vehicleRecords.filter(el => el.url === record.url);
+    if (filteredVehicleRecords.length > 0) {
+      // console.log('Record for vehicle [' + vehicle.title + '] already present. URL: ' + record.url);
+    } else {
+      vehicleRecords.push(record);
+    }
+  }
+  return vehicleRecords;
+};
+
 module.exports = {
-  filterVehiclesToProcessNow
+  filterVehiclesToProcessNow,
+  addRecordsToList
 };

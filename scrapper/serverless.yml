@@ -42,7 +42,7 @@ provider:
 functions:
   scrapVehicle:
     handler: scrapInit.handler
-    timeout: 180
+    timeout: 900
     memorySize: 2048
     layers:
       - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:1
