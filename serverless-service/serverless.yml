@@ -2,9 +2,9 @@
 
 service: usedCars-service
 
-custom: 
+custom:
   vehicleListTableName: usedCars-vehicle-list-${self:provider.stage}
-  vehicleRecordsTableName: usedCars-vehicle-records1-${self:provider.stage}
+  vehicleRecordsTableName: usedCars-vehicle-records-${self:provider.stage}
 
 provider:
   name: aws
@@ -22,8 +22,8 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - { "Fn::GetAtt": ["VehicleListTable", "Arn" ] }
-        - { "Fn::GetAtt": ["VehicleRecordsTable", "Arn" ] }
+        - { 'Fn::GetAtt': ['VehicleListTable', 'Arn'] }
+        - { 'Fn::GetAtt': ['VehicleRecordsTable', 'Arn'] }
   environment:
     VEHICLE_LIST_TABLE: ${self:custom.vehicleListTableName}
     VEHICLE_RECORDS_TABLE: ${self:custom.vehicleRecordsTableName}
@@ -33,7 +33,7 @@ functions:
     handler: addVehicle.handler
     timeout: 30
     events:
-      - http: 
+      - http:
           path: /vehiclelist
           method: PUT
           cors: true
@@ -49,7 +49,7 @@ functions:
     handler: deleteVehicle.handler
     timeout: 30
     events:
-      - http: 
+      - http:
           path: /vehiclelist
           method: DELETE
           cors: true
@@ -63,7 +63,7 @@ functions:
     handler: addVehicleRecord.handler
     timeout: 30
     events:
-      - http: 
+      - http:
           path: /vehiclerecord
           method: PUT
           cors: true
@@ -79,7 +79,7 @@ functions:
     handler: deleteVehicleRecord.handler
     timeout: 30
     events:
-      - http: 
+      - http:
           path: /vehiclerecord
           method: DELETE
           cors: true
@@ -90,12 +90,10 @@ resources:
       Type: 'AWS::DynamoDB::Table'
       Properties:
         AttributeDefinitions:
-          - 
-            AttributeName: title
+          - AttributeName: title
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: title
+          - AttributeName: title
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -105,31 +103,23 @@ resources:
       Type: 'AWS::DynamoDB::Table'
       Properties:
         AttributeDefinitions:
-          - 
-            AttributeName: title
+          - AttributeName: title
             AttributeType: S
-          - 
-            AttributeName: url
+          - AttributeName: url
             AttributeType: S
-          -
-            AttributeName: month
+          - AttributeName: month
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: title
+          - AttributeName: title
             KeyType: HASH
-          -
-            AttributeName: url
+          - AttributeName: url
             KeyType: RANGE
         LocalSecondaryIndexes:
-          -
-            IndexName: monthLSI
+          - IndexName: monthLSI
             KeySchema:
-              -
-                AttributeName: title
+              - AttributeName: title
                 KeyType: HASH
-              -
-                AttributeName: month
+              - AttributeName: month
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

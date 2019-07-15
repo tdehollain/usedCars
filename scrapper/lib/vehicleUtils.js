@@ -17,8 +17,8 @@ const filterVehiclesToProcessNow = vehicle => {
   let vehicleDay = vehicle.timingDay;
   let vehicleHour = vehicle.timingHour;
 
-  currentDay = 5;
-  currentHour = 4;
+  // currentDay = 5;
+  // currentHour = 7;
 
   // only process the vehicles for this time stamp
   return hasValidData(vehicle) && vehicleDay === currentDay && vehicleHour === currentHour;

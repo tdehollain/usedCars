@@ -7,6 +7,13 @@ const start = async browserPage => {
   const vehicleList = await db.getVehicleList();
   const vehiclesToProcess = vehicleList.filter(vehicleUtils.filterVehiclesToProcessNow);
   let processedVehicles = await processVehicles(browserPage, vehiclesToProcess);
+
+  for (let processedVehicle of processedVehicles) {
+    // Save records to DB
+    let res = await db.putVehicleRecords(processedVehicle);
+
+    // Update last count on vehicle
+  }
   return processedVehicles;
 };
 
@@ -114,7 +121,11 @@ const loopThroughPages = async (browserPage, vehicleRecords) => {
   let output = JSON.parse(JSON.stringify(vehicleRecords));
   let hasNextPage = true;
   do {
-    const vehicleRecordsThisPage = await getRecordsForPage(browserPage);
+    let vehicleRecordsThisPage = await getRecordsForPage(browserPage);
+    // Add vehicle title to records
+    vehicleRecordsThisPage = vehicleRecordsThisPage.map(el => {
+      return { ...el, title: vehicle.title };
+    });
     output = vehicleUtils.addRecordsToList(output, vehicleRecordsThisPage);
     hasNextPage = await scrapUtils.hasNextPage(browserPage);
     if (hasNextPage) await scrapUtils.goToNextPage(browserPage);
@@ -153,9 +164,7 @@ const getRecordsForPage = async browserPage => {
     }
 
     return vehiclesElements.map(vehicleElement => {
-      let url =
-        'https://www.autoscout24.com' +
-        vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a').href.split('?')[0];
+      let url = vehicleElement.querySelector('.cldt-summary-headline > .cldt-summary-titles > a').href.split('?')[0];
 
       let model = getAttribute('model', vehicleElement, {
         numerical: false,
@@ -199,7 +208,7 @@ const getRecordsForPage = async browserPage => {
 
   // Add measureDate
   vehicles = vehicles.map(el => {
-    return { ...el, measureDate: new Date() };
+    return { ...el, measureDate: new Date().getTime() };
   });
 
   // console.log(`vehicles on this page: ${vehicles.length}`);

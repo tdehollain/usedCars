@@ -4,7 +4,7 @@ service: usedCars-scrapper-service
 
 custom:
   vehicleListTableName: usedCars-vehicle-list-${self:provider.stage}
-  vehicleRecordsTableName: usedCars-vehicle-records1-${self:provider.stage}
+  vehicleRecordsTableName: usedCars-vehicle-records-${self:provider.stage}
 
 provider:
   name: aws
@@ -18,6 +18,8 @@ provider:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
       Resource:
         - arn:aws:dynamodb:eu-west-1:072129581133:table/${self:custom.vehicleListTableName}
     - Effect: Allow
@@ -26,6 +28,7 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
