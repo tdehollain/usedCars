@@ -17,6 +17,22 @@ const getVehicleList = async function() {
   }
 };
 
+const updateVehicle = async function(vehicle) {
+  let vehicleWithoutRecords = JSON.parse(JSON.stringify(vehicle));
+  delete vehicleWithoutRecords.records;
+
+  let params = {
+    TableName: vehicleListTable,
+    Item: vehicleWithoutRecords
+  };
+  try {
+    await ddb.put(params).promise();
+    return;
+  } catch (err) {
+    throw new Error(`Error updating vehicle "${vehicleWithoutRecords.title}": ${err.message}`);
+  }
+};
+
 const putVehicleRecords = async vehicle => {
   let { err, res } = await batchWriteItems(vehicle.records);
   if (err) {
@@ -152,6 +168,7 @@ const deleteVehicleRecords = async function(vehicleTitle, month) {
 
 module.exports = {
   getVehicleList,
+  updateVehicle,
   putVehicleRecords,
   deleteVehicleRecords
 };

@@ -10,9 +10,10 @@ const start = async browserPage => {
 
   for (let processedVehicle of processedVehicles) {
     // Save records to DB
-    let res = await db.putVehicleRecords(processedVehicle);
+    await db.putVehicleRecords(processedVehicle);
 
     // Update last count on vehicle
+    await db.updateVehicle(processedVehicle);
   }
   return processedVehicles;
 };
