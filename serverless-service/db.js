@@ -47,6 +47,32 @@ const deleteVehicle = async (vehicleTitle, tableName) => {
   }
 };
 
+const getVehicleRecords = async (vehicleTitle, tableName) => {
+  let tableParams = {
+    TableName: tableName,
+    KeyConditionExpression: 'title = :title',
+    // ExpressionAttributeNames: {
+    //   '#title': 'title'
+    // },
+    ExpressionAttributeValues: {
+      ':title': vehicleTitle
+    }
+  };
+
+  try {
+    let res = await ddb.query(tableParams).promise();
+    let records = res.Items;
+    // console.log(list);
+    // Sort list by title
+    // let sortedList = list.sort((a, b) => {
+    //   return b.Title - a.Title;
+    // });
+    return { err: null, records };
+  } catch (err) {
+    return { err };
+  }
+};
+
 const putVehicleRecords = async (vehicleRecords, tableName) => {
   let iter = 0;
   for (let vehicleRecord of vehicleRecords) {
@@ -98,5 +124,6 @@ module.exports = {
   getVehicleList,
   addVehicle,
   deleteVehicle,
-  putVehicleRecords
+  putVehicleRecords,
+  getVehicleRecords
 };

@@ -23,7 +23,13 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - { 'Fn::GetAtt': ['VehicleListTable', 'Arn'] }
-        - { 'Fn::GetAtt': ['VehicleRecordsTable', 'Arn'] }
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+      Resource:
+        - arn:aws:dynamodb:eu-west-1:072129581133:table/${self:custom.vehicleRecordsTableName}
   environment:
     VEHICLE_LIST_TABLE: ${self:custom.vehicleListTableName}
     VEHICLE_RECORDS_TABLE: ${self:custom.vehicleRecordsTableName}
@@ -99,31 +105,3 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.vehicleListTableName}
-    VehicleRecordsTable:
-      Type: 'AWS::DynamoDB::Table'
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: title
-            AttributeType: S
-          - AttributeName: url
-            AttributeType: S
-          - AttributeName: month
-            AttributeType: S
-        KeySchema:
-          - AttributeName: title
-            KeyType: HASH
-          - AttributeName: url
-            KeyType: RANGE
-        LocalSecondaryIndexes:
-          - IndexName: monthLSI
-            KeySchema:
-              - AttributeName: title
-                KeyType: HASH
-              - AttributeName: month
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        TableName: ${self:custom.vehicleRecordsTableName}

@@ -1,75 +1,67 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import VehicleList from './VehicleList';
 import vehicleListActions from './vehicleListActions';
 
-class VehicleListContainer extends Component {
+const VehicleListContainer = props => {
+  const [vehicleList, setVehicleList] = React.useState([]);
+  const [filteredList, setFilteredList] = React.useState([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  // const [loading, setLoading] = React.useState(true);
 
-	constructor() {
-		super();
-		this.state = {
-			filteredList: [],
-			searchTerm: '',
-			loading: true
-		};
-		this.handleChangeSearchTerm = this.handleChangeSearchTerm.bind(this);
-		this.editVehicle = this.editVehicle.bind(this);
-		this.deleteVehicle = this.deleteVehicle.bind(this);
-	}
+  // Load complete vehicle list when mounting
+  React.useEffect(() => {
+    const getList = async () => {
+      const list = await props.getVehicleList();
+      setVehicleList(list);
+      setFilteredList(list);
+    };
+    getList();
+  }, []);
 
-	async componentDidMount() {
-		let list = await this.props.getVehicleList();
-		this.setState({ filteredList: list, loading: false });
-	}
+  // Filter vehicleList when search term is changed
+  React.useEffect(() => {
+    const filteredList = vehicleList.filter(el => el.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    setFilteredList(filteredList);
+  }, [searchTerm]);
 
-	componentDidUpdate(prevProps) {
-		if (prevProps.vehicleList.length !== this.props.vehicleList.length) {
-			this.setState({
-				filteredList: this.props.vehicleList.filter(el => el.title.toLowerCase().includes(this.state.searchTerm.toLowerCase()))
-			})
-		}
-	}
+  const handleChangeSearchTerm = e => {
+    setSearchTerm(e.target.value);
+  };
 
-	handleChangeSearchTerm(e) {
-		this.setState({
-			searchTerm: e.target.value,
-			filteredList: this.props.vehicleList.filter(el => el.title.toLowerCase().includes(e.target.value.toLowerCase()))
-		});
-	}
+  const editVehicle = vehicle => {
+    props.editVehicle(vehicle);
+    window.scroll({ top: 0, behavior: 'smooth' });
+  };
 
-	editVehicle(vehicle) {
-		this.props.editVehicle(vehicle);
-		window.scroll({ top: 0, behavior: 'smooth' });
-	}
+  const deleteVehicle = async title => {
+    await props.deleteVehicle(title);
+  };
 
-	async deleteVehicle(title) {
-		await this.props.deleteVehicle(title);
-	}
+  return (
+    <VehicleList
+      vehicleList={filteredList}
+      editVehicle={editVehicle}
+      deleteVehicle={deleteVehicle}
+      searchTerm={searchTerm}
+      handleChangeSearchTerm={handleChangeSearchTerm}
+    />
+  );
+};
 
-	render() {
+const mapStateToProps = store => {
+  return { vehicleList: store.adminViewState.vehicleList };
+};
 
-		return (
-			<VehicleList
-				vehicleList={this.state.filteredList}
-				editVehicle={this.editVehicle}
-				deleteVehicle={this.deleteVehicle}
-				searchTerm={this.state.searchTerm}
-				handleChangeSearchTerm={this.handleChangeSearchTerm}
-			/>
-		)
-	}
-}
+const mapDispatchToProps = dispatch => {
+  return {
+    getVehicleList: () => dispatch(vehicleListActions.getVehicleList()),
+    editVehicle: vehicle => dispatch(vehicleListActions.editVehicle(vehicle)),
+    deleteVehicle: title => dispatch(vehicleListActions.deleteVehicle(title))
+  };
+};
 
-const mapStateToProps = (store) => {
-	return { vehicleList: store.adminViewState.vehicleList };
-}
-
-const mapDispatchToProps = (dispatch) => {
-	return {
-		getVehicleList: () => dispatch(vehicleListActions.getVehicleList()),
-		editVehicle: vehicle => dispatch(vehicleListActions.editVehicle(vehicle)),
-		deleteVehicle: title => dispatch(vehicleListActions.deleteVehicle(title))
-	}
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(VehicleListContainer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(VehicleListContainer);

@@ -3,6 +3,11 @@ const ddb = new AWS.DynamoDB.DocumentClient({ region: 'eu-west-1', apiVersion: '
 
 const vehicleListTable = process.env.VEHICLE_LIST_TABLE;
 const vehicleRecordsTable = process.env.VEHICLE_RECORDS_TABLE;
+const scrapLogTable = process.env.SCRAP_LOG_TABLE;
+
+//==================================
+//=====   Vehicle List Table   =====
+//==================================
 
 const getVehicleList = async function() {
   let params = {
@@ -32,6 +37,10 @@ const updateVehicle = async function(vehicle) {
     throw new Error(`Error updating vehicle "${vehicleWithoutRecords.title}": ${err.message}`);
   }
 };
+
+//=====================================
+//=====   Vehicle Records Table   =====
+//=====================================
 
 const putVehicleRecords = async vehicle => {
   let { err, res } = await batchWriteItems(vehicle.records);
@@ -95,10 +104,11 @@ const batchWriteItems_process = async data => {
     let currentBatchItems = currentBatch.map(el => {
       return {
         PutRequest: {
-          Item: stripEmptyAttributes(el)
+          Item: stripEmptyStringAttributes(stripEmptyAttributes(el))
         }
       };
     });
+    // console.log(JSON.stringify(currentBatchItems));
     let reqParams = {
       RequestItems: {
         [vehicleRecordsTable]: currentBatchItems
@@ -130,11 +140,65 @@ const batchWriteItems_process = async data => {
   return { err: null, res: { success: true, nbItemsInserted: data.length, nbRetries: totalRetries } };
 };
 
+//================================
+//=====   Scrap Logs Table   =====
+//================================
+
+const getScrapLogs = async countHours => {
+  const timestampNow = new Date().getTime();
+  const millisecondsInCountHours = (countHours + 1) * 60 * 60 * 1000; // adding 1hr to include the log of exactly countHours ago
+  const timestampBefore = timestampNow - millisecondsInCountHours;
+
+  let params = {
+    TableName: scrapLogTable
+  };
+  try {
+    let rawResponse = await ddb.scan(params).promise();
+    logs = rawResponse.Items;
+    logs = logs.filter(el => el.scrapDate > timestampBefore);
+    logs = logs.sort((a, b) => a.scrapDate - b.scrapDate);
+    return logs;
+  } catch (err) {
+    throw new Error('Error getting scrap logs: ' + err.message);
+  }
+};
+
+const writeToScrapLog = async (title, scrapDetails) => {
+  let params = {
+    TableName: scrapLogTable,
+    Item: { title, scrapDate: new Date().getTime(), log: scrapDetails }
+  };
+  try {
+    await ddb.put(params).promise();
+    return;
+  } catch (err) {
+    throw new Error(`Error writing to Scrap Log for vehicle "${title}": ${err.message}`);
+  }
+};
+
+//====================================
+//=====   Supporting Functions   =====
+//====================================
+
 const stripEmptyAttributes = obj => {
   let newObj = {};
   Object.keys(obj).forEach(prop => {
     if (obj[prop]) {
       newObj[prop] = obj[prop];
+    }
+  });
+  return newObj;
+};
+
+const stripEmptyStringAttributes = obj => {
+  let newObj = {};
+  Object.keys(obj).forEach(prop => {
+    if (obj[prop]) {
+      if (typeof prop === String) {
+        if (prop !== '') newObj[prop] = obj[prop];
+      } else {
+        newObj[prop] = obj[prop];
+      }
     }
   });
   return newObj;
@@ -170,5 +234,7 @@ module.exports = {
   getVehicleList,
   updateVehicle,
   putVehicleRecords,
+  getScrapLogs,
+  writeToScrapLog,
   deleteVehicleRecords
 };

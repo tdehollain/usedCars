@@ -12,18 +12,23 @@ const start = async browserPage => {
     // Save records to DB
     await db.putVehicleRecords(processedVehicle);
 
-    // Update last count on vehicle
+    // Update last count in vehicle list
     await db.updateVehicle(processedVehicle);
+
+    // Write to Scrap Log
+    const { oldCount, lastCount } = processedVehicle;
+    await db.writeToScrapLog(processedVehicle.title, { oldCount, lastCount });
   }
   return processedVehicles;
 };
 
 const processVehicles = async (browserPage, vehicleList) => {
   let processedVehicles = [];
-  for (vehicle of vehicleList) {
+  for (let vehicle of vehicleList) {
     try {
+      const oldCount = vehicle.lastCount;
       let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
-      processedVehicles.push({ ...vehicle, lastCount, records: vehicleRecords });
+      processedVehicles.push({ ...vehicle, oldCount, lastCount, records: vehicleRecords });
     } catch (err) {
       console.log(err.message);
     }
@@ -40,7 +45,7 @@ const processVehicle = async (browserPage, vehicle) => {
   let vehicleRecords = [];
   if (nbResults > 0) {
     if (nbResults < 400) {
-      vehicleRecords = await loopThroughPages(browserPage, vehicleRecords);
+      vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
     } else {
       console.log(`More than 20 pages. Querying by year.`);
       // do it year by year
@@ -55,7 +60,7 @@ const processVehicle = async (browserPage, vehicle) => {
         console.log(`   Number of results: ${nbResultsByYear}`);
         if (nbResultsByYear > 0) {
           if (nbResultsByYear < 400) {
-            vehicleRecords = await loopThroughPages(browserPage, vehicleRecords);
+            vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
           } else {
             console.log('   More than 20 pages, even by year. Querying by year and mileage.');
             // do it by mileage
@@ -68,7 +73,7 @@ const processVehicle = async (browserPage, vehicle) => {
               { ...vehicle, kmFrom: '40000', kmTo: '80000' },
               { ...vehicle, kmFrom: '80000' }
             ];
-            for (j = 0; j < 7; j++) {
+            for (let j = 0; j < 7; j++) {
               console.log(
                 `      Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
                   vehicleByYearAndMileage[j].kmTo
@@ -78,7 +83,7 @@ const processVehicle = async (browserPage, vehicle) => {
               console.log(`      Number of results: ${nbResultsByYearAndMileage}`);
               if (nbResultsByYearAndMileage > 0) {
                 if (nbResultsByYearAndMileage < 400) {
-                  vehicleRecords = await loopThroughPages(browserPage, vehicleRecords);
+                  vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
                 } else if (nbResultsByYearAndMileage < 800) {
                   console.log(
                     '      Between 20 and 40 pages, even by year AND mileage. Doing it once in ascending price and once in descending price.'
@@ -92,7 +97,7 @@ const processVehicle = async (browserPage, vehicle) => {
                   );
 
                   let nbResultsByYearAndMileageAscending = await scrapUtils.navigateToVehicle(vehicleByYearAndMileageAsc, browserPage);
-                  vehicleRecords = await loopThroughPages(browserPage, vehicleRecords);
+                  vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
 
                   let vehicleByYearAndMileageDesc = { ...vehicleByYearAndMileage[j], sorting: 'Price descending' };
                   console.log(
@@ -102,7 +107,7 @@ const processVehicle = async (browserPage, vehicle) => {
                   );
 
                   let nbResultsByYearAndMileageDescending = await scrapUtils.navigateToVehicle(vehicleByYearAndMileageDesc, browserPage);
-                  vehicleRecords = await loopThroughPages(browserPage, vehicleRecords);
+                  vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
                 } else {
                   console.log('      More than 40 pages, even by year AND mileage. Skipping vehicle.');
                   return { vehicleRecords: null, lastCount: 'too many' };
@@ -118,7 +123,7 @@ const processVehicle = async (browserPage, vehicle) => {
   return { vehicleRecords, lastCount: nbResults };
 };
 
-const loopThroughPages = async (browserPage, vehicleRecords) => {
+const loopThroughPages = async (browserPage, vehicle, vehicleRecords) => {
   let output = JSON.parse(JSON.stringify(vehicleRecords));
   let hasNextPage = true;
   do {
@@ -207,9 +212,15 @@ const getRecordsForPage = async browserPage => {
     });
   });
 
-  // Add measureDate
+  // Add url-month key, measureDate and month
+  const yearmonth = parseInt(new Date().getFullYear() + ('0' + (new Date().getMonth() + 1)).slice(-2));
   vehicles = vehicles.map(el => {
-    return { ...el, measureDate: new Date().getTime() };
+    return {
+      ...el,
+      urlmonth: el.url + '-' + yearmonth,
+      measureDate: new Date().getTime(),
+      yearmonth
+    };
   });
 
   // console.log(`vehicles on this page: ${vehicles.length}`);
