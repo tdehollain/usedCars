@@ -63,6 +63,21 @@ const deleteVehicle = async title => {
 //=====   Vehicle Data   =====
 //============================
 
+const getLatestVehicleRecords = async title => {
+  const allRecords = await getVehicleRecords(title);
+  // Get all record dates
+  let dates = allRecords.map(record => record.measureDate);
+  dates = dates.sort((a, b) => b - a);
+  const latestRecordDate = dates[0];
+
+  // Only keep recprds that are max 1hr older than the most recent record (1st element in the sorted array)
+  let latestRecords = [];
+  for (let record of allRecords) {
+    if (record.measureDate > latestRecordDate - 3600 * 1000) latestRecords.push(record);
+  }
+  return latestRecords;
+};
+
 const getVehicleRecords = async title => {
   let URL = serverlessConfig.endpoints.vehicleRecordsURL + '?title=' + title;
   let options = {
@@ -77,6 +92,7 @@ const getVehicleRecords = async title => {
   try {
     let res = await fetch(URL, options);
     let rawData = await res.json();
+
     let sortedData = rawData.sort(sortByPropertyScrapDate);
     return sortedData;
   } catch (err) {}
@@ -86,5 +102,6 @@ export default {
   getVehicleList,
   addVehicle,
   deleteVehicle,
-  getVehicleRecords
+  getVehicleRecords,
+  getLatestVehicleRecords
 };

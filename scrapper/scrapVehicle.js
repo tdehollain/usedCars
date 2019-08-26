@@ -27,7 +27,10 @@ const processVehicles = async (browserPage, vehicleList) => {
   for (let vehicle of vehicleList) {
     try {
       const oldCount = vehicle.lastCount;
+      console.log('regFrom before: ' + vehicle.regFrom);
+
       let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
+      console.log('regTo after: ' + vehicle.regFrom);
       processedVehicles.push({ ...vehicle, oldCount, lastCount, records: vehicleRecords });
     } catch (err) {
       console.log(err.message);
@@ -49,10 +52,10 @@ const processVehicle = async (browserPage, vehicle) => {
     } else {
       console.log(`More than 20 pages. Querying by year.`);
       // do it year by year
-      let lastYear = vehicle.regTo || new Date().getFullYear();
+      let lastYear = parseInt(vehicle.regTo, 10) || new Date().getFullYear();
       for (let i = parseInt(vehicle.regFrom, 10); i <= lastYear; i++) {
         console.log(`   Processing: ${vehicle.title} - year ${i}`);
-        let vehicleByYear = vehicle;
+        let vehicleByYear = JSON.parse(JSON.stringify(vehicle));
         vehicleByYear.regFrom = i;
         vehicleByYear.regTo = i === new Date().getFullYear() ? '' : i;
 

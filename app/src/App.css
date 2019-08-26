@@ -1,10 +1,15 @@
-@import "~normalize.css/normalize.css";
-@import "~@blueprintjs/core/lib/css/blueprint.css";
-@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+@import '~normalize.css/normalize.css';
+@import '~@blueprintjs/core/lib/css/blueprint.css';
+@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
 @import '~@blueprintjs/table/lib/css/table.css';
- 
+
 body {
   background: #293742;
+  outline: none;
+}
+
+select {
+  outline: none;
 }
 
 /**********************
@@ -13,14 +18,12 @@ body {
 
 .navbar-link {
   text-decoration: none;
-  color: #f5f8fa!important;
+  color: #f5f8fa !important;
 }
 
 .navbar-link:hover {
-  text-decoration: none!important;
+  text-decoration: none !important;
 }
-
-
 
 /************************
 *****   Home View   *****
@@ -55,7 +58,6 @@ body {
 .statisticsBoxIcon {
   width: 70px;
   float: left;
-
 }
 
 .statisticsBoxIcon .pt-icon {
@@ -110,7 +112,6 @@ body {
   border: 1px solid;
 }
 
-
 /*****************************
 *****   Evolution View   *****
 *****************************/
@@ -119,7 +120,6 @@ body {
   width: 1200px;
   margin: 30px auto;
 }
-
 
 /*************************
 *****   Admin View   *****
@@ -152,7 +152,7 @@ body {
 }
 
 .adminView .form-left {
-  padding-right: 3%;;
+  padding-right: 3%;
 }
 
 .adminView .form-right {
@@ -195,7 +195,8 @@ body {
   justify-content: space-evenly;
 }
 
-.adminView .form-submit a, .adminView .form-submit button {
+.adminView .form-submit a,
+.adminView .form-submit button {
   width: 160px;
 }
 
@@ -206,8 +207,6 @@ body {
   border-radius: 10px;
   font-size: 0.7rem;
 }
-
-
 
 table.vehicleList {
   width: 1360px;
@@ -277,7 +276,7 @@ table.vehicleList .editVehicle {
 }
 
 table.vehicleList .editVehicle:hover {
-  background: #5C7080;
+  background: #5c7080;
   cursor: pointer;
 }
 
@@ -286,6 +285,8 @@ table.vehicleList .deleteVehicle {
   cursor: pointer;
 }
 
-table.vehicleList .trans p, table.vehicleList .fuel p, table.vehicleList .bodyType p {
+table.vehicleList .trans p,
+table.vehicleList .fuel p,
+table.vehicleList .bodyType p {
   margin: 0;
 }

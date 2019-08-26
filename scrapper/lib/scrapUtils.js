@@ -37,7 +37,7 @@ const navigateToVehicle = async (vehicle, browserPage) => {
   await browserPage.click(modelInputSelector);
 
   await browserPage.type(modelInputSelector, vehicle.model);
-  // check if brand is not listed
+  // check if model is not listed
   const firstModel = await browserPage.evaluate(
     () => document.querySelectorAll(`div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`)[0].textContent
   );
@@ -51,7 +51,7 @@ const navigateToVehicle = async (vehicle, browserPage) => {
   const modelNumberInFilteredList = filteredModels.findIndex(e => e.toLowerCase() === vehicle.model.toLowerCase()) + 1;
 
   // //prettier-ignore
-  const modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible > div:nth-child(${modelNumberInFilteredList}) > li`;
+  const modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible > div > li:nth-child(${modelNumberInFilteredList})`;
   await browserPage.waitForSelector(modelValueSelector);
   await browserPage.click(modelValueSelector);
   if (logProgress) console.log('Completed Model Input');

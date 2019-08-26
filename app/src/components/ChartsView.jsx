@@ -1,77 +1,79 @@
-import React, { Component } from 'react';
+import React from 'react';
 // import PriceDistribution from './PriceDistribution';
-import Histogram from './Histogram';
-import KmDistribution from './KmDistribution';
+// import Histogram from './Histogram';
+// import KmDistribution from './KmDistribution';
 import PriceKmScatter from './PriceKmScatter';
 import { maxNumberOfBins } from '../lib/constants';
+import { formatDate_ddmmyyy } from '../lib/util';
 
-export default class ChartsView extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.selectedVehicle === this.props.selectedVehicle && nextProps.vehiclesData.length === this.props.vehiclesData.length) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+const ChartsView = props => {
+  const [measureDate, setMeasureDate] = React.useState('');
 
-  render() {
-    // console.log('Rendering ChartsView');
-    let nbVehicles = this.props.vehiclesData.length;
-
-    let priceDistribution = this.props.vehiclesData.length ? <Histogram data={this.props.vehiclesData} /> : null;
-
-    // let priceDistribution = this.props.vehiclesData.length ? (
-    //   <PriceDistribution
-    //     data={this.props.vehiclesData}
-    //     fontColor={'#E1E8ED'}
-    //     barColor={'#2B95D6'}
-    //     lineColor={'#EB532D'}
-    //     nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
-    //   />
-    // ) : null;
-
-    let kmDistribution = null;
-    // let kmDistribution = this.props.vehiclesData.length ? (
-    //   <KmDistribution
-    //     data={this.props.vehiclesData}
-    //     fontColor={'#E1E8ED'}
-    //     barColor={'#2B95D6'}
-    //     lineColor={'#EB532D'}
-    //     nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
-    //   />
-    // ) : null;
-
-    let priceKmScatter = this.props.vehiclesData.length ? (
-      <PriceKmScatter
-        data={this.props.vehiclesData}
-        fontColor={'#E1E8ED'}
-        markerColor={'#2B95D6'}
-        lineColor={'#EB532D'}
-        nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
-      />
-    ) : null;
-
-    let measureDateRaw = this.props.vehiclesData.length ? this.props.vehiclesData[0].measureDate : null;
-    let measureDate;
-    let measureDateString = 'N/A';
+  // When vehiclesRecords changes, define the measureDate string
+  React.useEffect(() => {
+    const measureDateRaw = props.vehiclesRecords.length ? props.vehiclesRecords[0].measureDate : null;
     if (measureDateRaw) {
-      measureDate = new Date(measureDateRaw);
-      measureDateString =
-        ('0' + measureDate.getDate()).slice(-2) + '/' + ('0' + (measureDate.getMonth() + 1)).slice(-2) + '/' + measureDate.getFullYear();
+      const measureDate_temp = formatDate_ddmmyyy(new Date(measureDateRaw));
+      setMeasureDate(measureDate_temp);
+    } else {
+      setMeasureDate('N/A');
     }
+  }, [props.vehiclesRecords]);
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if (
+  //     nextProps.selectedVehicle === this.props.selectedVehicle &&
+  //     nextProps.vehiclesRecords.length === this.props.vehiclesRecords.length
+  //   ) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-    return (
-      <div className="chartsView">
-        <a className="vehicleLink" href={this.props.selectedVehicleURL} target="_blank">
-          Link
-        </a>
-        <p className="measureDate">Last Update: {measureDateString}</p>
-        <div>
-          {priceDistribution}
+  // let priceDistribution = this.props.vehiclesRecords.length ? <Histogram data={this.props.vehiclesRecords} /> : null;
+
+  // let priceDistribution = this.props.vehiclesRecords.length ? (
+  //   <PriceDistribution
+  //     data={this.props.vehiclesRecords}
+  //     fontColor={'#E1E8ED'}
+  //     barColor={'#2B95D6'}
+  //     lineColor={'#EB532D'}
+  //     nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
+  //   />
+  // ) : null;
+
+  // let kmDistribution = null;
+  // let kmDistribution = this.props.vehiclesRecords.length ? (
+  //   <KmDistribution
+  //     data={this.props.vehiclesRecords}
+  //     fontColor={'#E1E8ED'}
+  //     barColor={'#2B95D6'}
+  //     lineColor={'#EB532D'}
+  //     nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
+  //   />
+  // ) : null;
+
+  // let priceKmScatter = this.props.vehiclesRecords.length ? (
+  //   <PriceKmScatter
+  //     data={this.props.vehiclesRecords}
+  //     fontColor={'#E1E8ED'}
+  //     markerColor={'#2B95D6'}
+  //     lineColor={'#EB532D'}
+  //     nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
+  //   />
+  // ) : null;
+
+  return (
+    <div className="chartsView">
+      <a className="vehicleLink" href={props.selectedVehicleURL} target="_blank">
+        Link
+      </a>
+      <p className="measureDate">Last Update: {measureDate}</p>
+      <div>{/* {priceDistribution}
           {kmDistribution}
-          {priceKmScatter}
-        </div>
-      </div>
-    );
-  }
-}
+          {priceKmScatter} */}</div>
+    </div>
+  );
+};
+
+export default ChartsView;

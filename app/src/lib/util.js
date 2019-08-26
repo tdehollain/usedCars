@@ -69,4 +69,18 @@ const sortByPropertyScrapDate = (a, b) => {
   return a.scrapDate - b.scrapDate;
 };
 
-export { buildURL, sortByPropertyTitle, sortByPropertyScrapDate };
+const formatDate_ddmmyyy = date =>
+  ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear();
+
+const alreadyIncluded = function(element, arr) {
+  let alreadyIncluded = false;
+  for (let el of arr) {
+    if (el.url === element.url) {
+      alreadyIncluded = true;
+      break;
+    }
+  }
+  return alreadyIncluded;
+};
+
+export { buildURL, sortByPropertyTitle, sortByPropertyScrapDate, formatDate_ddmmyyy, alreadyIncluded };

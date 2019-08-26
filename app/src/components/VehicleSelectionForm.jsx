@@ -13,13 +13,6 @@ export default class VehicleSelectionForm extends Component {
   render() {
     // console.log('Rendering VehicleSelectionForm');
     return (
-      // <MySelect
-      //   items={this.props.vehicleList.map(el => el.title)}
-      //   selectedItem={this.props.selectedVehicle}
-      //   onItemSelect={this.props.changeSelectedVehicle}
-      //   allowCreate={false}
-      //   filterable={true}
-      // />
       <form>
         <label className="pt-label">
           Vehicle
@@ -30,6 +23,14 @@ export default class VehicleSelectionForm extends Component {
                 <option key={el.title}>{el.title}</option>
               ))}
             </select>
+            {/* <MySelect
+            items={this.props.vehicleList.map(el => el.title)}
+            selectedItem={this.props.selectedVehicle}
+            onItemSelect={this.props.changeSelectedVehicle}
+            allowCreate={false}
+            filterable={true}
+            width={300}
+          /> */}
           </div>
         </label>
       </form>

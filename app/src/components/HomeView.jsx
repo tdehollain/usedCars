@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { store } from '../store';
 import math from 'mathjs';
 import { isOutlier } from '../lib/mathUtil';
@@ -7,105 +7,67 @@ import StatisticsView from './StatisticsView';
 import ChartsView from './ChartsView';
 import API from '../lib/API';
 
-export default class HomeView extends Component {
-  constructor() {
-    super();
+const HomeView = props => {
+  const [vehicleList, setVehicleList] = React.useState([]);
+  const [vehiclesRecords, setVehiclesRecords] = React.useState([]);
+  const [selectedVehicle, setSelectedVehicle] = React.useState('');
+  const [selectedVehicleURL, setSelectedVehicleURL] = React.useState('');
 
-    this.state = {
-      vehicleList: [],
-      selectedVehicle: '',
-      selectedVehicleURL: '',
-      vehiclesData: []
+  // When mounting: loading list of vehicles
+  React.useEffect(() => {
+    const getVehicleList = async () => {
+      const list = await API.getVehicleList();
+      if (!list) return; // happens if offline
+      setVehicleList(list);
     };
+    getVehicleList();
+  }, []);
 
-    this.changeSelectedVehicle = this.changeSelectedVehicle.bind(this);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (
-      nextState.selectedVehicle === this.state.selectedVehicle &&
-      nextState.vehicleList.length === this.state.vehicleList.length &&
-      nextState.vehiclesData.length === this.state.vehiclesData.length
-    ) {
-      return false;
-    } else {
-      // if(nextState.vehicleList.length !== this.state.vehicleList.length) console.log('Update due to: vehicleList');
-      // if(nextState.selectedVehicle !== this.state.selectedVehicle) console.log('Update due to: selectedVehicle');
-      // if(nextState.vehiclesData.length !== this.state.vehiclesData.length) console.log('Update due to: vehiclesData');
-      return true;
+  // When list of vehicles is received: get selected vehicle from localStorage
+  React.useEffect(() => {
+    if (vehicleList.length > 0) {
+      // get selected vehicle from Local Storage
+      let storedVehicle = localStorage.getItem('selectedVehicle');
+      if (!storedVehicle) storedVehicle = '';
+      setSelectedVehicle(storedVehicle);
     }
-  }
+  }, [vehicleList]);
 
-  async componentDidMount() {
-    const vehicleList = await API.getVehicleList();
-    // const vehicleList = [
-    //   { title: 'BMW M2', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M2 Competition', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M4 CS', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M4 GTS', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M5', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M5 Competition', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M6', vehicleURL: 'http://www.example.com' },
-    //   { title: 'BMW M6 Gran Coupe', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Audi RS5 Mk1', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Audi RS5 Mk2 Coupe', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Audi RS5 Mk2 Sportback', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Aston Martin DB7', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Aston Martin DB9', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Aston Martin DB11', vehicleURL: 'http://www.example.com' },
-    //   { title: 'Aston Martin Vanquish', vehicleURL: 'http://www.example.com' }
-    // ];
-    if (!vehicleList) return; // happens if offline
-    this.setState({
-      vehicleList: vehicleList
-    });
-    let selectedVehicle = localStorage.getItem('selectedVehicle');
-    if (!selectedVehicle) selectedVehicle = '';
-    this.updateSelectedVehicle(selectedVehicle);
-  }
-
-  changeSelectedVehicle(e) {
-    let selectedVehicle = e.target.value;
-    this.updateSelectedVehicle(selectedVehicle);
-    localStorage.setItem('selectedVehicle', selectedVehicle);
-  }
-
-  updateSelectedVehicle(selectedVehicle) {
+  // When selectedVehicle changes: fetch vehicle's records
+  React.useEffect(() => {
+    // console.log('selectedVehicle: ' + selectedVehicle);
     if (selectedVehicle === '') {
-      this.setState({ selectedVehicle: '', selectedVehicleURL: '', vehiclesData: [] });
+      // setSelectedVehicle('');
+      setSelectedVehicleURL('');
+      setVehiclesRecords([]);
     } else {
-      // get vehicle data
-      this.updateVehicleData(selectedVehicle);
+      // setSelectedVehicle(selectedVehicle);
       // get selected vehicle URL
-      for (let vehicle of this.state.vehicleList) {
+      for (let vehicle of vehicleList) {
         if (vehicle.title === selectedVehicle) {
-          this.setState({ selectedVehicle: selectedVehicle, selectedVehicleURL: vehicle.vehicleURL });
+          setSelectedVehicleURL(vehicle.vehicleURL);
           break;
         }
       }
+      // fetch vehicle records
+      fetchVehicleRecords(selectedVehicle);
     }
-  }
+  }, [selectedVehicle]);
 
-  async updateVehicleData(title) {
-    // console.log('fetching vehicle data');
-    const vehicleData = await API.getVehicleRecords(title);
-    let sortedData = vehicleData.sort((a, b) => {
-      return a.price - b.price;
-    });
-    let nbVehicles = vehicleData.length;
-    console.log(nbVehicles);
+  // When vehiclesRecords change: sort and remove outliers
+  React.useEffect(() => {
+    const sortedVehiclesRecords = vehiclesRecords.sort((a, b) => a.price - b.price);
 
-    // remove price outliers
-    let sortedData_filtered = sortedData.filter(
-      el => !isOutlier(vehicleData.map(vehicle => parseFloat(vehicle.price)), parseFloat(el.price))
-    );
-    nbVehicles = sortedData_filtered.length;
-    console.log(nbVehicles);
+    const vehicleRecords_noOutliers = removePriceOutliers(sortedVehiclesRecords);
+    setVehiclesRecords(vehicleRecords_noOutliers);
+  }, [vehiclesRecords]);
 
-    // Update vehicle statistics
-    let medianPrice = nbVehicles ? math.median(sortedData_filtered.map(el => el.price)) : 'N/A';
-    let priceP10 = nbVehicles ? sortedData_filtered[Math.floor(0.1 * nbVehicles)].price : 'N/A';
-    let priceP90 = nbVehicles ? sortedData_filtered[Math.floor(0.9 * nbVehicles)].price : 'N/A';
+  // When vehiclesRecords changes: update statistics
+  React.useEffect(() => {
+    const nbVehicles = vehiclesRecords.length;
+    const medianPrice = nbVehicles ? math.median(vehiclesRecords.map(el => el.price)) : 'N/A';
+    const priceP10 = nbVehicles ? vehiclesRecords[Math.floor(0.1 * nbVehicles)].price : 'N/A';
+    const priceP90 = nbVehicles ? vehiclesRecords[Math.floor(0.9 * nbVehicles)].price : 'N/A';
 
     store.dispatch({
       type: 'UPDATE_VEHICLE_STATISTICS',
@@ -117,28 +79,33 @@ export default class HomeView extends Component {
       }
     });
 
-    this.setState({
-      vehiclesData: sortedData_filtered
-    });
-  }
+    setVehiclesRecords(vehiclesRecords);
+  }, [vehiclesRecords]);
 
-  render() {
-    console.log('Rendering HomeView');
+  const fetchVehicleRecords = async title => {
+    const vehicleRecords = await API.getLatestVehicleRecords(title);
+    // console.log('# records: ' + vehicleRecords.length);
 
-    return (
-      <div className="homeView">
-        <VehicleSelectionForm
-          vehicleList={this.state.vehicleList}
-          selectedVehicle={this.state.selectedVehicle}
-          changeSelectedVehicle={this.changeSelectedVehicle}
-        />
-        <StatisticsView />
-        {/* <ChartsView
-          selectedVehicle={this.state.selectedVehicle}
-          selectedVehicleURL={this.state.selectedVehicleURL}
-          vehiclesData={this.state.vehiclesData}
-        /> */}
-      </div>
-    );
-  }
-}
+    setVehiclesRecords(vehicleRecords);
+  };
+
+  const removePriceOutliers = vehicleRecords => {
+    return vehicleRecords.filter(el => !isOutlier(vehicleRecords.map(vehicle => parseFloat(vehicle.price)), parseFloat(el.price)));
+  };
+
+  const changeSelectedVehicle = async e => {
+    let selectedVehicle = e.target.value;
+    setSelectedVehicle(selectedVehicle);
+    localStorage.setItem('selectedVehicle', selectedVehicle);
+  };
+
+  return (
+    <div className="homeView">
+      <VehicleSelectionForm vehicleList={vehicleList} selectedVehicle={selectedVehicle} changeSelectedVehicle={changeSelectedVehicle} />
+      <StatisticsView />
+      <ChartsView selectedVehicle={selectedVehicle} selectedVehicleURL={selectedVehicleURL} vehiclesRecords={vehiclesRecords} />
+    </div>
+  );
+};
+
+export default HomeView;

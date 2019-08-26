@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@blueprintjs/core": "^2.0.0",
-    "@blueprintjs/select": "^3.10.0",
+    "@blueprintjs/select": "^2.0.0",
     "@blueprintjs/table": "^2.0.0",
     "@tensorflow/tfjs": "^0.9.1",
     "ajv": "^6.3.0",
