@@ -27,10 +27,8 @@ const processVehicles = async (browserPage, vehicleList) => {
   for (let vehicle of vehicleList) {
     try {
       const oldCount = vehicle.lastCount;
-      console.log('regFrom before: ' + vehicle.regFrom);
 
       let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
-      console.log('regTo after: ' + vehicle.regFrom);
       processedVehicles.push({ ...vehicle, oldCount, lastCount, records: vehicleRecords });
     } catch (err) {
       console.log(err.message);
@@ -48,10 +46,15 @@ const processVehicle = async (browserPage, vehicle) => {
   let vehicleRecords = [];
   if (nbResults > 0) {
     if (nbResults < 400) {
-      vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
+      //----------------------------
+      //-----   General Case   -----
+      //----------------------------
+      vehicleRecords = await loopThroughPages(browserPage, vehicle.title, vehicleRecords);
     } else {
+      //-----------------------
+      //-----   By Year   -----
+      //-----------------------
       console.log(`More than 20 pages. Querying by year.`);
-      // do it year by year
       let lastYear = parseInt(vehicle.regTo, 10) || new Date().getFullYear();
       for (let i = parseInt(vehicle.regFrom, 10); i <= lastYear; i++) {
         console.log(`   Processing: ${vehicle.title} - year ${i}`);
@@ -59,12 +62,15 @@ const processVehicle = async (browserPage, vehicle) => {
         vehicleByYear.regFrom = i;
         vehicleByYear.regTo = i === new Date().getFullYear() ? '' : i;
 
-        let nbResultsByYear = await scrapUtils.navigateToVehicle(vehicle, browserPage); // get number of pages
+        let nbResultsByYear = await scrapUtils.navigateToVehicle(vehicleByYear, browserPage); // get number of pages
         console.log(`   Number of results: ${nbResultsByYear}`);
         if (nbResultsByYear > 0) {
           if (nbResultsByYear < 400) {
-            vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
+            vehicleRecords = await loopThroughPages(browserPage, vehicle.title, vehicleRecords);
           } else {
+            //-----------------------------------
+            //-----   By Year and Mileage   -----
+            //-----------------------------------
             console.log('   More than 20 pages, even by year. Querying by year and mileage.');
             // do it by mileage
             let vehicleByYearAndMileage = [
@@ -78,39 +84,39 @@ const processVehicle = async (browserPage, vehicle) => {
             ];
             for (let j = 0; j < 7; j++) {
               console.log(
-                `      Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
-                  vehicleByYearAndMileage[j].kmTo
-                }`
+                `      Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}`
               );
               let nbResultsByYearAndMileage = await scrapUtils.navigateToVehicle(vehicleByYearAndMileage[j], browserPage); // get number of pages
               console.log(`      Number of results: ${nbResultsByYearAndMileage}`);
               if (nbResultsByYearAndMileage > 0) {
                 if (nbResultsByYearAndMileage < 400) {
-                  vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
+                  vehicleRecords = await loopThroughPages(browserPage, vehicle.title, vehicleRecords);
                 } else if (nbResultsByYearAndMileage < 800) {
                   console.log(
                     '      Between 20 and 40 pages, even by year AND mileage. Doing it once in ascending price and once in descending price.'
                   );
 
+                  //----------------------------------------------
+                  //-----   By Year and Mileage - Ascending  -----
+                  //----------------------------------------------
                   let vehicleByYearAndMileageAsc = { ...vehicleByYearAndMileage[j], sorting: 'Price ascending' };
                   console.log(
-                    `         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
-                      vehicleByYearAndMileage[j].kmTo
-                    }. Order: ascending`
+                    `         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}. Order: ascending`
                   );
 
                   let nbResultsByYearAndMileageAscending = await scrapUtils.navigateToVehicle(vehicleByYearAndMileageAsc, browserPage);
-                  vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
+                  vehicleRecords = await loopThroughPages(browserPage, vehicle.title, vehicleRecords);
 
+                  //-----------------------------------------------
+                  //-----   By Year and Mileage - Descending  -----
+                  //-----------------------------------------------
                   let vehicleByYearAndMileageDesc = { ...vehicleByYearAndMileage[j], sorting: 'Price descending' };
                   console.log(
-                    `         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${
-                      vehicleByYearAndMileage[j].kmTo
-                    }. Order: descending`
+                    `         Processing: ${vehicle.title} - year ${i} - mileage: ${vehicleByYearAndMileage[j].kmFrom} to ${vehicleByYearAndMileage[j].kmTo}. Order: descending`
                   );
 
                   let nbResultsByYearAndMileageDescending = await scrapUtils.navigateToVehicle(vehicleByYearAndMileageDesc, browserPage);
-                  vehicleRecords = await loopThroughPages(browserPage, vehicle, vehicleRecords);
+                  vehicleRecords = await loopThroughPages(browserPage, vehicle.title, vehicleRecords);
                 } else {
                   console.log('      More than 40 pages, even by year AND mileage. Skipping vehicle.');
                   return { vehicleRecords: null, lastCount: 'too many' };
@@ -126,14 +132,14 @@ const processVehicle = async (browserPage, vehicle) => {
   return { vehicleRecords, lastCount: nbResults };
 };
 
-const loopThroughPages = async (browserPage, vehicle, vehicleRecords) => {
+const loopThroughPages = async (browserPage, vehicleTitle, vehicleRecords) => {
   let output = JSON.parse(JSON.stringify(vehicleRecords));
   let hasNextPage = true;
   do {
     let vehicleRecordsThisPage = await getRecordsForPage(browserPage);
     // Add vehicle title to records
     vehicleRecordsThisPage = vehicleRecordsThisPage.map(el => {
-      return { ...el, title: vehicle.title };
+      return { ...el, title: vehicleTitle };
     });
     output = vehicleUtils.addRecordsToList(output, vehicleRecordsThisPage);
     hasNextPage = await scrapUtils.hasNextPage(browserPage);

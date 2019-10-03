@@ -4,7 +4,7 @@ import MyNavBar from './components/MyNavBar';
 import { Route, Switch } from 'react-router-dom';
 import HomeView from './components/HomeView';
 import AdminView from './AdminView/AdminView';
-// import EvolutionView from './components/EvolutionView';
+import EvolutionView from './components/EvolutionView';
 
 class App extends Component {
   render() {
@@ -14,7 +14,7 @@ class App extends Component {
         <MyNavBar />
         <Switch>
           <Route exact path="/" component={HomeView} />
-          {/* <Route path='/evolution/' component={EvolutionView} /> */}
+          <Route path="/evolution/" component={EvolutionView} />
           <Route path="/admin/" component={AdminView} />
         </Switch>
       </div>

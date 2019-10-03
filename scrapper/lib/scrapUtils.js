@@ -51,7 +51,7 @@ const navigateToVehicle = async (vehicle, browserPage) => {
   const modelNumberInFilteredList = filteredModels.findIndex(e => e.toLowerCase() === vehicle.model.toLowerCase()) + 1;
 
   // //prettier-ignore
-  const modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible > div > li:nth-child(${modelNumberInFilteredList})`;
+  const modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible > div:nth-child(${modelNumberInFilteredList}) > li`;
   await browserPage.waitForSelector(modelValueSelector);
   await browserPage.click(modelValueSelector);
   if (logProgress) console.log('Completed Model Input');

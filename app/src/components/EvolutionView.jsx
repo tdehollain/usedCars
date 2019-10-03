@@ -1,117 +1,94 @@
-import React, { Component } from 'react';
+import React from 'react';
 import VehicleSelectionForm from './VehicleSelectionForm';
 import EvolutionChartsView from './EvolutionChartsView';
+import API from '../lib/API';
+import { isOutlier } from '../lib/mathUtil';
 
-export default class EvolutionView extends Component {
-  constructor() {
-    super();
+const EvolutionView = props => {
+  const [vehicleList, setVehicleList] = React.useState([]);
+  const [selectedVehicle, setSelectedVehicle] = React.useState('');
+  const [selectedVehicleURL, setSelectedVehicleURL] = React.useState('');
+  const [vehiclesRecords, setVehiclesRecords] = React.useState([]);
+  const [sortedVehiclesRecords, setSortedVehiclesRecords] = React.useState([]);
 
-    this.state = {
-      vehicleList: [],
-      selectedVehicle: '',
-      selectedVehicleURL: '',
-      vehicleData: []
+  // When mounting: loading list of vehicles
+  React.useEffect(() => {
+    const getVehicleList = async () => {
+      const list = await API.getVehicleList();
+      if (!list) return; // happens if offline
+      setVehicleList(list);
     };
+    getVehicleList();
+  }, []);
 
-    this.changeSelectedVehicle = this.changeSelectedVehicle.bind(this);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (
-      nextState.selectedVehicle === this.state.selectedVehicle &&
-      nextState.vehicleList.length === this.state.vehicleList.length &&
-      nextState.vehicleData.length === this.state.vehicleData.length
-    ) {
-      return false;
-    } else {
-      // if(nextState.vehicleList.length !== this.state.vehicleList.length) console.log('Update due to: vehicleList');
-      // if(nextState.selectedVehicle !== this.state.selectedVehicle) console.log('Update due to: selectedVehicle');
-      // if(nextState.vehicleData.length !== this.state.vehicleData.length) console.log('Update due to: vehicleData');
-      return true;
+  // When list of vehicles is received: get selected vehicle from localStorage
+  React.useEffect(() => {
+    if (vehicleList.length > 0) {
+      // get selected vehicle from Local Storage
+      let storedVehicle = localStorage.getItem('selectedVehicle');
+      if (!storedVehicle) storedVehicle = '';
+      setSelectedVehicle(storedVehicle);
     }
-  }
+  }, [vehicleList]);
 
-  componentDidMount() {
-    fetch('/api/getVehicleList')
-      .then(res => res.json())
-      .then(res => {
-        this.setState({
-          vehicleList: res.vehicleList
-        });
-        let selectedVehicle = localStorage.getItem('selectedVehicle');
-        if (!selectedVehicle) selectedVehicle = '';
-        this.updateSelectedVehicle(selectedVehicle);
-      });
-  }
-
-  changeSelectedVehicle(e) {
-    let selectedVehicle = e.target.value;
-    this.updateSelectedVehicle(selectedVehicle);
-    localStorage.setItem('selectedVehicle', selectedVehicle);
-  }
-
-  updateSelectedVehicle(selectedVehicle) {
+  // When selectedVehicle changes: fetch vehicle's records
+  React.useEffect(() => {
+    // console.log('selectedVehicle: ' + selectedVehicle);
     if (selectedVehicle === '') {
-      this.setState({
-        selectedVehicle: '',
-        selectedVehicleURL: '',
-        vehicleData: []
-      });
+      // setSelectedVehicle('');
+      setSelectedVehicleURL('');
+      setVehiclesRecords([]);
     } else {
-      // get vehicle data
-      this.updateVehicleData(selectedVehicle);
+      // setSelectedVehicle(selectedVehicle);
       // get selected vehicle URL
-      for (let el of this.state.vehicleList) {
-        if (el.title === selectedVehicle) {
-          this.setState({
-            selectedVehicle: selectedVehicle,
-            selectedVehicleURL: el.vehicleURL
-          });
+      for (let vehicle of vehicleList) {
+        if (vehicle.title === selectedVehicle) {
+          setSelectedVehicleURL(vehicle.vehicleURL);
           break;
         }
       }
+      // fetch vehicle records
+      fetchVehicleRecords(selectedVehicle);
     }
-  }
+  }, [selectedVehicle]);
 
-  updateVehicleData(title) {
-    // console.log('fetching vehicle data');
-    fetch('/api/getAllVehicleData', {
-      method: 'POST',
-      body: JSON.stringify({ title }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.json())
-      .then(res => {
-        let vehicleData = res.data;
-        this.setState({
-          vehicleData: vehicleData
-        });
-      });
-  }
+  const fetchVehicleRecords = async title => {
+    const vehiclesRecords = await API.getVehicleRecords(title);
+    // console.log('# records: ' + vehiclesRecords.length);
 
-  render() {
-    let sortedList = this.state.vehicleList.sort((a, b) => {
-      if (a.title < b.title) return -1;
-      if (a.title > b.title) return 1;
-      return 0;
-    });
+    setVehiclesRecords(vehiclesRecords);
+  };
 
-    return (
-      <div className="evolutionView">
-        <VehicleSelectionForm
-          vehicleList={sortedList}
-          selectedVehicle={this.state.selectedVehicle}
-          changeSelectedVehicle={this.changeSelectedVehicle}
-        />
-        <EvolutionChartsView
-          selectedVehicle={this.state.selectedVehicle}
-          selectedVehicleURL={this.state.selectedVehicleURL}
-          vehicleData={this.state.vehicleData}
-        />
-      </div>
-    );
-  }
-}
+  // When vehiclesRecords change: sort and remove outliers
+  React.useEffect(() => {
+    const sortedVehiclesRecords = vehiclesRecords.sort((a, b) => a.price - b.price);
+
+    const vehicleRecords_noOutliers = removePriceOutliers(sortedVehiclesRecords);
+    setSortedVehiclesRecords(vehicleRecords_noOutliers);
+  }, [vehiclesRecords]);
+
+  const removePriceOutliers = records => {
+    return records.filter(el => !isOutlier(records.map(vehicle => parseFloat(vehicle.price)), parseFloat(el.price)));
+  };
+
+  const changeSelectedVehicle = async e => {
+    let selectedVehicle = e.target.value;
+    setSelectedVehicle(selectedVehicle);
+    localStorage.setItem('selectedVehicle', selectedVehicle);
+  };
+
+  let sortedList = vehicleList.sort((a, b) => {
+    if (a.title < b.title) return -1;
+    if (a.title > b.title) return 1;
+    return 0;
+  });
+
+  return (
+    <div className="evolutionView">
+      <VehicleSelectionForm vehicleList={vehicleList} selectedVehicle={selectedVehicle} changeSelectedVehicle={changeSelectedVehicle} />
+      <EvolutionChartsView selectedVehicle={selectedVehicle} selectedVehicleURL={selectedVehicleURL} vehicleData={sortedVehiclesRecords} />
+    </div>
+  );
+};
+
+export default EvolutionView;
