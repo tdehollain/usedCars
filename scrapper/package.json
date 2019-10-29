@@ -15,7 +15,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "heapdump": "^0.3.9",
-    "mongoose": "^5.0.12",
+    "mongoose": "^5.7.5",
     "node-fetch": "^2.1.2",
     "puppeteer": "^1.4.0"
   }
