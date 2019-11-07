@@ -2,10 +2,21 @@ const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null; // don't
 const scrapUtils = require('./lib/scrapUtils');
 const vehicleUtils = require('./lib/vehicleUtils');
 
-const start = async browserPage => {
+const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
   // Get tracked vehicles data
   const vehicleList = await db.getVehicleList();
-  const vehiclesToProcess = vehicleList.filter(vehicleUtils.filterVehiclesToProcessNow);
+  const vehiclesToProcess = manualMode
+    ? vehicleList.filter(vehicle => {
+        let found = false;
+        for (const vehicleToProcess of vehiclesDefinitions) {
+          if (vehicleToProcess.timingDay === vehicle.timingDay && vehicleToProcess.timingHour === vehicle.timingHour) {
+            found = true;
+            break;
+          }
+        }
+        return found;
+      })
+    : vehicleList.filter(vehicleUtils.filterVehiclesToProcessNow);
   let processedVehicles = await processVehicles(browserPage, vehiclesToProcess);
 
   for (let processedVehicle of processedVehicles) {

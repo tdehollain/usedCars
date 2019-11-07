@@ -1,0 +1,9 @@
+{
+  "manualMode": true,
+  "vehicles": [
+    {
+      "timingDay": 7,
+      "timingHour": 10
+    }
+  ]
+}

@@ -43,15 +43,37 @@ const navigateToVehicle = async (vehicle, browserPage) => {
   );
   if (firstModel === 'Unknown model') throw new Error(`Error navigating to vehicle "${vehicle.title}": model not listed`);
 
-  // Find model number in filtered list
-  const filteredModels = await browserPage.evaluate(() => {
-    const modelsListSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`;
-    return Array.from(document.querySelectorAll(modelsListSelector), e => e.textContent);
+  // Count if there is more than one model
+  const { nbModels, indented } = await browserPage.evaluate(() => {
+    const modelsListSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible div li`;
+    const modelElements = Array.from(document.querySelectorAll(modelsListSelector));
+    const nbModels = modelElements.length;
+    const classNames = modelElements.map(el => el.className);
+    let indented = false;
+    for (const className of classNames) {
+      if (className.includes('--indented')) indented = true;
+    }
+    return { nbModels, indented };
   });
-  const modelNumberInFilteredList = filteredModels.findIndex(e => e.toLowerCase() === vehicle.model.toLowerCase()) + 1;
 
-  // //prettier-ignore
-  const modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible > div:nth-child(${modelNumberInFilteredList}) > li`;
+  console.log('number of models: ' + nbModels + '. Indented: ' + indented);
+
+  let modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`;
+  if (nbModels > 1) {
+    // Find model number in filtered list
+    const filteredModels = await browserPage.evaluate(() => {
+      const modelsListSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`;
+      return Array.from(document.querySelectorAll(modelsListSelector), e => e.textContent);
+    });
+    const modelNumberInFilteredList = filteredModels.findIndex(e => e.toLowerCase() === vehicle.model.toLowerCase()) + 1;
+
+    if (indented) {
+      modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible div li:nth-child(${modelNumberInFilteredList})`;
+    } else {
+      modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible div:nth-child(${modelNumberInFilteredList}) li`;
+    }
+  }
+
   await browserPage.waitForSelector(modelValueSelector);
   await browserPage.click(modelValueSelector);
   if (logProgress) console.log('Completed Model Input');

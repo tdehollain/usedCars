@@ -9,7 +9,7 @@ custom:
 provider:
   name: aws
   profile: usedCars-serverless-admin
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: dev
   region: eu-west-1
   iamRoleStatements:

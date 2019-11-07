@@ -3,6 +3,10 @@ const scrapVehicle = require('./scrapVehicle.js');
 
 exports.handler = async (event, context, callback) => {
   console.log('Starting');
+  const manualMode = event.manualMode;
+  const vehiclesDefinitions = event.vehicles;
+
+  console.log({ manualMode });
 
   let browser;
   try {
@@ -20,11 +24,12 @@ exports.handler = async (event, context, callback) => {
       deviceScaleFactor: 1
     });
 
-    let processedVehicles = await scrapVehicle.start(browserPage);
-    console.log(`Job Complete. ${processedVehicles.length} vehicles processed.`);
-    // callback(null, 'Processed vehicles: ' + processedVehicles.length);
-    callback(null, `Job Complete. ${processedVehicles.length} vehicles processed.`);
-    return;
+    let processedVehicles = await scrapVehicle.start(browserPage, manualMode, vehiclesDefinitions);
+    const outputMessage = `Job Complete. ${processedVehicles.length} vehicles processed. Vehicles processed: ${processedVehicles.map(
+      e => `\n${e.title} (nb results: ${e.lastCount})`
+    )}`;
+    console.log(outputMessage);
+    return outputMessage;
   } catch (error) {
     callback(error);
     return;

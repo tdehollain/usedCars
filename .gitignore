@@ -4,6 +4,9 @@
 /app/node_modules
 /scrapper/node_modules
 
+# serverless
+/serverless-service/.serverless
+
 # misc
 .DS_Store
 .env.local

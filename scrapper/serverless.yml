@@ -10,7 +10,7 @@ custom:
 provider:
   name: aws
   profile: usedCars-serverless-admin
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: dev
   region: eu-west-1
   iamRoleStatements:
@@ -39,7 +39,8 @@ provider:
       Action:
         - lambda:GetLayerVersion
       Resource:
-        - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:1
+        - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:2
+        # - arn:aws:lambda:eu-west-1:764866452798:layer:chrome-aws-lambda:5
     - Effect: Allow
       Action:
         - ses:SendEmail
@@ -56,7 +57,8 @@ functions:
     timeout: 900
     memorySize: 2048
     layers:
-      - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:1
+      - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:2
+      # - arn:aws:lambda:eu-west-1:764866452798:layer:chrome-aws-lambda:5
   sendSummaryEmail:
     handler: sendSummaryEmail.handler
     timeout: 30
