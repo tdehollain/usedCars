@@ -26,7 +26,7 @@ exports.handler = async (event, context, callback) => {
 
     let processedVehicles = await scrapVehicle.start(browserPage, manualMode, vehiclesDefinitions);
     const outputMessage = `Job Complete. ${processedVehicles.length} vehicles processed. Vehicles processed: ${processedVehicles.map(
-      e => `\n${e.title} (nb results: ${e.lastCount})`
+      e => `\n${e.title}, success: ${e.success} (nb results: ${e.lastCount})`
     )}`;
     console.log(outputMessage);
     return outputMessage;

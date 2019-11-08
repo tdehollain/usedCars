@@ -178,34 +178,6 @@ const writeToScrapLog = async (title, scrapDetails) => {
   }
 };
 
-//====================================
-//=====   Supporting Functions   =====
-//====================================
-
-// const stripEmptyAttributes = obj => {
-//   let newObj = {};
-//   Object.keys(obj).forEach(prop => {
-//     if (obj[prop]) {
-//       newObj[prop] = obj[prop];
-//     }
-//   });
-//   return newObj;
-// };
-
-// const stripEmptyStringAttributes = obj => {
-//   let newObj = {};
-//   Object.keys(obj).forEach(prop => {
-//     if (obj[prop]) {
-//       if (typeof prop === String) {
-//         if (prop !== '') newObj[prop] = obj[prop];
-//       } else {
-//         newObj[prop] = obj[prop];
-//       }
-//     }
-//   });
-//   return newObj;
-// };
-
 const sleep = waitTimeInMs => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
 
 const deleteVehicleRecords = async function(vehicleTitle, month) {

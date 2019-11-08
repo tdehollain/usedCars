@@ -23,6 +23,7 @@ const sendEmail = async logData => {
 				<tr style='${i > 0 && 'border-top: 1px solid #aaa;'}'>
           <td style='padding: 5px 0 5px 15px; text-align: center;'>${i + 1}</td>
           <td style='padding: 5px 0 5px 15px;'>${vehicle.title}</td>
+          <td style='padding: 5px; text-align: center;'>${vehicle.log.success}</td>
 					<td style='padding: 5px; text-align: center;'>${vehicle.log.lastCount}</td>
 					<td style='padding: 5px; text-align: center;'>${vehicle.log.oldCount}</td>
 				</tr>
@@ -42,6 +43,7 @@ const sendEmail = async logData => {
 							<tr>
                 <td style='text-align: center; padding: 10px 18px 10px 30px;'>#</td>
                 <td style='text-align: center; padding: 10px 30px;'>Vehicle</td>
+                <td style='text-align: center; padding: 10px 30px;'>Success</td>
 								<td style='text-align: center; padding: 10px 30px;'>Last count</td>
 								<td style='text-align: center; padding: 10px 30px;'>Old count</td>
 							</tr>

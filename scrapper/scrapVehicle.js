@@ -21,14 +21,16 @@ const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
 
   for (let processedVehicle of processedVehicles) {
     // Save records to DB
-    await db.putVehicleRecords(processedVehicle);
+    if (processedVehicle.success) {
+      await db.putVehicleRecords(processedVehicle);
+    }
 
     // Update last count in vehicle list
     await db.updateVehicle(processedVehicle);
 
     // Write to Scrap Log
-    const { oldCount, lastCount } = processedVehicle;
-    await db.writeToScrapLog(processedVehicle.title, { oldCount, lastCount });
+    const { title, success, oldCount, lastCount } = processedVehicle;
+    await db.writeToScrapLog(title, { success, oldCount, lastCount });
   }
   return processedVehicles;
 };
@@ -36,13 +38,13 @@ const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
 const processVehicles = async (browserPage, vehicleList) => {
   let processedVehicles = [];
   for (let vehicle of vehicleList) {
+    const oldCount = vehicle.lastCount;
     try {
-      const oldCount = vehicle.lastCount;
-
       let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
-      processedVehicles.push({ ...vehicle, oldCount, lastCount, records: vehicleRecords });
+      processedVehicles.push({ ...vehicle, success: true, oldCount, lastCount, records: vehicleRecords });
     } catch (err) {
-      console.log(err.message);
+      console.log('ERROR: ' + err.message);
+      processedVehicles.push({ ...vehicle, success: false, oldCount, lastCount: 'n/a' });
     }
   }
   return processedVehicles;
