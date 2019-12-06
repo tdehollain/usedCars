@@ -1,5 +1,5 @@
 import React from 'react';
-// import PriceDistribution from './PriceDistribution';
+import PriceDistribution from './PriceDistribution';
 // import Histogram from './Histogram';
 // import KmDistribution from './KmDistribution';
 import PriceKmScatter from './PriceKmScatter';
@@ -19,28 +19,18 @@ const ChartsView = props => {
       setMeasureDate('N/A');
     }
   }, [props.vehiclesRecords]);
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if (
-  //     nextProps.selectedVehicle === this.props.selectedVehicle &&
-  //     nextProps.vehiclesRecords.length === this.props.vehiclesRecords.length
-  //   ) {
-  //     return false;
-  //   } else {
-  //     return true;
-  //   }
-  // }
 
   // let priceDistribution = this.props.vehiclesRecords.length ? <Histogram data={this.props.vehiclesRecords} /> : null;
 
-  // let priceDistribution = this.props.vehiclesRecords.length ? (
-  //   <PriceDistribution
-  //     data={this.props.vehiclesRecords}
-  //     fontColor={'#E1E8ED'}
-  //     barColor={'#2B95D6'}
-  //     lineColor={'#EB532D'}
-  //     nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * nbVehicles))}
-  //   />
-  // ) : null;
+  let priceDistribution = props.vehiclesRecords.length ? (
+    <PriceDistribution
+      data={props.vehiclesRecords}
+      fontColor={'#E1E8ED'}
+      barColor={'#2B95D6'}
+      lineColor={'#EB532D'}
+      nbins={Math.max(maxNumberOfBins, Math.sqrt(2 * props.vehiclesRecords.length))}
+    />
+  ) : null;
 
   // let kmDistribution = null;
   // let kmDistribution = this.props.vehiclesRecords.length ? (
@@ -69,9 +59,11 @@ const ChartsView = props => {
         Link
       </a>
       <p className="measureDate">Last Update: {measureDate}</p>
-      <div>{/* {priceDistribution}
-          {kmDistribution}
-          {priceKmScatter} */}</div>
+      <div>
+        {priceDistribution}
+        {/* {kmDistribution}
+          {priceKmScatter} */}
+      </div>
     </div>
   );
 };

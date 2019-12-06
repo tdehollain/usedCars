@@ -3,7 +3,7 @@ const scrapVehicle = require('./scrapVehicle.js');
 
 exports.handler = async (event, context, callback) => {
   console.log('Starting');
-  const manualMode = event.manualMode;
+  const manualMode = event.manualMode || false;
   const vehiclesDefinitions = event.vehicles;
 
   console.log({ manualMode });

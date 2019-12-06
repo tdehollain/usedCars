@@ -37,45 +37,26 @@ const navigateToVehicle = async (vehicle, browserPage) => {
   await browserPage.click(modelInputSelector);
 
   await browserPage.type(modelInputSelector, vehicle.model);
-  // check if model is not listed
-  const firstModel = await browserPage.evaluate(
-    () => document.querySelectorAll(`div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`)[0].textContent
-  );
-  if (firstModel === 'Unknown model') throw new Error(`Error navigating to vehicle "${vehicle.title}": model not listed`);
+  const modelSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`;
 
-  // Count if there is more than one model
-  const { nbModels, indented } = await browserPage.evaluate(() => {
-    const modelsListSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible div li`;
-    const modelElements = Array.from(document.querySelectorAll(modelsListSelector));
-    const nbModels = modelElements.length;
-    const classNames = modelElements.map(el => el.className);
-    let indented = false;
-    for (const className of classNames) {
-      if (className.includes('--indented')) indented = true;
-    }
-    return { nbModels, indented };
-  });
+  // Array of models in the filtered list
+  await browserPage.waitForSelector(modelSelector);
+  const filteredModels = await browserPage.$$(modelSelector);
 
-  console.log('number of models: ' + nbModels + '. Indented: ' + indented);
-
-  let modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`;
-  if (nbModels > 1) {
-    // Find model number in filtered list
-    const filteredModels = await browserPage.evaluate(() => {
-      const modelsListSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible li`;
-      return Array.from(document.querySelectorAll(modelsListSelector), e => e.textContent);
-    });
-    const modelNumberInFilteredList = filteredModels.findIndex(e => e.toLowerCase() === vehicle.model.toLowerCase()) + 1;
-
-    if (indented) {
-      modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible div li:nth-child(${modelNumberInFilteredList})`;
-    } else {
-      modelValueSelector = `div[data-test='modelmodelline0'] .react-autocomplete__list--visible div:nth-child(${modelNumberInFilteredList}) li`;
-    }
+  let filteredModelNames = [];
+  let modelElementHandle;
+  for (const elHandle of filteredModels) {
+    const modelNameHandle = await elHandle.getProperty('textContent');
+    const modelName = await modelNameHandle.jsonValue();
+    if (modelName.toLowerCase() === vehicle.model.toLowerCase()) modelElementHandle = elHandle;
+    filteredModelNames.push(modelName);
   }
 
-  await browserPage.waitForSelector(modelValueSelector);
-  await browserPage.click(modelValueSelector);
+  // check if model is not listed
+  if (filteredModelNames[0] === 'Unknown model') throw new Error(`Error navigating to vehicle "${vehicle.title}": model not listed`);
+
+  await modelElementHandle.click();
+
   if (logProgress) console.log('Completed Model Input');
 
   //=============================
