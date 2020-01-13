@@ -2,6 +2,8 @@ const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null; // don't
 const scrapUtils = require('./lib/scrapUtils');
 const vehicleUtils = require('./lib/vehicleUtils');
 
+const MAX_RETRIES = 2;
+
 const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
   // Get tracked vehicles data
   const vehicleList = await db.getVehicleList();
@@ -40,7 +42,7 @@ const processVehicles = async (browserPage, vehicleList) => {
   for (let vehicle of vehicleList) {
     const oldCount = vehicle.lastCount;
     try {
-      let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
+      let { vehicleRecords, lastCount } = await launchProcessVehicles(browserPage, vehicle);
       processedVehicles.push({ ...vehicle, success: true, oldCount, lastCount, records: vehicleRecords });
     } catch (err) {
       console.log('ERROR: ' + err.message);
@@ -48,6 +50,21 @@ const processVehicles = async (browserPage, vehicleList) => {
     }
   }
   return processedVehicles;
+};
+
+// Function wrappint processVehicle to get retries strategy
+const launchProcessVehicles = async (browserPage, vehicle, nbOfRetries = 0) => {
+  try {
+    let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
+    return { vehicleRecords, lastCount };
+  } catch (err) {
+    if (nbOfRetries < MAX_RETRIES) {
+      console.log(`Retry #${nbOfRetries + 1} (Error: ${err})`);
+      return await launchProcessVehicles(browserPage, vehicle, nbOfRetries + 1);
+    } else {
+      throw new Error(err);
+    }
+  }
 };
 
 const processVehicle = async (browserPage, vehicle) => {
@@ -69,6 +86,10 @@ const processVehicle = async (browserPage, vehicle) => {
       //-----------------------
       console.log(`More than 20 pages. Querying by year.`);
       let lastYear = parseInt(vehicle.regTo, 10) || new Date().getFullYear();
+      // Skip the current year if before mid-Jan (not yet listed on the website)
+      const currentDay = new Date().getDate();
+      const currentMonth = new Date().getMonth();
+      if (currentMonth === 0 && currentDay <= 15) lastYear = lastYear - 1;
       for (let i = parseInt(vehicle.regFrom, 10); i <= lastYear; i++) {
         console.log(`   Processing: ${vehicle.title} - year ${i}`);
         let vehicleByYear = JSON.parse(JSON.stringify(vehicle));
