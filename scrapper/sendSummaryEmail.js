@@ -16,9 +16,11 @@ exports.handler = async (event, context, callback) => {
 
 const sendEmail = async logData => {
   const ToAddress = 'thibaut.dehollain@gmail.com';
+  let nonSuccesses = false;
 
   const textBody = logData
     .map((vehicle, i) => {
+      if (!vehicle.log.success) nonSuccesses = true;
       return `
 				<tr style='${i > 0 && 'border-top: 1px solid #aaa;'}'>
           <td style='padding: 5px 0 5px 15px; text-align: center;'>${i + 1}</td>
@@ -84,6 +86,7 @@ const sendEmail = async logData => {
     Source: `Used Cars <${ToAddress}>`
   };
 
+  if (!nonSuccesses) return 'All successes, email not sent';
   try {
     let res = await SES.sendEmail(params).promise();
     return res;
