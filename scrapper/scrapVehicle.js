@@ -2,7 +2,7 @@ const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null; // don't
 const scrapUtils = require('./lib/scrapUtils');
 const vehicleUtils = require('./lib/vehicleUtils');
 
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 4;
 
 const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
   // Get tracked vehicles data
