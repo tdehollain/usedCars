@@ -7,6 +7,9 @@
 # serverless
 /serverless-service/.serverless
 
+# old, unneeded folders
+/old-server
+
 # misc
 .DS_Store
 .env.local
