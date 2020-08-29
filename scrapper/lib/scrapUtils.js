@@ -5,6 +5,17 @@ const logProgress = false;
 
 const navigateToVehicle = async (vehicle, browserPage) => {
   await browserPage.goto(constants.autoScoutBaseURL);
+  
+  //=============================
+  //=====   General Setup   =====
+  //=============================
+  await browserPage.waitFor(10000); // This page is loading a bunch of shit, need to wait at least 5000 for the page to be final
+  
+  await browserPage.evaluate(() => { 
+    const firstDiv = document.querySelectorAll('body > div')[0];
+    if(firstDiv.className === "") firstDiv.style.display = 'none';
+  });
+
 
   //===========================
   //=====   Brand Input   =====
@@ -24,6 +35,7 @@ const navigateToVehicle = async (vehicle, browserPage) => {
 
   const brandValueSelector = `div[data-test='make0'] .as24-grouped-suggestions-list > div:nth-child(1) > li`;
   await browserPage.waitForSelector(brandValueSelector);
+  // await browserPage.waitFor(100000);
   await browserPage.click(brandValueSelector);
   if (logProgress) console.log('Completed Brand Input');
 

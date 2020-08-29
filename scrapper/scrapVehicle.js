@@ -1,4 +1,4 @@
-const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null; // don't load if local environment
+const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null;
 const scrapUtils = require('./lib/scrapUtils');
 const vehicleUtils = require('./lib/vehicleUtils');
 
@@ -9,15 +9,15 @@ const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
   const vehicleList = await db.getVehicleList();
   const vehiclesToProcess = manualMode
     ? vehicleList.filter(vehicle => {
-        let found = false;
-        for (const vehicleToProcess of vehiclesDefinitions) {
-          if (vehicleToProcess.timingDay === vehicle.timingDay && vehicleToProcess.timingHour === vehicle.timingHour) {
-            found = true;
-            break;
-          }
+      let found = false;
+      for (const vehicleToProcess of vehiclesDefinitions) {
+        if (vehicleToProcess.timingDay === vehicle.timingDay && vehicleToProcess.timingHour === vehicle.timingHour) {
+          found = true;
+          break;
         }
-        return found;
-      })
+      }
+      return found;
+    })
     : vehicleList.filter(vehicleUtils.filterVehiclesToProcessNow);
   let processedVehicles = await processVehicles(browserPage, vehiclesToProcess);
 
