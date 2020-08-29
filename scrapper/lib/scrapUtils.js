@@ -5,15 +5,16 @@ const logProgress = false;
 
 const navigateToVehicle = async (vehicle, browserPage) => {
   await browserPage.goto(constants.autoScoutBaseURL);
-  
+
   //=============================
   //=====   General Setup   =====
   //=============================
   await browserPage.waitFor(10000); // This page is loading a bunch of shit, need to wait at least 5000 for the page to be final
-  
-  await browserPage.evaluate(() => { 
+
+  // Remove top layer with some dialog
+  await browserPage.evaluate(() => {
     const firstDiv = document.querySelectorAll('body > div')[0];
-    if(firstDiv.className === "") firstDiv.style.display = 'none';
+    if (firstDiv.className === "") firstDiv.style.display = 'none';
   });
 
 
