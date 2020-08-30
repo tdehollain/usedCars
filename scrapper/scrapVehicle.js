@@ -43,7 +43,10 @@ const processVehicles = async (browserPage, vehicleList) => {
     const oldCount = vehicle.lastCount;
     try {
       let { vehicleRecords, lastCount } = await launchProcessVehicles(browserPage, vehicle);
-      processedVehicles.push({ ...vehicle, success: true, oldCount, lastCount, records: vehicleRecords });
+      const updatedVehicle = { ...vehicle, success: true, oldCount, lastCount, lastUpdate: new Date(), records: vehicleRecords };
+      console.log('updatedVehicle: ');
+      console.log(updatedVehicle);
+      processedVehicles.push(updatedVehicle);
     } catch (err) {
       console.log('ERROR: ' + err.message);
       processedVehicles.push({ ...vehicle, success: false, oldCount, lastCount: 'n/a' });

@@ -48,30 +48,39 @@ const deleteVehicle = async (vehicleTitle, tableName) => {
 };
 
 const getVehicleRecords = async (vehicleTitle, tableName) => {
-  let tableParams = {
-    TableName: tableName,
-    KeyConditionExpression: 'title = :title',
-    // ExpressionAttributeNames: {
-    //   '#title': 'title'
-    // },
-    ExpressionAttributeValues: {
-      ':title': vehicleTitle
+  let allRecords = [];
+  let ExclusiveStartKey = undefined;
+  do {
+    let tableParams = {
+      TableName: tableName,
+      KeyConditionExpression: 'title = :title',
+      // ExpressionAttributeNames: {
+      //   '#title': 'title'
+      // },
+      ExpressionAttributeValues: {
+        ':title': vehicleTitle
+      },
+      ExclusiveStartKey,
+      ProjectionExpression: "title, yearmonth, price, power, km, firstRegMonth, firstRegYear"
+    };
+
+    // console.log(JSON.stringify(tableParams));
+
+    try {
+      let res = await ddb.query(tableParams).promise();
+      ExclusiveStartKey = res.LastEvaluatedKey;
+      allRecords = [...allRecords, ...res.Items];
+      console.log(`Records this batch: ${res.Items.length}, All Records: ${allRecords.length}`);
+      // Sort list by title
+      // let sortedList = list.sort((a, b) => {
+      //   return b.Title - a.Title;
+      // });
+    } catch (err) {
+      return { err };
     }
-  };
+  } while (ExclusiveStartKey);
 
-  // console.log(JSON.stringify(tableParams));
-
-  try {
-    let res = await ddb.query(tableParams).promise();
-    let records = res.Items;
-    // Sort list by title
-    // let sortedList = list.sort((a, b) => {
-    //   return b.Title - a.Title;
-    // });
-    return { err: null, records };
-  } catch (err) {
-    return { err };
-  }
+  return { err: null, records: allRecords };
 };
 
 const putVehicleRecords = async (vehicleRecords, tableName) => {

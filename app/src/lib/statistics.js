@@ -1,7 +1,7 @@
 import math from 'mathjs';
 
 const calculateStatistics = (records) => {
-  console.log(records[0]);
+  // console.log(records[0]);
 
   // console.log(`Nb of records: ${records.length}`);
   // Get latest yearmonth

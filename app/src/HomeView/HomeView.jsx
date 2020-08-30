@@ -77,7 +77,7 @@ const HomeView = (props) => {
     <div className="homeView">
       <div className="vehicleSelection">
         <span style={{ fontSize: '1rem' }}>Vehicle </span>
-        <span id="numberOfVehicles" style={{ fontSize: '0.7rem', marginTop: '2px' }}>({props.vehiclesList.length || 'loading...'})</span>
+        <span id="numberOfVehicles" style={{ fontSize: '0.7rem', marginTop: '2px' }}>({props.vehiclesList.length || 'loading...'}):</span>
         <VehicleSelectionForm
           vehiclesList={props.vehiclesList}
           selectedVehicleName={selectedVehicleName}

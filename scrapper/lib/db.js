@@ -9,7 +9,7 @@ const scrapLogTable = process.env.SCRAP_LOG_TABLE;
 //=====   Vehicle List Table   =====
 //==================================
 
-const getVehicleList = async function() {
+const getVehicleList = async function () {
   let params = {
     TableName: vehicleListTable
   };
@@ -22,7 +22,7 @@ const getVehicleList = async function() {
   }
 };
 
-const updateVehicle = async function(vehicle) {
+const updateVehicle = async function (vehicle) {
   let vehicleWithoutRecords = JSON.parse(JSON.stringify(vehicle));
   delete vehicleWithoutRecords.records;
 
@@ -30,6 +30,7 @@ const updateVehicle = async function(vehicle) {
     TableName: vehicleListTable,
     Item: vehicleWithoutRecords
   };
+
   try {
     await ddb.put(params).promise();
     return;
@@ -180,7 +181,7 @@ const writeToScrapLog = async (title, scrapDetails) => {
 
 const sleep = waitTimeInMs => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
 
-const deleteVehicleRecords = async function(vehicleTitle, month) {
+const deleteVehicleRecords = async function (vehicleTitle, month) {
   let URL = baseURL + '/vehiclerecord';
   try {
     let options = {
