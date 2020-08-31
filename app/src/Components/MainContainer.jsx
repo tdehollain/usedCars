@@ -4,8 +4,7 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import vehicleActions from '../Actions/vehicleActions';
 import HomeView from '../HomeView/HomeView';
-// import AdminView from '../AdminView/AdminView';
-// import EvolutionView from '../EvolutionView/EvolutionView';
+import AdminView from '../AdminView/AdminView';
 
 const MainContainer = (props) => {
   // When mounting: loading list of vehicles
@@ -16,8 +15,7 @@ const MainContainer = (props) => {
   return (
     <Switch>
       <Route exact path="/" component={HomeView} />
-      {/* <Route path="/evolution/" component={EvolutionView} />
-      <Route path="/admin/" component={AdminView} /> */}
+      <Route path="/admin/" component={AdminView} />
     </Switch>
   );
 };

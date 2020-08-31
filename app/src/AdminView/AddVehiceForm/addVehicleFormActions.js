@@ -1,5 +1,5 @@
 import addVehicleFormActionTypes from './addVehicleFormActionTypes';
-import { AddVehicleToaster } from '../../components/AddVehicleToaster';
+import { AddVehicleToaster } from '../../Components/AddVehicleToaster';
 import API from '../../lib/API';
 
 const addVehicle = vehicle => {
