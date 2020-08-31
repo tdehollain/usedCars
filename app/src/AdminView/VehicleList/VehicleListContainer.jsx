@@ -1,40 +1,30 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import VehicleList from './VehicleList';
-import vehicleListActions from './vehicleListActions';
+import vehicleListActions from '../../Actions/vehicleListActions';
 
-const VehicleListContainer = props => {
-  // const [vehicleList, setVehicleList] = React.useState([]);
+const VehicleListContainer = (props) => {
   const [filteredList, setFilteredList] = React.useState(props.vehiclesList);
   const [searchTerm, setSearchTerm] = React.useState('');
   // const [loading, setLoading] = React.useState(true);
 
-  // Load complete vehicle list when mounting
-  // React.useEffect(() => {
-  //   const getList = async () => {
-  //     const list = await props.getVehicleList();
-  //     setVehicleList(list);
-  //     setFilteredList(list);
-  //   };
-  //   getList();
-  // }, []);
-
   // Filter vehicleList when search term is changed
   React.useEffect(() => {
-    const filteredList = props.vehiclesList.filter(el => el.title.toLowerCase().includes(searchTerm.toLowerCase()));
-    setFilteredList(filteredList);
-  }, [searchTerm]);
+    const vehiclesList_filtered = props.vehiclesList.filter((el) => el.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    setFilteredList(vehiclesList_filtered);
+  }, [props.vehiclesList, searchTerm]);
 
-  const handleChangeSearchTerm = e => {
+  const handleChangeSearchTerm = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const editVehicle = vehicle => {
+  const editVehicle = (vehicle) => {
     props.editVehicle(vehicle);
     window.scroll({ top: 0, behavior: 'smooth' });
   };
 
-  const deleteVehicle = async title => {
+  const deleteVehicle = async (title) => {
     await props.deleteVehicle(title);
   };
 
@@ -49,18 +39,22 @@ const VehicleListContainer = props => {
   );
 };
 
-const mapStateToProps = store => ({
+VehicleListContainer.propTypes = {
+  vehiclesList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  editVehicle: PropTypes.func.isRequired,
+  deleteVehicle: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (store) => ({
   vehiclesList: store.vehiclesState.vehiclesList,
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    editVehicle: vehicle => dispatch(vehicleListActions.editVehicle(vehicle)),
-    deleteVehicle: title => dispatch(vehicleListActions.deleteVehicle(title))
-  };
-};
+const mapDispatchToProps = (dispatch) => ({
+  editVehicle: (vehicle) => dispatch(vehicleListActions.editVehicle(vehicle)),
+  deleteVehicle: (title) => dispatch(vehicleListActions.deleteVehicle(title)),
+});
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(VehicleListContainer);

@@ -1,45 +1,51 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import AddVehicleForm from './AddVehicleForm';
-import addVehicleFormActions from './addVehicleFormActions';
+import addVehicleFormActions from '../../Actions/addVehicleFormActions';
 
-const AddVehicleFormContainer = props => {
-  const handleSubmitForm = async e => {
+const AddVehicleFormContainer = (props) => {
+  const validateForm = () => props.vehicle.title && props.vehicle.brand && props.vehicle.model && props.vehicle.regFrom;
+
+  const handleSubmitForm = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    let vehicle = { ...props.vehicle, dateAdded: new Date(), editMode: props.editMode };
+    const vehicle = { ...props.vehicle, dateAdded: new Date(), editMode: props.editMode };
     await props.addVehicle(vehicle);
   };
 
-  const validateForm = () => {
-    return props.vehicle.title && props.vehicle.brand && props.vehicle.model && props.vehicle.regFrom;
-  };
-
-  const changeValue = e => {
-    const id = e.target.id;
+  const changeValue = (e) => {
+    const { id } = e.target;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     props.changeValue(id, value);
   };
 
-  return <AddVehicleForm submitForm={handleSubmitForm} vehicle={props.vehicle} changeValue={changeValue} editMode={props.editMode} />;
+  return (
+    <AddVehicleForm
+      submitForm={handleSubmitForm}
+      vehicle={props.vehicle}
+      changeValue={changeValue}
+      editMode={props.editMode}
+    />
+  );
 };
 
-const mapStateToProps = store => {
-  return {
-    vehicle: store.adminViewState.vehicle,
-    editMode: store.adminViewState.editMode
-  };
+AddVehicleFormContainer.propTypes = {
+  vehicle: PropTypes.object.isRequired,
+  editMode: PropTypes.bool.isRequired,
+  addVehicle: PropTypes.func.isRequired,
+  changeValue: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    addVehicle: vehicle => dispatch(addVehicleFormActions.addVehicle(vehicle)),
-    changeValue: (id, value) => dispatch(addVehicleFormActions.changeValue(id, value))
-  };
-};
+const mapStateToProps = (store) => ({
+  vehicle: store.vehiclesState.admin.vehicle,
+  editMode: store.vehiclesState.admin.editMode,
+});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AddVehicleFormContainer);
+const mapDispatchToProps = (dispatch) => ({
+  addVehicle: (vehicle) => dispatch(addVehicleFormActions.addVehicle(vehicle)),
+  changeValue: (id, value) => dispatch(addVehicleFormActions.changeValue(id, value)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddVehicleFormContainer);

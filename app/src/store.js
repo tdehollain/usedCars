@@ -4,7 +4,7 @@ import thunkMiddleware from 'redux-thunk';
 
 import userReducer from './reducers/userReducer';
 import vehicleReducer from './reducers/vehicleReducer';
-import adminViewReducer from './reducers/adminViewReducer';
+// import adminViewReducer from './reducers/adminViewReducer';
 
 /*= =====================
 =====   Reducers   =====
@@ -12,7 +12,7 @@ import adminViewReducer from './reducers/adminViewReducer';
 const reducers = combineReducers({
   userState: userReducer,
   vehiclesState: vehicleReducer,
-  adminViewState: adminViewReducer,
+  // adminViewState: adminViewReducer,
 });
 
 // export const store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());

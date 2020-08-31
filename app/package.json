@@ -10,6 +10,7 @@
     "acorn": "^7.1.1",
     "ajv": "^6.3.0",
     "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-security": "^1.4.0",
     "mathjs": "^4.0.1",
     "plotly.js": "^1.52.3",
