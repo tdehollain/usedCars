@@ -1,0 +1,41 @@
+{
+  "plugins": [
+    "security"
+  ],
+  "extends": [
+    "airbnb",
+    "plugin:security/recommended"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": [
+          "src"
+        ]
+      }
+    }
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "import/no-named-as-default-member": "off",
+    "react/no-unused-prop-types": "warn",
+    "react/destructuring-assignment": "off",
+    "camelcase": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "max-len": [
+      "warn",
+      {
+        "code": 170,
+        "ignoreComments": true
+      }
+    ],
+    "object-curly-newline": "off",
+    "no-restricted-syntax": "off",
+    "no-undef": "error",
+    "security/detect-object-injection": "off"
+  }
+}
