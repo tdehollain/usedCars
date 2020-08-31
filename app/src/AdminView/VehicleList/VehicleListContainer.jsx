@@ -4,24 +4,24 @@ import VehicleList from './VehicleList';
 import vehicleListActions from './vehicleListActions';
 
 const VehicleListContainer = props => {
-  const [vehicleList, setVehicleList] = React.useState([]);
-  const [filteredList, setFilteredList] = React.useState([]);
+  // const [vehicleList, setVehicleList] = React.useState([]);
+  const [filteredList, setFilteredList] = React.useState(props.vehiclesList);
   const [searchTerm, setSearchTerm] = React.useState('');
   // const [loading, setLoading] = React.useState(true);
 
   // Load complete vehicle list when mounting
-  React.useEffect(() => {
-    const getList = async () => {
-      const list = await props.getVehicleList();
-      setVehicleList(list);
-      setFilteredList(list);
-    };
-    getList();
-  }, []);
+  // React.useEffect(() => {
+  //   const getList = async () => {
+  //     const list = await props.getVehicleList();
+  //     setVehicleList(list);
+  //     setFilteredList(list);
+  //   };
+  //   getList();
+  // }, []);
 
   // Filter vehicleList when search term is changed
   React.useEffect(() => {
-    const filteredList = vehicleList.filter(el => el.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    const filteredList = props.vehiclesList.filter(el => el.title.toLowerCase().includes(searchTerm.toLowerCase()));
     setFilteredList(filteredList);
   }, [searchTerm]);
 
@@ -49,13 +49,12 @@ const VehicleListContainer = props => {
   );
 };
 
-const mapStateToProps = store => {
-  return { vehicleList: store.adminViewState.vehicleList };
-};
+const mapStateToProps = store => ({
+  vehiclesList: store.vehiclesState.vehiclesList,
+});
 
 const mapDispatchToProps = dispatch => {
   return {
-    getVehicleList: () => dispatch(vehicleListActions.getVehicleList()),
     editVehicle: vehicle => dispatch(vehicleListActions.editVehicle(vehicle)),
     deleteVehicle: title => dispatch(vehicleListActions.deleteVehicle(title))
   };
