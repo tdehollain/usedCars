@@ -6,7 +6,7 @@ node_modules/
 /serverless-service/.serverless
 
 # old, unneeded folders
-/old-server
+old-server/
 
 # misc
 .DS_Store
