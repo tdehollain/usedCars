@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+    commands:
+      - npm i npm@latest -g
+      # - npm i serverless@latest -g
+      # - pip install --upgrade pip
+      # - pip install --upgrade awscli
+  pre_build:
+    commands:
+      - npm install
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+artifacts:
+  files:
+    - '**/*'
+  base-directory: build

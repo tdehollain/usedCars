@@ -1,10 +1,5 @@
 
 # dependencies
-<<<<<<< HEAD
-/node_modules
-/scrapper/node_modules
-/app/node_modules
-=======
 node_modules/
 
 # serverless
@@ -12,7 +7,6 @@ node_modules/
 
 # old, unneeded folders
 old-server/
->>>>>>> modernBranch
 
 # misc
 .DS_Store
