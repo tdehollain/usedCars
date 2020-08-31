@@ -1,9 +1,6 @@
 
 # dependencies
-/node_modules
-/app/node_modules
-/scrapper/node_modules
-/localScrapper/node_modules
+node_modules/
 
 # serverless
 /serverless-service/.serverless
