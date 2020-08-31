@@ -13,10 +13,12 @@ const MainContainer = (props) => {
   }, []);
 
   return (
-    <Switch>
-      <Route exact path="/" component={HomeView} />
-      <Route path="/admin" component={AdminView} />
-    </Switch>
+    <div className='mainContainer'>
+      <Switch>
+        <Route exact path="/" component={HomeView} />
+        <Route path="/admin" component={AdminView} />
+      </Switch>
+    </div>
   );
 };
 
