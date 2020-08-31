@@ -2,6 +2,9 @@
 # dependencies
 node_modules/
 
+# Rect build
+app/build
+
 # serverless
 /serverless-service/.serverless
 
