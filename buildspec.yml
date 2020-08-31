@@ -5,6 +5,7 @@ phases:
     runtime-versions:
       nodejs: 10
     commands:
+      - cd app
       - npm i npm@latest -g
       # - npm i serverless@latest -g
       # - pip install --upgrade pip
