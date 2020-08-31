@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -5,11 +6,10 @@ import { connect } from 'react-redux';
 import VehicleSelectionForm from './VehicleSelectionForm/VehicleSelectionForm';
 import vehicleActions from '../Actions/vehicleActions';
 import StatisticsView from './StatisticsView/StatisticsView';
-// import ChartsView from './ChartsView';
+import ChartsView from './ChartsView/ChartsView';
 import './HomeView.css';
 
 const HomeView = (props) => {
-  const [vehiclesRecords, setVehiclesRecords] = React.useState([]);
   const [selectedVehicleName, setSelectedVehicleName] = React.useState(props.selectedVehicle.title || '');
 
   // When selectedVehicle changes: fetch vehicle's records
@@ -18,60 +18,7 @@ const HomeView = (props) => {
       const vehicleDetails = props.vehiclesList.find((el) => el.title === selectedVehicleName);
       props.updateSelectedVehicle(vehicleDetails);
     }
-    // if (selectedVehicle === '') {
-    //   // setSelectedVehicle('');
-    //   setSelectedVehicleURL('');
-    //   setVehiclesRecords([]);
-    // } else {
-    //   // setSelectedVehicle(selectedVehicle);
-    //   // get selected vehicle URL
-    //   for (const vehicle of vehiclesList) {
-    //     if (vehicle.title === selectedVehicle) {
-    //       setSelectedVehicleURL(vehicle.vehicleURL);
-    //       break;
-    //     }
-    //   }
-    //   // fetch vehicle records
-    //   fetchVehicleRecords(selectedVehicle);
-    // }
   }, [selectedVehicleName]);
-
-  // When vehiclesRecords change: sort and remove outliers
-  React.useEffect(() => {
-    // const sortedVehiclesRecords = vehiclesRecords.sort((a, b) => a.price - b.price);
-
-    // const vehicleRecords_noOutliers = removePriceOutliers(sortedVehiclesRecords);
-    // setVehiclesRecords(vehicleRecords_noOutliers);
-  }, [vehiclesRecords]);
-
-  // When vehiclesRecords changes: update statistics
-  React.useEffect(() => {
-    // const nbVehicles = vehiclesRecords.length;
-    // const medianPrice = nbVehicles ? math.median(vehiclesRecords.map((el) => el.price)) : 'N/A';
-    // const priceP10 = nbVehicles ? vehiclesRecords[Math.floor(0.1 * nbVehicles)].price : 'N/A';
-    // const priceP90 = nbVehicles ? vehiclesRecords[Math.floor(0.9 * nbVehicles)].price : 'N/A';
-
-    // store.dispatch({
-    //   type: 'UPDATE_VEHICLE_STATISTICS',
-    //   data: {
-    //     nbVehicles,
-    //     medianPrice,
-    //     priceP10,
-    //     priceP90,
-    //   },
-    // });
-
-    // setVehiclesRecords(vehiclesRecords);
-  }, [vehiclesRecords]);
-
-  // const fetchVehicleRecords = async (title) => {
-  //   const vehicleRecords = await API.getLatestVehicleRecords(title);
-  //   // console.log('# records: ' + vehicleRecords.length);
-
-  //   setVehiclesRecords(vehicleRecords);
-  // };
-
-  // const removePriceOutliers = (vehicleRecords) => vehicleRecords.filter((el) => !isOutlier(vehicleRecords.map((vehicle) => parseFloat(vehicle.price)), parseFloat(el.price)));
 
   return (
     <div className="homeView">
@@ -89,7 +36,7 @@ const HomeView = (props) => {
         </div>
       </div>
       <StatisticsView />
-      {/* <ChartsView selectedVehicle={selectedVehicle} selectedVehicleURL={selectedVehicleURL} vehiclesRecords={vehiclesRecords} /> */}
+      <ChartsView selectedVehicle={props.selectedVehicle} />
     </div>
   );
 };

@@ -98,6 +98,8 @@ const getVehicleRecords = async (title) => {
     // Convert strings to numbers
     const formattedRecords = sortedData.map((record) => ({
       ...record,
+      yearmonth: parseInt(record.yearmonth, 10),
+      measureDate: parseInt(record.measureDate, 10),
       price: parseInt(record.price, 10),
       km: parseInt(record.km, 10),
       firstRegMonth: parseInt(record.firstRegMonth, 10),

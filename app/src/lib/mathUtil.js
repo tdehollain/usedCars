@@ -18,10 +18,10 @@ export function getBinData(data, nbins) {
   const sortedData = data.sort((a, b) => a - b);
 
   // get bin size
-  let min = sortedData[0];
-  let max = sortedData[sortedData.length - 1];
-  let range = max - min;
-  let binSize = Math.max(range / nbins, max * 0.1); // if range is very small, use 10% of the max value
+  const min = sortedData[0];
+  const max = sortedData[sortedData.length - 1];
+  const range = max - min;
+  const binSize = Math.max(range / nbins, max * 0.1); // if range is very small, use 10% of the max value
   // console.log(`min: ${min}`);
   // console.log(`max: ${max}`);
   // console.log(`range: ${range}`);
@@ -64,17 +64,17 @@ export function getBinData(data, nbins) {
   // // Add a bin if the new min took us to far
   // if (min + nbins * binSize < max) nbins++;
 
-  let output = [];
+  const output = [];
 
-  for (let element of sortedData) {
+  for (const element of sortedData) {
     // console.log(`data ${i}: ${data[i]}`);
-    for (let i = 0; i < nbins; i++) {
+    for (let i = 0; i < nbins; i += 1) {
       if (element < min + (i + 1) * binSize) {
         // console.log(`output: ${i}`);
         output.push({
           data: element,
           binFrom: min + i * binSize,
-          binTo: min + (i + 1) * binSize
+          binTo: min + (i + 1) * binSize,
         });
       }
     }
@@ -94,9 +94,9 @@ export function isOutlier(data, value) {
   const Q1 = sortedData[Math.floor(0.25 * count)]; // 1st quartile
   const Q3 = sortedData[Math.floor(0.75 * count)]; // 3rd quartile
 
-  let IQrange = Q3 - Q1;
-  let lowerOuterFence = Q1 - 1.5 * IQrange;
-  let upperOuterFence = Q3 + 1.5 * IQrange;
+  const IQrange = Q3 - Q1;
+  const lowerOuterFence = Q1 - 1.5 * IQrange;
+  const upperOuterFence = Q3 + 1.5 * IQrange;
 
   // console.log(`Value: ${value}, Q1: ${Q1}, Q3: ${Q3}, IQrange: ${IQrange}, lowerOuterFence: ${lowerOuterFence}, upperOuterFence: ${upperOuterFence}`);
 
@@ -104,7 +104,7 @@ export function isOutlier(data, value) {
 }
 
 export function groupBy(arr, prop, func, attr) {
-  let output = arr.reduce(function(groups, item) {
+  const output = arr.reduce((groups, item) => {
     const val = item[prop];
     groups[val] = groups[val] || [];
     groups[val].push(item);
@@ -112,12 +112,12 @@ export function groupBy(arr, prop, func, attr) {
   }, {});
 
   if (func === 'count') {
-    for (let key in output) {
+    for (const key in output) {
       output[key] = output[key].length;
     }
   } else if (func === 'median') {
-    for (let key in output) {
-      output[key] = math.median(output[key].map(el => el[attr]));
+    for (const key in output) {
+      output[key] = math.median(output[key].map((el) => el[attr]));
     }
   }
 
@@ -125,8 +125,8 @@ export function groupBy(arr, prop, func, attr) {
 }
 
 export function linearRegression(km, price) {
-  const x = tf.tensor1d(km.map(el => el / math.max(km)));
-  const y = tf.tensor1d(price.map(el => el / math.max(price)));
+  const x = tf.tensor1d(km.map((el) => el / math.max(km)));
+  const y = tf.tensor1d(price.map((el) => el / math.max(price)));
 
   const nbIterations = 100;
   const learningRate = 0.5;
@@ -158,9 +158,9 @@ export function linearRegression(km, price) {
 
   function predict(x) {
     // y = a*x + b
-    return tf.tidy(() => {
+    return tf.tidy(() =>
       // return a; // y = a
-      return a.mul(x).add(b); // y = a*x + b
+      a.mul(x).add(b), // y = a*x + b
       // return a.mul(x.square()).add(b.mul(x)).add(c); // y = a*xˆ2 + b*x + c
       // return a.mul(x.pow(tf.scalar(3, 'int32'))) // y = a*xˆ2 + b*xˆ2 + c*x + d
       // 	.add(b.mul(x.square()))
@@ -168,7 +168,7 @@ export function linearRegression(km, price) {
       // 	.add(d);
       // return a.mul(tf.log(x.add(c))).add(b); // y = a*log(x+c) + b
       // return a.mul(x.add(c).pow(tf.scalar(-1, 'int32'))).add(b); // y = a * 1/(x+c) + b
-    });
+    );
   }
 
   function learnCoefficients(x, y) {
@@ -176,8 +176,8 @@ export function linearRegression(km, price) {
   }
 
   learnCoefficients(x, y);
-  let predictedPrice = predict(x);
-  let output = predictedPrice.dataSync().map(el => el * math.max(price));
+  const predictedPrice = predict(x);
+  const output = predictedPrice.dataSync().map((el) => el * math.max(price));
   // console.log(output);
   // console.log({ a: a.dataSync(), b: b.dataSync() })
   return output;
@@ -186,9 +186,8 @@ export function linearRegression(km, price) {
 export function numberWithCommas(x) {
   if (x === 0) {
     return '0';
-  } else if (!x) {
+  } if (!x) {
     return 'N/A';
-  } else {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

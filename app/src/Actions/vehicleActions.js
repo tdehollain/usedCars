@@ -15,7 +15,10 @@ const updateVehiclesList = () => async (dispatch) => {
 };
 
 const updateStatistics = (vehicleRecords) => {
-  const vehicleStatistics = calculateStatistics(vehicleRecords);
+  const vehicleStatistics = vehicleRecords.map((currentVehicleRecords) => ({
+    yearmonth: currentVehicleRecords.yearmonth,
+    statistics: calculateStatistics(currentVehicleRecords.records),
+  }));
   return {
     type: vehicleActionTypes.UPDATE_VEHICLE_STATISTICS,
     vehicleStatistics,
@@ -23,7 +26,12 @@ const updateStatistics = (vehicleRecords) => {
 };
 
 const fetchVehicleRecords = (vehicleName) => async (dispatch) => {
-  const vehicleRecords = await API.getVehicleRecords(vehicleName);
+  const allVehicleRecords = await API.getVehicleRecords(vehicleName);
+  const allYearMonths = [...new Set(allVehicleRecords.map((el) => el.yearmonth))].sort();
+  const vehicleRecords = allYearMonths.map((currentYearMonth) => ({
+    yearmonth: currentYearMonth,
+    records: allVehicleRecords.filter((el) => el.yearmonth === currentYearMonth),
+  }));
   dispatch({
     type: vehicleActionTypes.UPDATE_VEHICLE_RECORDS,
     vehicleRecords,

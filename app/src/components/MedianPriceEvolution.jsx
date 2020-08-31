@@ -1,161 +1,131 @@
-import React, { Component } from 'react';
+/* eslint-disable max-len */
+import React from 'react';
+import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
-import math from 'mathjs';
 import { numberWithCommas } from '../lib/mathUtil';
 
-export default class MedianPriceEvolution extends Component {
-  render() {
-    // order data by ascending date
-    let vehicleData = this.props.data.sort((a, b) => {
-      return new Date(a.measureDate) - new Date(b.measureDate);
-    });
-    let measureDates = vehicleData.map(el => el.measureDate);
-    // get the distinct dates
-    let dates = [];
-    for (let currentDate of measureDates) {
-      let month = new Date(currentDate).getMonth();
-      let year = new Date(currentDate).getFullYear();
-      let alreadyPresent = false;
-      for (let presentDate of dates) {
-        if (presentDate.month === month && presentDate.year === year) {
-          alreadyPresent = true;
-          break;
-        }
-      }
-      if (!alreadyPresent) dates.push({ month, year });
-    }
+const MedianPriceEvolution = (props) => {
+  const { fontColor, lineColor, lineColor2, barColor } = props;
 
-    // build up chart arrays
-    let medianPrices = [];
-    let medianPricesText = [];
-    let P10prices = [];
-    let P90prices = [];
-    let months = [];
-    let nbVehiclesArray = [];
+  const months = props.data.map((currentYearMonthData) => `${currentYearMonthData.yearmonth.toString().slice(-2)}-${currentYearMonthData.yearmonth.toString().slice(0, 4)}`);
+  const nbVehiclesArray = props.data.map((currentYearMonthData) => currentYearMonthData.statistics.nbVehicles);
+  const medianPrices = props.data.map((currentYearMonthData) => currentYearMonthData.statistics.medianPrice);
+  const medianPricesText = props.data.map((currentYearMonthData) => numberWithCommas(currentYearMonthData.statistics.medianPrice));
+  const P10prices = props.data.map((currentYearMonthData) => currentYearMonthData.statistics.priceP10);
+  const P90prices = props.data.map((currentYearMonthData) => currentYearMonthData.statistics.priceP90);
 
-    for (let currentMonth of dates) {
-      let vehicleDataFiltered = vehicleData.filter(el => {
-        return (
-          new Date(el.measureDate).getMonth() === currentMonth.month &&
-          new Date(el.measureDate).getFullYear() === currentMonth.year
-        );
-      });
-      let nbVehicles = vehicleDataFiltered.length;
-      nbVehiclesArray.push(nbVehicles);
-      medianPrices.push(math.median(vehicleDataFiltered.map(el => el.price)));
-      medianPricesText.push(
-        numberWithCommas(math.median(vehicleDataFiltered.map(el => el.price)))
-      );
-      P10prices.push(vehicleDataFiltered[Math.floor(0.1 * nbVehicles)].price);
-      P90prices.push(vehicleDataFiltered[Math.floor(0.9 * nbVehicles)].price);
-      months.push(
-        ('0' + (currentMonth.month + 1)).slice(-2) + '/' + currentMonth.year
-      );
-    }
+  // console.log(months);
+  // console.log(P10prices);
+  // console.log(medianPrices);
+  // console.log(P90prices);
 
-    let fontColor = this.props.fontColor;
-    let lineColor = this.props.lineColor;
-    let lineColor2 = this.props.lineColor2;
-    let barColor = this.props.barColor;
-
-    return (
-      <div>
-        <Plot
-          data={[
-            {
-              x: months,
-              y: nbVehiclesArray,
-              type: 'bar',
-              marker: {
-                color: barColor
-              },
-              hoverinfo: 'y+text',
-              hoverlabel: {
-                bgcolor: '#293742'
-              },
-              name: 'count'
+  return (
+    <div>
+      <Plot
+        data={[
+          {
+            x: months,
+            y: nbVehiclesArray,
+            type: 'bar',
+            marker: {
+              color: barColor,
             },
-            {
-              x: months,
-              y: medianPrices,
-              text: medianPricesText,
-              textposition: 'top',
-              textfont: {
-                color: fontColor
-              },
-              mode: 'lines+markers+text',
-              line: {
-                color: lineColor,
-                dash: 'solid',
-                width: 2
-              },
-              yaxis: 'y2'
+            hoverinfo: 'y+text',
+            hoverlabel: {
+              bgcolor: '#293742',
             },
-            {
-              x: months,
-              y: P10prices,
-              mode: 'lines',
-              line: {
-                color: lineColor2,
-                dash: 'dot',
-                width: 1
-              },
-              yaxis: 'y2'
-            },
-            {
-              x: months,
-              y: P90prices,
-              mode: 'lines',
-              line: {
-                color: lineColor2,
-                dash: 'dot',
-                width: 1
-              },
-              yaxis: 'y2'
-            }
-          ]}
-          layout={{
-            title: 'Price Evolution',
-            titlefont: {
-              color: fontColor
-            },
-            width: 1200,
-            height: 400,
-            margin: { pad: 5 },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            xaxis: {
-              title: 'Date',
+            name: 'count',
+          },
+          {
+            x: months,
+            y: medianPrices,
+            text: medianPricesText,
+            textposition: 'top',
+            textfont: {
               color: fontColor,
-              showgrid: false,
-              // rangemode: 'tozero',
-              // range: [-1*(max-min)*0.01, max*1.01],
-              zeroline: false,
-              hoverformat: ',.1'
             },
-            yaxis: {
-              title: 'count',
-              color: fontColor,
-              gridcolor: '#394B59',
-              rangemode: 'tozero',
-              hoverformat: ',.1'
+            mode: 'lines+markers+text',
+            line: {
+              color: lineColor,
+              dash: 'solid',
+              width: 2,
             },
-            yaxis2: {
-              title: 'Price (€)',
-              color: fontColor,
-              gridcolor: '#394B59',
-              rangemode: 'tozero',
-              showgrid: false,
-              side: 'right'
+            yaxis: 'y2',
+          },
+          {
+            x: months,
+            y: P10prices,
+            mode: 'lines',
+            line: {
+              color: lineColor2,
+              dash: 'dot',
+              width: 1,
             },
-            showlegend: false,
-            hovermode: 'closest'
-          }}
-          config={{
-            displayModeBar: false
-          }}
-        />
-      </div>
-    );
-  }
-}
+            yaxis: 'y2',
+          },
+          {
+            x: months,
+            y: P90prices,
+            mode: 'lines',
+            line: {
+              color: lineColor2,
+              dash: 'dot',
+              width: 1,
+            },
+            yaxis: 'y2',
+          },
+        ]}
+        layout={{
+          title: 'Price Evolution',
+          titlefont: {
+            color: fontColor,
+          },
+          width: 1200,
+          height: 400,
+          margin: { pad: 5 },
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          xaxis: {
+            // title: 'Date',
+            color: fontColor,
+            showgrid: false,
+            // rangemode: 'tozero',
+            // range: [-1*(max-min)*0.01, max*1.01],
+            zeroline: false,
+            hoverformat: ',.1',
+          },
+          yaxis: {
+            title: 'count',
+            color: fontColor,
+            gridcolor: '#394B59',
+            rangemode: 'tozero',
+            hoverformat: ',.1',
+          },
+          yaxis2: {
+            title: 'Price (€)',
+            color: fontColor,
+            gridcolor: '#394B59',
+            rangemode: 'tozero',
+            showgrid: false,
+            side: 'right',
+          },
+          showlegend: false,
+          hovermode: 'closest',
+        }}
+        config={{
+          displayModeBar: false,
+        }}
+      />
+    </div>
+  );
+};
+
+MedianPriceEvolution.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fontColor: PropTypes.string.isRequired,
+  lineColor: PropTypes.string.isRequired,
+  lineColor2: PropTypes.string.isRequired,
+  barColor: PropTypes.string.isRequired,
+};
+
+export default MedianPriceEvolution;

@@ -6,17 +6,20 @@ import { numberWithCommas } from '../../lib/mathUtil';
 import './StatisticsView.css';
 
 const StatisticsView = (props) => {
-  const priceRange = `${numberWithCommas(props.vehiclesStatistics.priceP10)} € - ${numberWithCommas(props.vehiclesStatistics.priceP90)} €`;
+  if (!props.vehicleStatistics.length) return null;
+
+  const latestVehicleStatistics = props.vehicleStatistics.slice(-1)[0].statistics;
+  const priceRange = `${numberWithCommas(latestVehicleStatistics.priceP10)} € - ${numberWithCommas(latestVehicleStatistics.priceP90)} €`;
 
   return (
     <div className="statisticsContainer">
       <StatisticsBox
-        number={numberWithCommas(props.vehiclesStatistics.nbVehicles)}
+        number={numberWithCommas(latestVehicleStatistics.nbVehicles)}
         icon="drive-time"
         caption="Vehicles"
       />
       <StatisticsBox
-        number={`${numberWithCommas(props.vehiclesStatistics.medianPrice)} €`}
+        number={`${numberWithCommas(latestVehicleStatistics.medianPrice)} €`}
         icon="bank-account"
         caption="Median Price"
       />
@@ -26,12 +29,12 @@ const StatisticsView = (props) => {
         caption={'Price Range\n(P10 - P90)'}
       />
       <StatisticsBox
-        number={`${numberWithCommas(Math.round(10000 * props.vehiclesStatistics.slope1))} €/10,000 km`}
+        number={`${numberWithCommas(Math.round(10000 * latestVehicleStatistics.slope1))} €/10,000 km`}
         icon="trending-down"
         caption="Depreciation (0 - 10,000 km)"
       />
       <StatisticsBox
-        number={`${numberWithCommas(Math.round(10000 * props.vehiclesStatistics.slope2))} €/10,000 km`}
+        number={`${numberWithCommas(Math.round(10000 * latestVehicleStatistics.slope2))} €/10,000 km`}
         icon="trending-down"
         caption="Depreciation (10,000+ km)"
       />
@@ -40,18 +43,21 @@ const StatisticsView = (props) => {
 };
 
 StatisticsView.propTypes = {
-  vehiclesStatistics: PropTypes.shape({
-    nbVehicles: PropTypes.number,
-    medianPrice: PropTypes.number,
-    priceP10: PropTypes.number,
-    priceP90: PropTypes.number,
-    slope1: PropTypes.number,
-    slope2: PropTypes.number,
-  }).isRequired,
+  vehicleStatistics: PropTypes.arrayOf(PropTypes.shape({
+    yearmonth: PropTypes.number.isRequired,
+    statistics: PropTypes.shape({
+      nbVehicles: PropTypes.number,
+      medianPrice: PropTypes.number,
+      priceP10: PropTypes.number,
+      priceP90: PropTypes.number,
+      slope1: PropTypes.number,
+      slope2: PropTypes.number,
+    }).isRequired,
+  })).isRequired,
 };
 
 const mapStateToProps = (store) => ({
-  vehiclesStatistics: store.vehiclesState.vehicleStatistics,
+  vehicleStatistics: store.vehiclesState.selectedVehicleStatistics,
 });
 
 export default connect(mapStateToProps)(StatisticsView);

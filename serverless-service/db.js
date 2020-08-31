@@ -61,7 +61,7 @@ const getVehicleRecords = async (vehicleTitle, tableName) => {
         ':title': vehicleTitle
       },
       ExclusiveStartKey,
-      ProjectionExpression: "title, yearmonth, price, power, km, firstRegMonth, firstRegYear"
+      ProjectionExpression: "title, measureDate, yearmonth, price, power, km, firstRegMonth, firstRegYear"
     };
 
     // console.log(JSON.stringify(tableParams));

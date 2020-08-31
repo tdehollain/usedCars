@@ -3,15 +3,8 @@ import vehicleActionTypes from '../Actions/vehicleActionTypes';
 const initialState = {
   vehiclesList: JSON.parse(localStorage.getItem('vehiclesList')) || [],
   selectedVehicle: JSON.parse(localStorage.getItem('selectedVehicle')) || {},
-  selectedVehicleData: [],
-  vehicleStatistics: {
-    nbVehicles: null,
-    medianPrice: null,
-    priceP10: null,
-    priceP90: null,
-    slope1: null,
-    slope2: null,
-  },
+  selectedVehicleRecords: [],
+  selectedVehicleStatistics: [],
 };
 
 const vehiclesReducer = (state = initialState, action) => {
@@ -25,10 +18,10 @@ const vehiclesReducer = (state = initialState, action) => {
       return { ...state, selectedVehicle: action.vehicleDetails };
 
     case vehicleActionTypes.UPDATE_VEHICLE_RECORDS:
-      return { ...state, selectedVehicleData: action.vehicleRecords };
+      return { ...state, selectedVehicleRecords: action.vehicleRecords };
 
     case vehicleActionTypes.UPDATE_VEHICLE_STATISTICS:
-      return { ...state, vehicleStatistics: action.vehicleStatistics };
+      return { ...state, selectedVehicleStatistics: action.vehicleStatistics };
 
     default: return state;
   }

@@ -1,23 +1,34 @@
 import math from 'mathjs';
 
+const removeOutliers = (records) => {
+  const count = records.length;
+  if (count === 0) return false;
+
+  const sortedPrices = records.sort((a, b) => a.price - b.price).map((el) => el.price);
+  const Q1 = sortedPrices[Math.floor(0.25 * count)]; // 1st quartile
+  const Q3 = sortedPrices[Math.floor(0.75 * count)]; // 3rd quartile
+
+  const IQrange = Q3 - Q1;
+  const lowerOuterFence = Q1 - 1.5 * IQrange;
+  const upperOuterFence = Q3 + 1.5 * IQrange;
+  // console.log(`Q1: ${Q1}, Q3: ${Q3}, IQrange: ${IQrange}, lowerOuterFence: ${lowerOuterFence}, upperOuterFence: ${upperOuterFence}`);
+
+  return records.filter((el) => el.price >= lowerOuterFence && el.price <= upperOuterFence);
+};
+
 const calculateStatistics = (records) => {
-  // console.log(records[0]);
+  // sort records by price
+  const sortedRecords = records.sort((a, b) => a.price - b.price);
+  // console.log(sortedRecords);
 
-  // console.log(`Nb of records: ${records.length}`);
-  // Get latest yearmonth
-  const latestYearMonth = records.map((el) => el.yearmonth).sort((a, b) => b - a)[0];
+  // remove outliers
+  const sortedRecords_noOutliers = removeOutliers(sortedRecords);
+  // console.log(sortedRecords_noOutliers);
 
-  // Keep only latest records
-  const latestRecords = records.filter((el) => el.yearmonth === latestYearMonth).sort((a, b) => a.price - b.price);
-  // console.log(`Nb of latest records: ${latestRecords.length}`);
-  // console.log(latestRecords);
-
-  const nbVehicles = latestRecords.length;
-  const medianPrice = nbVehicles ? math.median(latestRecords.map((el) => el.price)) : 'N/A';
-  const priceP10 = nbVehicles ? latestRecords[Math.floor(0.1 * nbVehicles)].price : 'N/A';
-  const priceP90 = nbVehicles ? latestRecords[Math.floor(0.9 * nbVehicles)].price : 'N/A';
-  // console.log(`priceP10: ${priceP10}`);
-  // console.log(`priceP90: ${priceP90}`);
+  const nbVehicles = sortedRecords_noOutliers.length;
+  const medianPrice = nbVehicles ? math.median(sortedRecords_noOutliers.map((el) => el.price)) : 'N/A';
+  const priceP10 = nbVehicles ? sortedRecords_noOutliers[Math.floor(0.1 * nbVehicles)].price : 'N/A';
+  const priceP90 = nbVehicles ? sortedRecords_noOutliers[Math.floor(0.9 * nbVehicles)].price : 'N/A';
 
   return {
     nbVehicles,
@@ -31,4 +42,5 @@ const calculateStatistics = (records) => {
 
 export {
   calculateStatistics,
+  removeOutliers,
 };
