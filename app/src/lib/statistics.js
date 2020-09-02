@@ -21,14 +21,10 @@ const calculateStatistics = (records) => {
   const sortedRecords = records.sort((a, b) => a.price - b.price);
   // console.log(sortedRecords);
 
-  // remove outliers
-  const sortedRecords_noOutliers = removeOutliers(sortedRecords);
-  // console.log(sortedRecords_noOutliers);
-
-  const nbVehicles = sortedRecords_noOutliers.length;
-  const medianPrice = nbVehicles ? math.median(sortedRecords_noOutliers.map((el) => el.price)) : 'N/A';
-  const priceP10 = nbVehicles ? sortedRecords_noOutliers[Math.floor(0.1 * nbVehicles)].price : 'N/A';
-  const priceP90 = nbVehicles ? sortedRecords_noOutliers[Math.floor(0.9 * nbVehicles)].price : 'N/A';
+  const nbVehicles = sortedRecords.length;
+  const medianPrice = nbVehicles ? math.median(sortedRecords.map((el) => el.price)) : 'N/A';
+  const priceP10 = nbVehicles ? sortedRecords[Math.floor(0.1 * nbVehicles)].price : 'N/A';
+  const priceP90 = nbVehicles ? sortedRecords[Math.floor(0.9 * nbVehicles)].price : 'N/A';
 
   return {
     nbVehicles,

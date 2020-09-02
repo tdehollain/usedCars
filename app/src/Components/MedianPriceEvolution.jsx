@@ -5,7 +5,7 @@ import Plot from 'react-plotly.js';
 import { numberWithCommas } from '../lib/mathUtil';
 
 const MedianPriceEvolution = (props) => {
-  const { fontColor, lineColor, lineColor2, barColor } = props;
+  const { fontColor, lineColor, lineColor2, barColor, chartWidth } = props;
 
   const months = props.data.map((currentYearMonthData) => `${currentYearMonthData.yearmonth.toString().slice(-2)}-${currentYearMonthData.yearmonth.toString().slice(0, 4)}`);
   const nbVehiclesArray = props.data.map((currentYearMonthData) => currentYearMonthData.statistics.nbVehicles);
@@ -80,7 +80,7 @@ const MedianPriceEvolution = (props) => {
           titlefont: {
             color: fontColor,
           },
-          width: 1200,
+          width: chartWidth,
           height: 400,
           margin: { pad: 5 },
           paper_bgcolor: 'rgba(0,0,0,0)',
@@ -126,6 +126,7 @@ MedianPriceEvolution.propTypes = {
   lineColor: PropTypes.string.isRequired,
   lineColor2: PropTypes.string.isRequired,
   barColor: PropTypes.string.isRequired,
+  chartWidth: PropTypes.number.isRequired,
 };
 
 export default MedianPriceEvolution;

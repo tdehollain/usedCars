@@ -1,78 +1,33 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
-import math from 'mathjs';
-import { getBinData, groupBy } from '../lib/mathUtil';
 
-export default class KmDistribution extends Component {
-  render() {
-    let kmBinsData = getBinData(this.props.data.map(el => el.km || 0), this.props.nbins).data;
-    let kmBinsCounts = groupBy(kmBinsData, 'binFrom', 'count');
-    let barChartData = [];
-    for (let key in kmBinsCounts) {
-      barChartData.push({ binFrom: key, count: kmBinsCounts[key] });
-    }
+const KmDistribution = (props) => {
+  const { fontColor, barColor, chartWidth } = props;
 
-    // add price to kmBinsCount
-    let kmBinsPriceData = [];
-    for (let dataPoint of this.props.data) {
-      for (let key in kmBinsCounts) {
-        if (dataPoint.km <= key) {
-          kmBinsPriceData.push({ binFrom: key, price: dataPoint.price });
-          break;
-        }
-      }
-    }
-    let kmBinsPriceMedians = groupBy(kmBinsPriceData, 'binFrom', 'median', 'price');
-
-    let lineChartData = [];
-    for (let key in kmBinsPriceMedians) {
-      lineChartData.push({ binFrom: key, median: kmBinsPriceMedians[key] });
-    }
-    let minLineChart = lineChartData.length ? math.min(lineChartData.map(el => el.binFrom)) : math.min(this.props.data.map(el => el.price));
-    let maxLineChart = lineChartData.length ? math.max(lineChartData.map(el => el.binFrom)) : math.max(this.props.data.map(el => el.price));
-
-    let fontColor = this.props.fontColor;
-    let barColor = this.props.barColor;
-    let lineColor = this.props.lineColor;
-
-    return (
+  return (
+    <div style={{ width: chartWidth }}>
       <Plot
         data={[
           {
-            type: 'bar',
-            x: barChartData.map(el => el.binFrom),
-            y: barChartData.map(el => el.count),
+            x: props.data.map((el) => el.km),
+            // y: this.props.data.map(el => el.km),
+            type: 'histogram',
+            // axis: 'y2',
             marker: {
-              color: barColor
+              color: barColor,
             },
-            hoverinfo: 'y',
             hoverlabel: {
-              bgcolor: '#293742'
+              bgcolor: '#293742',
             },
-            name: 'count'
           },
-          {
-            type: 'scatter',
-            mode: 'lines+markers',
-            x: barChartData.map(el => el.binFrom),
-            y: lineChartData.map(el => el.median),
-            marker: {
-              color: lineColor
-            },
-            // hoverinfo: 'skip',
-            // hoverlabel: {
-            // 	bgcolor: '#293742'
-            // },
-            yaxis: 'y2',
-            name: 'price'
-          }
         ]}
         layout={{
           title: 'Mileage distribution',
           titlefont: {
-            color: fontColor
+            color: fontColor,
           },
-          width: 1200,
+          width: chartWidth,
           height: 400,
           margin: { pad: 5 },
           paper_bgcolor: 'rgba(0,0,0,0)',
@@ -82,28 +37,43 @@ export default class KmDistribution extends Component {
             color: fontColor,
             rangemode: 'tozero',
             zeroline: false,
-            range: [-1 * (maxLineChart - minLineChart) * 0.07, maxLineChart * 1.07]
           },
           yaxis: {
-            title: 'count',
             color: fontColor,
-            gridcolor: '#394B59'
+            gridcolor: '#394B59',
           },
           yaxis2: {
-            title: 'price (€)',
             color: fontColor,
-            rangemode: 'tozero',
-            showgrid: false,
-            side: 'right',
-            gridcolor: '#394B59'
+            gridcolor: '#394B59',
           },
-          showlegend: false,
-          hovermode: 'closest'
+          bargap: 0.2,
+          // shapes: [
+          //   {
+          //     type: 'line',
+          //     x0: math.median(props.data.map((el) => el.price)),
+          //     x1: math.median(props.data.map((el) => el.price)),
+          //     y0: 0,
+          //     y1: 120,
+          //     line: {
+          //       color: 'red',
+          //       width: 2,
+          //     },
+          //   },
+          // ],
         }}
         config={{
-          displayModeBar: false
+          displayModeBar: false,
         }}
       />
-    );
-  }
-}
+    </div>
+  );
+};
+
+KmDistribution.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fontColor: PropTypes.string.isRequired,
+  barColor: PropTypes.string.isRequired,
+  chartWidth: PropTypes.number.isRequired,
+};
+
+export default KmDistribution;

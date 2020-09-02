@@ -1,6 +1,6 @@
 import API from '../lib/API';
 import vehicleActionTypes from './vehicleActionTypes';
-import { calculateStatistics } from '../lib/statistics';
+import { calculateStatistics, removeOutliers } from '../lib/statistics';
 
 const updateVehiclesList = () => async (dispatch) => {
   const list = await API.getVehicleList();
@@ -28,10 +28,13 @@ const updateStatistics = (vehicleRecords) => {
 const fetchVehicleRecords = (vehicleName) => async (dispatch) => {
   const allVehicleRecords = await API.getVehicleRecords(vehicleName);
   const allYearMonths = [...new Set(allVehicleRecords.map((el) => el.yearmonth))].sort();
+
+  // Build array of records for each measurement month (+ remove outliers for each)
   const vehicleRecords = allYearMonths.map((currentYearMonth) => ({
     yearmonth: currentYearMonth,
-    records: allVehicleRecords.filter((el) => el.yearmonth === currentYearMonth),
+    records: removeOutliers(allVehicleRecords.filter((el) => el.yearmonth === currentYearMonth)),
   }));
+
   dispatch({
     type: vehicleActionTypes.UPDATE_VEHICLE_RECORDS,
     vehicleRecords,

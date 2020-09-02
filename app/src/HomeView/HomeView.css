@@ -31,4 +31,8 @@
 .chartsView {
   clear: both;
   margin-top: 10px;
+  /* width: 1200px; */
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
