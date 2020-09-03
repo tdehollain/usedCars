@@ -101,7 +101,7 @@ const getVehicleRecords = async (title) => {
       yearmonth: parseInt(record.yearmonth, 10),
       measureDate: parseInt(record.measureDate, 10),
       price: parseInt(record.price, 10),
-      km: parseInt(record.km, 10),
+      km: parseInt(record.km, 10) || 0,
       firstRegMonth: parseInt(record.firstRegMonth, 10),
       firstRegYear: parseInt(record.firstRegYear, 10),
       powerKW: parseInt(record.power.split(' kW')[0], 10),
