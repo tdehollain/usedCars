@@ -1,6 +1,7 @@
 import API from '../lib/API';
 import vehicleActionTypes from './vehicleActionTypes';
-import { calculateStatistics, removeOutliers } from '../lib/statistics';
+import { calculateStatistics, calculateRegressions, removeOutliers } from '../lib/statistics';
+import { regressionsKmSplit } from '../lib/constants';
 
 const updateVehiclesList = () => async (dispatch) => {
   const list = await API.getVehicleList();
@@ -15,13 +16,19 @@ const updateVehiclesList = () => async (dispatch) => {
 };
 
 const updateStatistics = (vehicleRecords) => {
+  // For all yearmonth: basic stats (median, p10, p90)
   const vehicleStatistics = vehicleRecords.map((currentVehicleRecords) => ({
     yearmonth: currentVehicleRecords.yearmonth,
     statistics: calculateStatistics(currentVehicleRecords.records),
   }));
+
+  // For latest yearmonth: regressions
+  const vehicleLatestRegressions = calculateRegressions(vehicleRecords.slice(-1)[0].records, regressionsKmSplit);
+
   return {
     type: vehicleActionTypes.UPDATE_VEHICLE_STATISTICS,
     vehicleStatistics,
+    vehicleLatestRegressions,
   };
 };
 

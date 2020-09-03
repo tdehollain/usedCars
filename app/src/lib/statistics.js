@@ -1,4 +1,5 @@
 import math from 'mathjs';
+import SimpleLinearRegression from 'ml-regression-simple-linear';
 
 const removeOutliers = (records) => {
   const count = records.length;
@@ -31,12 +32,22 @@ const calculateStatistics = (records) => {
     medianPrice,
     priceP10,
     priceP90,
-    slope1: 1,
-    slope2: 1,
   };
+};
+
+const calculateRegressions = (records, kmSplit) => {
+  // Split the records between low mileage and high mileage
+  const lowMileageRecords = records.filter((el) => el.km <= kmSplit);
+  const highMileageRecords = records.filter((el) => el.km > kmSplit);
+
+  const lowMileageRegression = new SimpleLinearRegression(lowMileageRecords.map((el) => el.km), lowMileageRecords.map((el) => el.price));
+  const highMileageRegression = new SimpleLinearRegression(highMileageRecords.map((el) => el.km), highMileageRecords.map((el) => el.price));
+
+  return { lowMileageRegression, highMileageRegression };
 };
 
 export {
   calculateStatistics,
+  calculateRegressions,
   removeOutliers,
 };

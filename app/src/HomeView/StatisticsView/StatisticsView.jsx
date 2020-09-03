@@ -29,12 +29,12 @@ const StatisticsView = (props) => {
         caption={'Price Range\n(P10 - P90)'}
       />
       <StatisticsBox
-        number={`${numberWithCommas(Math.round(10000 * latestVehicleStatistics.slope1))} €/10,000 km`}
+        number={`${numberWithCommas(Math.round(10000 * props.vehicleRegressions.lowMileage.slope))} €/10,000 km`}
         icon="trending-down"
         caption="Depreciation (0 - 10,000 km)"
       />
       <StatisticsBox
-        number={`${numberWithCommas(Math.round(10000 * latestVehicleStatistics.slope2))} €/10,000 km`}
+        number={`${numberWithCommas(Math.round(10000 * props.vehicleRegressions.highMileage.slope))} €/10,000 km`}
         icon="trending-down"
         caption="Depreciation (10,000+ km)"
       />
@@ -54,10 +54,15 @@ StatisticsView.propTypes = {
       slope2: PropTypes.number,
     }).isRequired,
   })).isRequired,
+  vehicleRegressions: PropTypes.shape({
+    lowMileage: PropTypes.shape({ intercept: PropTypes.number, slope: PropTypes.number }),
+    highMileage: PropTypes.shape({ intercept: PropTypes.number, slope: PropTypes.number }),
+  }).isRequired,
 };
 
 const mapStateToProps = (store) => ({
   vehicleStatistics: store.vehiclesState.selectedVehicleStatistics,
+  vehicleRegressions: store.vehiclesState.selectedVehicleRegressions,
 });
 
 export default connect(mapStateToProps)(StatisticsView);

@@ -8,6 +8,10 @@ const initialState = {
   selectedVehicle: JSON.parse(localStorage.getItem('selectedVehicle')) || {},
   selectedVehicleRecords: [],
   selectedVehicleStatistics: [],
+  selectedVehicleRegressions: {
+    lowMileage: { intercept: 0, slope: 0 },
+    highMileage: { intercept: 0, slope: 0 },
+  },
   admin: {
     vehicle: {
       title: '',
@@ -58,7 +62,14 @@ const vehiclesReducer = (state = initialState, action) => {
       return { ...state, selectedVehicleRecords: action.vehicleRecords };
 
     case vehicleActionTypes.UPDATE_VEHICLE_STATISTICS:
-      return { ...state, selectedVehicleStatistics: action.vehicleStatistics };
+      return {
+        ...state,
+        selectedVehicleStatistics: action.vehicleStatistics,
+        selectedVehicleRegressions: {
+          lowMileage: action.vehicleLatestRegressions.lowMileageRegression,
+          highMileage: action.vehicleLatestRegressions.highMileageRegression,
+        },
+      };
 
     case addVehicleFormActionTypes.CHANGE_VALUE:
       newVehicle = { ...state.admin.vehicle, [action.id]: action.value };

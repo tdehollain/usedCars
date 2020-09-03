@@ -34,6 +34,7 @@ const ChartsView = (props) => {
       />
       <PriceKmScatter
         data={props.vehicleRecords.slice(-1)[0].records}
+        vehicleRegressions={props.vehicleRegressions}
         fontColor="#E1E8ED"
         markerColor="#2B95D6"
         lineColor="#EB532D"
@@ -46,11 +47,16 @@ const ChartsView = (props) => {
 ChartsView.propTypes = {
   vehicleRecords: PropTypes.arrayOf(PropTypes.object).isRequired,
   vehicleStatistics: PropTypes.arrayOf(PropTypes.object).isRequired,
+  vehicleRegressions: PropTypes.shape({
+    lowMileage: PropTypes.shape({ intercept: PropTypes.number, slope: PropTypes.number }),
+    highMileage: PropTypes.shape({ intercept: PropTypes.number, slope: PropTypes.number }),
+  }).isRequired,
 };
 
 const mapStateTpProps = (store) => ({
   vehicleRecords: store.vehiclesState.selectedVehicleRecords,
   vehicleStatistics: store.vehiclesState.selectedVehicleStatistics,
+  vehicleRegressions: store.vehiclesState.selectedVehicleRegressions,
 });
 
 export default connect(mapStateTpProps)(ChartsView);
