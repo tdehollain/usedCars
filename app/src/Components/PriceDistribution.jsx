@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Plot from 'react-plotly.js';
+
+import Plotly from 'plotly.js-cartesian-dist-min';
+import createPlotlyComponent from 'react-plotly.js/factory';
+
+const Plot = createPlotlyComponent(Plotly);
 
 const PriceDistribution = (props) => {
   const { fontColor, barColor, chartWidth } = props;

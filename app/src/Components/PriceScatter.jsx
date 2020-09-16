@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Plot from 'react-plotly.js';
+
+import Plotly from 'plotly.js-cartesian-dist-min';
+import createPlotlyComponent from 'react-plotly.js/factory';
 import { regressionsKmSplit } from '../lib/constants';
 // import { linearRegression } from '../lib/statistics';
+
+const Plot = createPlotlyComponent(Plotly);
 
 const PriceScatter = (props) => {
   const { chartTitle, data, metric, xAxisTtile, vehicleRegressions, fontColor, lineColor, markerColor, chartWidth } = props;

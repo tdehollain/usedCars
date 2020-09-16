@@ -13,7 +13,7 @@
     "eslint-plugin-security": "^1.4.0",
     "mathjs": "^4.0.1",
     "ml-regression-simple-linear": "^2.0.2",
-    "plotly.js": "^1.52.3",
+    "plotly.js-cartesian-dist-min": "^1.55.2",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

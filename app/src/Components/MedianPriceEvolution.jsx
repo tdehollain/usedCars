@@ -1,8 +1,12 @@
 /* eslint-disable max-len */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Plot from 'react-plotly.js';
+
+import Plotly from 'plotly.js-cartesian-dist-min';
+import createPlotlyComponent from 'react-plotly.js/factory';
 import { numberWithCommas } from '../lib/mathUtil';
+
+const Plot = createPlotlyComponent(Plotly);
 
 const MedianPriceEvolution = (props) => {
   const { fontColor, lineColor, lineColor2, barColor, chartWidth } = props;
