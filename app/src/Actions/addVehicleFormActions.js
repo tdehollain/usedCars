@@ -4,7 +4,7 @@ import { AddVehicleToaster } from '../Components/AddVehicleToaster';
 import API from '../lib/API';
 
 const addVehicle = (vehicle) => async (dispatch) => {
-  const { err, res } = await API.addVehicle(vehicle);
+  const { err } = await API.addVehicle(vehicle);
   if (err) {
     // TO DO: implement better notification of failure
     AddVehicleToaster.show({ message: `Error: ${JSON.stringify(err)}`, intent: 'danger', icon: 'warning-sign', timeout: 5000 });
