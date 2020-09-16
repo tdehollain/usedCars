@@ -1,19 +1,21 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import vehicleActions from '../Actions/vehicleActions';
 import HomeView from '../HomeView/HomeView';
 import AdminView from '../AdminView/AdminView';
 
-const MainContainer = (props) => {
+const MainContainer = () => {
+  const dispatch = useDispatch();
+  const stableDispatch = React.useCallback(dispatch, []);
+
   // When mounting: loading list of vehicles
   React.useEffect(() => {
-    props.updateVehiclesList();
-  }, []);
+    stableDispatch(vehicleActions.updateVehiclesList());
+  }, [stableDispatch]);
 
   return (
-    <div className='mainContainer'>
+    <div className="mainContainer">
       <Switch>
         <Route exact path="/" component={HomeView} />
         <Route path="/admin" component={AdminView} />
@@ -22,12 +24,4 @@ const MainContainer = (props) => {
   );
 };
 
-MainContainer.propTypes = {
-  updateVehiclesList: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = (dispatch) => ({
-  updateVehiclesList: () => dispatch(vehicleActions.updateVehiclesList()),
-});
-
-export default connect(null, mapDispatchToProps)(MainContainer);
+export default MainContainer;
