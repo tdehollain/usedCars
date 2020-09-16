@@ -95,6 +95,9 @@ const getVehicleRecords = async (title) => {
 
     const sortedData = rawData.sort(sortByPropertyScrapDate);
 
+    // Needed for vehicle age
+    const currentNbOfMonths = ((new Date()).getFullYear() - 1) * 12 + (new Date()).getMonth() + 1;
+
     // Convert strings to numbers
     const formattedRecords = sortedData.map((record) => ({
       ...record,
@@ -104,6 +107,9 @@ const getVehicleRecords = async (title) => {
       km: parseInt(record.km, 10) || 0,
       firstRegMonth: parseInt(record.firstRegMonth, 10),
       firstRegYear: parseInt(record.firstRegYear, 10),
+      age: parseInt(record.firstRegMonth, 10) && parseInt(record.firstRegYear, 10)
+        ? currentNbOfMonths - ((parseInt(record.firstRegYear, 10) - 1) * 12 + parseInt(record.firstRegMonth, 10))
+        : 0,
       powerKW: parseInt(record.power.split(' kW')[0], 10),
       powerHp: parseInt(record.power.split('(')[1].split(' ')[0], 10),
     }));

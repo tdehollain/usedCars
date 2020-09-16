@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import MedianPriceEvolution from '../../Components/MedianPriceEvolution';
 import PriceDistribution from '../../Components/PriceDistribution';
 import KmDistribution from '../../Components/KmDistribution';
-import PriceKmScatter from '../../Components/PriceKmScatter';
+import PriceScatter from '../../Components/PriceScatter';
 
 const ChartsView = (props) => {
   if (!props.vehicleRecords.length) {
@@ -32,13 +32,26 @@ const ChartsView = (props) => {
         barColor="#2B95D6"
         chartWidth={600}
       />
-      <PriceKmScatter
+      <PriceScatter
+        chartTitle="Price - mileage scatter"
         data={props.vehicleRecords.slice(-1)[0].records}
+        metric="km"
+        xAxisTtile="Mileage (km)"
         vehicleRegressions={props.vehicleRegressions}
         fontColor="#E1E8ED"
         markerColor="#2B95D6"
         lineColor="#EB532D"
-        chartWidth={1200}
+        chartWidth={600}
+      />
+      <PriceScatter
+        chartTitle="Price - age scatter"
+        data={props.vehicleRecords.slice(-1)[0].records}
+        metric="age"
+        xAxisTtile="Age (months)"
+        fontColor="#E1E8ED"
+        markerColor="#2B95D6"
+        lineColor="#EB532D"
+        chartWidth={600}
       />
     </div>
   );
