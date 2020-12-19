@@ -1,7 +1,10 @@
+import { Intent, Toaster } from '@blueprintjs/core';
 import API from '../lib/API';
 import vehicleActionTypes from './vehicleActionTypes';
 import { calculateStatistics, calculateRegressions, removeOutliers } from '../lib/statistics';
 import { regressionsKmSplit } from '../lib/constants';
+
+const errorToaster = Toaster.create();
 
 const updateVehiclesList = () => async (dispatch) => {
   const list = await API.getVehicleList();
@@ -33,7 +36,13 @@ const updateStatistics = (vehicleRecords) => {
 };
 
 const fetchVehicleRecords = (vehicleName) => async (dispatch) => {
-  const allVehicleRecords = await API.getVehicleRecords(vehicleName);
+  let allVehicleRecords;
+  try {
+    allVehicleRecords = await API.getVehicleRecords(vehicleName);
+  } catch (err) {
+    errorToaster.show({ message: `Error get vehicle records: ${err}`, intent: Intent.DANGER, icon: 'warning-sign' });
+    return;
+  }
   const allYearMonths = [...new Set(allVehicleRecords.map((el) => el.yearmonth))].sort();
 
   // Build array of records for each measurement month (+ remove outliers for each)
