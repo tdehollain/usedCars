@@ -12,6 +12,7 @@ const AddVehicleFormContainer = (props) => {
     if (!validateForm()) return;
 
     const vehicle = { ...props.vehicle, dateAdded: new Date(), editMode: props.editMode };
+    // console.log(vehicle);
     await props.addVehicle(vehicle);
   };
 
