@@ -203,3 +203,14 @@ table.vehicleList .fuel p,
 table.vehicleList .bodyType p {
   margin: 0;
 }
+
+
+/*********************
+*****   Footer   *****
+*********************/
+
+.App footer {
+  font-style: italic;
+  color: #ccc;
+  margin: 10px;
+}
