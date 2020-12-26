@@ -210,7 +210,8 @@ table.vehicleList .bodyType p {
 *********************/
 
 .App footer {
-  font-style: italic;
   color: #ccc;
   margin: 10px;
+  font-size: 0.7rem;
+  font-style: italic;
 }
