@@ -19,6 +19,7 @@ phases:
       - npm install
   build:
     commands:
+      - echo The current build number is $buildNumber
       - npm run build
   post_build:
     commands:
