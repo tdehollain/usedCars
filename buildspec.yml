@@ -1,9 +1,5 @@
 version: 0.2
 
-env:
-  parameter-store:
-    buildNumber: "/build-number/usedCars-master"
-
 phases:
   install:
     runtime-versions:
@@ -19,7 +15,7 @@ phases:
       - npm install
   build:
     commands:
-      - echo The current build number is $buildNumber
+      - echo The current build number is $CODEBUILD_BUILD_NUMBER
       - npm run build
   post_build:
     commands:
