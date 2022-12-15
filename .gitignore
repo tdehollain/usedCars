@@ -2,15 +2,6 @@
 # dependencies
 node_modules/
 
-# Rect build
-app/build
-
-# serverless
-/serverless-service/.serverless
-
-# old, unneeded folders
-old-server/
-
 # misc
 .DS_Store
 .env.local
