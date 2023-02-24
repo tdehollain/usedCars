@@ -1,14 +1,25 @@
+const fetch = require('node-fetch');
 const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null;
 const scrapUtils = require('./lib/scrapUtils');
 const vehicleUtils = require('./lib/vehicleUtils');
 
 const MAX_RETRIES = 4;
 
-const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
-  // Get tracked vehicles data
+const start = async (manualMode = false, vehiclesDefinitions) => {
   const vehicleList = await db.getVehicleList();
-  const vehiclesToProcess = manualMode
-    ? vehicleList.filter(vehicle => {
+  const vehiclesToProcess = getVehiclesToProcess(vehicleList, manualMode, vehiclesDefinitions);
+  const nonce = await getNonce(vehiclesToProcess[0].vehicleURL);
+  const processedVehicles = await processAllVehicles(vehiclesToProcess, nonce);
+
+  return {
+    success: true,
+    processedVehicles,
+  };
+};
+
+const getVehiclesToProcess = (vehicleList, manualMode, vehiclesDefinitions) => {
+  if(manualMode) {
+    return vehicleList.filter(vehicle => {
       let found = false;
       for (const vehicleToProcess of vehiclesDefinitions) {
         if (vehicleToProcess.timingDay === vehicle.timingDay && vehicleToProcess.timingHour === vehicle.timingHour) {
@@ -17,27 +28,65 @@ const start = async (browserPage, manualMode = false, vehiclesDefinitions) => {
         }
       }
       return found;
-    })
-    : vehicleList.filter(vehicleUtils.filterVehiclesToProcessNow);
-  let processedVehicles = await processVehicles(browserPage, vehiclesToProcess);
-
-  for (let processedVehicle of processedVehicles) {
-    // Save records to DB
-    if (processedVehicle.success) {
-      await db.putVehicleRecords(processedVehicle);
-    }
-
-    // Update last count in vehicle list
-    await db.updateVehicle(processedVehicle);
-
-    // Write to Scrap Log
-    const { title, success, oldCount, lastCount } = processedVehicle;
-    await db.writeToScrapLog(title, { success, oldCount, lastCount });
+    });
+  } else {
+    return vehicleList.filter(vehicleUtils.filterVehiclesToProcessNow);
   }
-  return processedVehicles;
 };
 
-const processVehicles = async (browserPage, vehicleList) => {
+const getNonce = async URL => {
+  const res = await fetch(URL);
+  const text = await res.text();
+  const split = text.split('as24-search-funnel_main-')[1]
+  const nonce = isNaN(split.slice(4,5)) ? split.slice(0, 4) : split.slice(0, 5);
+  return nonce;
+}
+
+const processAllVehicles = async (vehiclesToProcess, nonce) => {
+  return await Promise.all(vehiclesToProcess.map(async vehicle => {
+    const oldCount = vehicle.lastCount;
+    try {
+      let { vehicleRecords, lastCount } = await processVehicle(vehicle, nonce);
+      const updatedVehicle = { ...vehicle, success: true, oldCount, lastCount, lastUpdate: new Date(), records: vehicleRecords };
+      console.log('updatedVehicle: ');
+      console.log(updatedVehicle);
+      return updatedVehicle;
+    } catch (err) {
+      console.log('ERROR: ' + err.message);
+      return { ...vehicle, success: false, oldCount, lastCount: 'n/a' };
+    }
+  }));
+}
+
+const processVehicle = async (vehicle, nonce) => {
+  console.log('nonce:', nonce);
+  const baseURL = `https://www.autoscout24.com/_next/data/as24-search-funnel_main-${nonce}/lst/bmw/m3/bt_station-wagon.json?fregfrom=1999&sort=standard&ustate=N,U&powertype=kw&page=3&slug=bmw&slug=m3`;
+  return {
+    vehicleRecords: null,
+    lastCount: null
+  }
+};
+
+const saveRecordsToDB = async processedVehicles => {
+
+
+  // for (let processedVehicle of processedVehicles) {
+  //   // Save records to DB
+  //   if (processedVehicle.success) {
+  //     await db.putVehicleRecords(processedVehicle);
+  //   }
+
+  //   // Update last count in vehicle list
+  //   await db.updateVehicle(processedVehicle);
+
+  //   // Write to Scrap Log
+  //   const { title, success, oldCount, lastCount } = processedVehicle;
+  //   await db.writeToScrapLog(title, { success, oldCount, lastCount });
+  // }
+  // return processedVehicles;
+}
+
+const processVehicles_old = async (browserPage, vehicleList) => {
   let processedVehicles = [];
   for (let vehicle of vehicleList) {
     const oldCount = vehicle.lastCount;
@@ -56,7 +105,7 @@ const processVehicles = async (browserPage, vehicleList) => {
 };
 
 // Function wrappint processVehicle to get retries strategy
-const launchProcessVehicles = async (browserPage, vehicle, nbOfRetries = 0) => {
+const launchProcessVehicles_old = async (browserPage, vehicle, nbOfRetries = 0) => {
   try {
     let { vehicleRecords, lastCount } = await processVehicle(browserPage, vehicle);
     return { vehicleRecords, lastCount };
@@ -70,7 +119,7 @@ const launchProcessVehicles = async (browserPage, vehicle, nbOfRetries = 0) => {
   }
 };
 
-const processVehicle = async (browserPage, vehicle) => {
+const processVehicle_old = async (browserPage, vehicle) => {
   console.log(`<-----   Processing: ${vehicle.title} (brand: ${vehicle.brand}, model: ${vehicle.model})    ----->`);
   let nbResults = await scrapUtils.navigateToVehicle(vehicle, browserPage); // get number of pages
   console.log(`Number of results: ${nbResults}`);
@@ -169,7 +218,7 @@ const processVehicle = async (browserPage, vehicle) => {
   return { vehicleRecords, lastCount: nbResults };
 };
 
-const loopThroughPages = async (browserPage, vehicleTitle, vehicleRecords) => {
+const loopThroughPages_old = async (browserPage, vehicleTitle, vehicleRecords) => {
   let output = JSON.parse(JSON.stringify(vehicleRecords));
   let hasNextPage = true;
   do {
@@ -186,7 +235,7 @@ const loopThroughPages = async (browserPage, vehicleTitle, vehicleRecords) => {
   return output;
 };
 
-const getRecordsForPage = async browserPage => {
+const getRecordsForPage_old = async browserPage => {
   await browserPage.waitForSelector('.cldt-summary-full-item');
 
   let vehicles = await browserPage.evaluate(() => {
@@ -276,6 +325,5 @@ const getRecordsForPage = async browserPage => {
 };
 
 module.exports = {
-  start,
-  processVehicles
+  start
 };

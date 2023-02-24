@@ -10,7 +10,7 @@ custom:
 provider:
   name: aws
   profile: usedCars-serverless-admin
-  runtime: nodejs10.x
+  runtime: nodejs16.x
   stage: dev
   region: eu-west-1
   iamRoleStatements:
@@ -33,8 +33,8 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - { 'Fn::GetAtt': ['VehicleRecordsTable', 'Arn'] }
-        - { 'Fn::GetAtt': ['ScrapLogTable', 'Arn'] }
+        - { "Fn::GetAtt": ["VehicleRecordsTable", "Arn"] }
+        - { "Fn::GetAtt": ["ScrapLogTable", "Arn"] }
     - Effect: Allow
       Action:
         - lambda:GetLayerVersion
@@ -57,7 +57,7 @@ functions:
     timeout: 900
     memorySize: 2048
     layers:
-      - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:2
+      # - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:2
       # - arn:aws:lambda:eu-west-1:764866452798:layer:chrome-aws-lambda:5
   sendSummaryEmail:
     handler: sendSummaryEmail.handler
@@ -67,7 +67,7 @@ functions:
 resources:
   Resources:
     VehicleRecordsTable:
-      Type: 'AWS::DynamoDB::Table'
+      Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
           - AttributeName: title
@@ -95,7 +95,7 @@ resources:
           WriteCapacityUnits: 1
         TableName: ${self:custom.vehicleRecordsTableName}
     ScrapLogTable:
-      Type: 'AWS::DynamoDB::Table'
+      Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
           - AttributeName: title
