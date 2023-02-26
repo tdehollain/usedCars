@@ -1,0 +1,113 @@
+# serverless.yml
+
+service: usedCars-scrapper-service
+
+custom:
+  vehicleListTableName: usedCars-vehicle-list-${self:provider.stage}
+  vehicleRecordsTableName: usedCars-vehicle-records-${self:provider.stage}
+  scrapLogTableName: usedCars-scrap-log-${self:provider.stage}
+
+provider:
+  name: aws
+  profile: usedCars-serverless-admin
+  runtime: nodejs16.x
+  stage: dev
+  region: eu-west-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource:
+        - arn:aws:dynamodb:eu-west-1:072129581133:table/${self:custom.vehicleListTableName}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["VehicleRecordsTable", "Arn"] }
+        - { "Fn::GetAtt": ["ScrapLogTable", "Arn"] }
+    - Effect: Allow
+      Action:
+        - lambda:GetLayerVersion
+      Resource:
+        - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:2
+        # - arn:aws:lambda:eu-west-1:764866452798:layer:chrome-aws-lambda:5
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+      Resource:
+        - arn:aws:ses:eu-west-1:072129581133:identity/thibaut.dehollain@gmail.com
+  environment:
+    VEHICLE_LIST_TABLE: ${self:custom.vehicleListTableName}
+    VEHICLE_RECORDS_TABLE: ${self:custom.vehicleRecordsTableName}
+    SCRAP_LOG_TABLE: ${self:custom.scrapLogTableName}
+
+functions:
+  scrapVehicle:
+    handler: scrapInit.handler
+    timeout: 900
+    memorySize: 2048
+    layers:
+      # - arn:aws:lambda:eu-west-1:072129581133:layer:puppeteer:2
+      # - arn:aws:lambda:eu-west-1:764866452798:layer:chrome-aws-lambda:5
+  sendSummaryEmail:
+    handler: sendSummaryEmail.handler
+    timeout: 30
+    memorySize: 512
+
+resources:
+  Resources:
+    VehicleRecordsTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: title
+            AttributeType: S
+          - AttributeName: urlmonth
+            AttributeType: S
+          - AttributeName: yearmonth
+            AttributeType: N
+        KeySchema:
+          - AttributeName: title
+            KeyType: HASH
+          - AttributeName: urlmonth
+            KeyType: RANGE
+        LocalSecondaryIndexes:
+          - IndexName: monthLSI
+            KeySchema:
+              - AttributeName: title
+                KeyType: HASH
+              - AttributeName: yearmonth
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.vehicleRecordsTableName}
+    ScrapLogTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: title
+            AttributeType: S
+          - AttributeName: scrapDate
+            AttributeType: N
+        KeySchema:
+          - AttributeName: title
+            KeyType: HASH
+          - AttributeName: scrapDate
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.scrapLogTableName}
