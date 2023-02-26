@@ -1,0 +1,4 @@
+export default {
+  CHANGE_VALUE: 'CHANGE_VALUE',
+  ADD_VEHICLE: 'ADD_VEHICLE',
+};
