@@ -86,7 +86,7 @@ const sendEmail = async logData => {
     Source: `Used Cars <${ToAddress}>`
   };
 
-  if (!nonSuccesses) return 'All successes, email not sent';
+  // if (!nonSuccesses) return 'All successes, email not sent';
   try {
     let res = await SES.sendEmail(params).promise();
     return res;
