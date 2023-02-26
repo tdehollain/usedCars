@@ -103,8 +103,8 @@ const getURL = (vehicle, nonce) => {
   if(vehicle.checkedFuelPetrol) fuelTypes.push('B');
   if(vehicle.checkedFuelDiesel) fuelTypes.push('D');
   if(vehicle.checkedFuelElec) fuelTypes.push('E');
-  if(vehicle.checkedFuelElecPetrol) fuelTypes.push('C2');
-  if(vehicle.checkedFuelElecDiesel) fuelTypes.push('C3');
+  if(vehicle.checkedFuelElecPetrol) fuelTypes.push('2');
+  if(vehicle.checkedFuelElecDiesel) fuelTypes.push('3');
   if(fuelTypes.length < 5) params.fuel = fuelTypes;
 
   const transTypes = [];
