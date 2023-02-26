@@ -82,9 +82,9 @@ const getURL = (vehicle, nonce) => {
   const params = {
     sort: 'standard',
     damaged_listing: 'exclude',
-    regFrom: vehicle.regFrom
+    fregfrom: vehicle.regFrom
   };
-  if(vehicle.regTo) params.regTo = vehicle.regTo;
+  if(vehicle.regTo) params.fregto = vehicle.regTo;
   if(vehicle.chFrom) params.powerfrom = Math.round(vehicle.chFrom * 0.74569987);
   if(vehicle.chTo) params.powerto = Math.round(vehicle.chTo * 0.74569987);
   if(vehicle.doorFrom) params.doorfrom = vehicle.doorFrom;
