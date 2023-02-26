@@ -6,7 +6,7 @@ phases:
       nodejs: 12
     commands:
       - cd app
-      - npm i npm@latest -g
+      # - npm i npm@latest -g
       # - npm i serverless@latest -g
       # - pip install --upgrade pip
       # - pip install --upgrade awscli
