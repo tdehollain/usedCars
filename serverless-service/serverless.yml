@@ -1,0 +1,107 @@
+# serverless.yml
+
+service: usedCars-service
+
+custom:
+  vehicleListTableName: usedCars-vehicle-list-${self:provider.stage}
+  vehicleRecordsTableName: usedCars-vehicle-records-${self:provider.stage}
+
+provider:
+  name: aws
+  profile: usedCars-serverless-admin
+  runtime: nodejs10.x
+  stage: dev
+  region: eu-west-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { 'Fn::GetAtt': ['VehicleListTable', 'Arn'] }
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+      Resource:
+        - arn:aws:dynamodb:eu-west-1:072129581133:table/${self:custom.vehicleRecordsTableName}
+  environment:
+    VEHICLE_LIST_TABLE: ${self:custom.vehicleListTableName}
+    VEHICLE_RECORDS_TABLE: ${self:custom.vehicleRecordsTableName}
+
+functions:
+  addVehicle:
+    handler: addVehicle.handler
+    timeout: 30
+    events:
+      - http:
+          path: /vehiclelist
+          method: PUT
+          cors: true
+  getVehicleList:
+    handler: getVehicleList.handler
+    timeout: 30
+    events:
+      - http:
+          path: /vehiclelist
+          method: GET
+          cors: true
+  deleteVehicle:
+    handler: deleteVehicle.handler
+    timeout: 30
+    events:
+      - http:
+          path: /vehiclelist
+          method: DELETE
+          cors: true
+  loadExistingVehicles:
+    handler: loadExistingVehicles.handler
+    timeout: 180
+  deleteAllVehicles:
+    handler: deleteAllVehicles.handler
+    timeout: 180
+  addVehicleRecord:
+    handler: addVehicleRecord.handler
+    timeout: 30
+    events:
+      - http:
+          path: /vehiclerecord
+          method: PUT
+          cors: true
+  getVehicleRecords:
+    handler: getVehicleRecords.handler
+    timeout: 30
+    events:
+      - http:
+          path: /vehiclerecord
+          method: GET
+          cors: true
+  deleteVehicleRecord:
+    handler: deleteVehicleRecord.handler
+    timeout: 30
+    events:
+      - http:
+          path: /vehiclerecord
+          method: DELETE
+          cors: true
+
+resources:
+  Resources:
+    VehicleListTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: title
+            AttributeType: S
+        KeySchema:
+          - AttributeName: title
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.vehicleListTableName}
