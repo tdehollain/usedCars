@@ -34,7 +34,7 @@ const HomeView = () => {
         />
         <div className="linkAndLastUpdate">
           {Object.keys(selectedVehicle).length > 0 && <p>Last Update: {selectedVehicle.lastUpdate ? selectedVehicle.lastUpdate.slice(0, 10) : 'N/A'}</p>}
-          {Object.keys(selectedVehicle).length > 0 && <a href={selectedVehicle.vehicleURL} target="_blank" rel="noopener noreferrer">Link</a>}
+          {Object.keys(selectedVehicle).length > 0 && <a href={selectedVehicle.vehicleURL.replace(' ', '-')} target="_blank" rel="noopener noreferrer">Link</a>}
         </div>
       </div>
       <StatisticsView />

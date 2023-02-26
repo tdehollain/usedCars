@@ -179,7 +179,7 @@ const AddVehicleForm = props => (
       </section>
     </div>
     <div className="form-submit">
-      <AnchorButton icon="comparison" className="pt-large" text="Test" href={props.vehicle.vehicleURL} target="_blank" />
+      <AnchorButton icon="comparison" className="pt-large" text="Test" href={props.vehicle.vehicleURL.replace(' ', '-')} target="_blank" />
       {props.editMode ? (
         <Button type="submit" icon="edit" className="pt-large" text="Edit vehicle" />
       ) : (
