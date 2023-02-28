@@ -46,18 +46,19 @@ const getNonce = async URL => {
 }
 
 const processAllVehicles = async (vehiclesToProcess, nonce) => {
-  return await Promise.all(vehiclesToProcess.map(async vehicle => {
+  const processedVehicles = []
+  for(let vehicle of vehiclesToProcess) {
     console.log('Processing vehicle: ', vehicle.title);
     const oldCount = vehicle.lastCount;
     try {
       let { vehicleRecords, lastCount } = await processVehicle(vehicle, nonce);
       const updatedVehicle = { ...vehicle, success: true, oldCount, lastCount, lastUpdate: new Date(), records: vehicleRecords };
-      return updatedVehicle;
+      processedVehicles.push(updatedVehicle);
     } catch (err) {
       console.log('ERROR: ' + err.message);
-      return { ...vehicle, success: false, oldCount, lastCount: 'n/a' };
+      return processedVehicles.push({ ...vehicle, success: false, oldCount, lastCount: 'n/a' });
     }
-  }));
+  };
 }
 
 
