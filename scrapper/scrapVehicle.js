@@ -126,7 +126,6 @@ const getListings = async (baseURL, params) => {
   do {
     const { success, error, pageRes } = await getPage(baseURL, params, pageNb);
     if(pageNb === 1) {
-      console.log(finalURL);
       nbResults = pageRes.numberOfResults;
       pageCount = Math.ceil(nbResults/20);
       console.log({nbResults});
@@ -144,6 +143,7 @@ const getPage = async (baseURL, params, pageNb, tryNb = 1) => {
   try {
     const URLParamsStr = (new URLSearchParams(pageNb === 1 ? params : {...params, page: pageNb})).toString();
     const finalURL = baseURL + URLParamsStr;
+    console.log(finalURL);
     const page_rawRes = await fetch(finalURL);
     const page_Res = (await page_rawRes.json()).pageProps;
     return { success: true, page_Res };
