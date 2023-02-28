@@ -82,7 +82,7 @@ const getURL = (vehicle, nonce) => {
 
   const {brand, model, version} = vehicle;
   const queryType = version ? `/ve_${version}.json?` : '.json?';
-  const baseURL = 'https://www.autoscout24.com/_next/data/as24-search-funnel_main-${nonce}'
+  const baseURL = `https://www.autoscout24.com/_next/data/as24-search-funnel_main-${nonce}`
                 + `/lst/${brand.replaceAll(' ', '-')}/${model.replaceAll(' ', '-')}${queryType}`;
 
   const params = {
