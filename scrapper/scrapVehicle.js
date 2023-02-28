@@ -8,6 +8,7 @@ const MAX_RETRIES = 4;
 const start = async (manualMode = false, vehiclesDefinitions) => {
   const vehicleList = await db.getVehicleList();
   const vehiclesToProcess = getVehiclesToProcess(vehicleList, manualMode, vehiclesDefinitions);
+  console.log({ vehiclesToProcess });
   const nonce = await getNonce(vehiclesToProcess[0].vehicleURL);
   const processedVehicles = await processAllVehicles(vehiclesToProcess, nonce);
   await saveRecordsToDB(processedVehicles);
@@ -23,7 +24,7 @@ const getVehiclesToProcess = (vehicleList, manualMode, vehiclesDefinitions) => {
     return vehicleList.filter(vehicle => {
       let found = false;
       for (const vehicleToProcess of vehiclesDefinitions) {
-        if (vehicleToProcess.timingDay === vehicle.timingDay && vehicleToProcess.timingHour === vehicle.timingHour) {
+        if (vehicleToProcess.timingDay === vehicle.timingDay && vehicleToProcess.timingHour === (vehicle.timingHour || 0)) {
           found = true;
           break;
         }
@@ -85,8 +86,8 @@ const getURL = (vehicle, nonce) => {
     fregfrom: vehicle.regFrom
   };
   if(vehicle.regTo) params.fregto = vehicle.regTo;
-  if(vehicle.chFrom) params.powerfrom = Math.round(vehicle.chFrom * 0.74569987);
-  if(vehicle.chTo) params.powerto = Math.round(vehicle.chTo * 0.74569987);
+  if(vehicle.chFrom) params.powerfrom = Math.round(vehicle.chFrom * 0.73549875);
+  if(vehicle.chTo) params.powerto = Math.round(vehicle.chTo * 0.73549875);
   if(vehicle.doorFrom) params.doorfrom = vehicle.doorFrom;
   if(vehicle.doorTo) params.doorto = vehicle.doorTo;
 
