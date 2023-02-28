@@ -52,13 +52,14 @@ const processAllVehicles = async (vehiclesToProcess, nonce) => {
     const oldCount = vehicle.lastCount;
     try {
       let { vehicleRecords, lastCount } = await processVehicle(vehicle, nonce);
-      const updatedVehicle = { ...vehicle, success: true, oldCount, lastCount, lastUpdate: new Date(), records: vehicleRecords };
+      const updatedVehicle = { ...vehicle, success: true, oldCount, lastCount, records: vehicleRecords, lastUpdate: new Date() };
       processedVehicles.push(updatedVehicle);
     } catch (err) {
       console.log('ERROR: ' + err.message);
-      return processedVehicles.push({ ...vehicle, success: false, oldCount, lastCount: 'n/a' });
+      processedVehicles.push({ ...vehicle, success: false, oldCount, lastCount: 'n/a', records: null, lastUpdate: new Date() });
     }
   };
+  return processedVehicles;
 }
 
 
@@ -68,9 +69,8 @@ const processVehicle = async (vehicle, nonce) => {
   const { error, listings, nbResults } = await getListings(baseURL, params);
   console.log('nbListings:', nbResults);
   if(error) {
-    console.log('Error getting page results: ' + error);
-    return { vehicleRecords: null, lastCount: 'n/a' };
-  } else if(listings.length > 400) {
+    throw new Error(error);
+  } else if(nbResults > 400) {
     console.log('More than 400 results. Abording.');
     return { vehicleRecords: null, lastCount: nbResults };
   } else {
@@ -198,7 +198,7 @@ const saveRecordsToDB = async processedVehicles => {
 
   for (let processedVehicle of processedVehicles) {
     // Save records to DB
-    if (processedVehicle.success) {
+    if (processedVehicle.success && !!processedVehicle.records) {
       // Find and remove duplicates
       const duplicates = [];
       const filteredRecords = [];
@@ -210,7 +210,7 @@ const saveRecordsToDB = async processedVehicles => {
         }
       }
       if(duplicates.length > 0) {
-        console.log('DUPLICATES FOUND');
+        console.log(duplicates.length + ' DUPLICATES FOUND');
         console.log(duplicates);
       }
       await db.putVehicleRecords({ ...processedVehicle, records: filteredRecords });
