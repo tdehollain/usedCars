@@ -119,29 +119,42 @@ const getURL = (vehicle, nonce) => {
 };
 
 const getListings = async (baseURL, params) => {
-  let page = 1;
+  let pageNb = 1;
   let nbResults = 1;
   let pageCount;
   let listings = [];
   do {
-    const URLParamsStr = (new URLSearchParams(page === 1 ? params : {...params, page})).toString();
-    const finalURL = baseURL + URLParamsStr;
-    const page_rawRes = await fetch(finalURL);
-    const page_Res = (await page_rawRes.json()).pageProps;
-    if(page === 1) {
+    const { success, error, pageRes } = await getPage(baseURL, params, pageNb);
+    if(pageNb === 1) {
       console.log(finalURL);
-      nbResults = page_Res.numberOfResults;
+      nbResults = pageRes.numberOfResults;
       pageCount = Math.ceil(nbResults/20);
       console.log({nbResults});
       if(nbResults >= 400) {
         return { listing: null, nbResults };
       }
     }
-    listings = [...listings, ...page_Res.listings];
-    page += 1;
-  } while (page <= pageCount);
+    listings = [...listings, ...pageRes.listings];
+    pageNb += 1;
+  } while (pageNb <= pageCount);
   return { listings, nbResults };
 };
+
+const getPage = async (baseURL, params, pageNb, tryNb = 1) => {
+  try {
+    const URLParamsStr = (new URLSearchParams(pageNb === 1 ? params : {...params, page: pageNb})).toString();
+    const finalURL = baseURL + URLParamsStr;
+    const page_rawRes = await fetch(finalURL);
+    const page_Res = (await page_rawRes.json()).pageProps;
+    return { success: true, page_Res };
+  } catch (e) {
+    if(tryNb >= MAX_RETRIES) {
+      return { success: false, error: e.message};
+    } else {
+      return getPage(baseURL, params, pageNb, tryNb + 1);
+    }
+  }
+}
 
 const getRecords = (title, listings) => {
   const records = listings.map(item => {
