@@ -3,7 +3,7 @@ const db = process.env.VEHICLE_LIST_TABLE ? require('./lib/db') : null;
 const scrapUtils = require('./lib/scrapUtils');
 const vehicleUtils = require('./lib/vehicleUtils');
 
-const MAX_RETRIES = 4;
+const MAX_RETRIES = 3;
 
 const start = async (manualMode = false, vehiclesDefinitions) => {
   const vehicleList = await db.getVehicleList();
@@ -146,7 +146,7 @@ const getListings = async (baseURL, params) => {
   return { listings, nbResults };
 };
 
-const getPage = async (baseURL, params, pageNb, tryNb = 1) => {
+const getPage = async (baseURL, params, pageNb, retryNb = 0) => {
   try {
     const URLParamsStr = (new URLSearchParams(pageNb === 1 ? params : {...params, page: pageNb})).toString();
     const finalURL = baseURL + URLParamsStr;
@@ -155,10 +155,10 @@ const getPage = async (baseURL, params, pageNb, tryNb = 1) => {
     const pageRes = (await page_rawRes.json()).pageProps;
     return { pageRes };
   } catch (e) {
-    if(tryNb >= MAX_RETRIES) {
+    if(retryNb + 1 >= MAX_RETRIES) {
       return { error: e.message};
     } else {
-      return getPage(baseURL, params, pageNb, tryNb + 1);
+      return getPage(baseURL, params, pageNb, retryNb + 1);
     }
   }
 }
@@ -198,7 +198,21 @@ const saveRecordsToDB = async processedVehicles => {
   for (let processedVehicle of processedVehicles) {
     // Save records to DB
     if (processedVehicle.success) {
-      await db.putVehicleRecords(processedVehicle);
+      // Find and remove duplicates
+      const duplicates = [];
+      const filteredRecords = [];
+      for(let record of processedVehicle.records) {
+        if(filteredRecords.find(el => el.urlmonth === record.urlmonth)) {
+          duplicates.push(record)
+        } else {
+          filteredRecords.push(record)
+        }
+      }
+      if(duplicates.length > 0) {
+        console.log('DUPLICATES FOUND');
+        console.log(duplicates);
+      }
+      await db.putVehicleRecords({ ...processedVehicle, records: filteredRecords });
     }
 
     // Update last count in vehicle list
