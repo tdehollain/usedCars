@@ -64,14 +64,18 @@ const processAllVehicles = async (vehiclesToProcess, nonce) => {
 const processVehicle = async (vehicle, nonce) => {
 
   const { baseURL, params } = getURL(vehicle, nonce);
-  const { listings, nbResults } = await getListings(baseURL, params);
+  const { error, listings, nbResults } = await getListings(baseURL, params);
   console.log('nbListings:', nbResults);
-  if(listings.length > 400) {
+  if(error) {
+    console.log('Error getting page results: ' + error);
+    return { vehicleRecords: null, lastCount: 'n/a' };
+  } else if(listings.length > 400) {
     console.log('More than 400 results. Abording.');
     return { vehicleRecords: null, lastCount: nbResults };
+  } else {
+    const records = getRecords(vehicle.title, listings);
+    return { vehicleRecords: records, lastCount: nbResults };
   }
-  const records = getRecords(vehicle.title, listings);
-  return { vehicleRecords: records, lastCount: nbResults };
 };
 
 const getURL = (vehicle, nonce) => {
@@ -124,13 +128,16 @@ const getListings = async (baseURL, params) => {
   let pageCount;
   let listings = [];
   do {
-    const { success, error, pageRes } = await getPage(baseURL, params, pageNb);
+    const { error, pageRes } = await getPage(baseURL, params, pageNb);
+    if(error){
+      return { listings: null, error };
+    }
     if(pageNb === 1) {
       nbResults = pageRes.numberOfResults;
       pageCount = Math.ceil(nbResults/20);
       console.log({nbResults});
       if(nbResults >= 400) {
-        return { listing: null, nbResults };
+        return { listings: null, nbResults };
       }
     }
     listings = [...listings, ...pageRes.listings];
@@ -145,11 +152,11 @@ const getPage = async (baseURL, params, pageNb, tryNb = 1) => {
     const finalURL = baseURL + URLParamsStr;
     console.log(finalURL);
     const page_rawRes = await fetch(finalURL);
-    const page_Res = (await page_rawRes.json()).pageProps;
-    return { success: true, page_Res };
+    const pageRes = (await page_rawRes.json()).pageProps;
+    return { pageRes };
   } catch (e) {
     if(tryNb >= MAX_RETRIES) {
-      return { success: false, error: e.message};
+      return { error: e.message};
     } else {
       return getPage(baseURL, params, pageNb, tryNb + 1);
     }
