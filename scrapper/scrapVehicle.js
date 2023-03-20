@@ -70,9 +70,16 @@ const processVehicle = async (vehicle, nonce) => {
   console.log('nbListings:', nbResults);
   if(error) {
     throw new Error(error);
-  } else if(nbResults > 400) {
-    console.log('More than 400 results. Abording.');
+  } else if(nbResults > 800) {
+    console.log('More than 800 results. Abording.');
     return { vehicleRecords: null, lastCount: nbResults };
+  } else if(nbResults > 400) {
+    console.log('Between 400 and 800 results. Splitting between ascending and descending order.');
+    const { errorDesc, listings: listingsDesc, nbResultsDesc } = await getListings(baseURL, { ...params, desc: 1 });
+    if(errorDesc) throw new Error(errorDesc);
+    const listingsAll = [...listings, ...listingsDesc];
+    const records = getRecords(vehicle.title, listingsAll);
+    return { vehicleRecords: records, lastCount: nbResults };
   } else {
     const records = getRecords(vehicle.title, listings);
     return { vehicleRecords: records, lastCount: nbResults };
@@ -87,7 +94,8 @@ const getURL = (vehicle, nonce) => {
                 + `/lst/${brand.replaceAll(' ', '-')}/${model.replaceAll(' ', '-')}${queryType}`;
 
   const params = {
-    sort: 'standard',
+    sort: 'year',
+    desc: 0,
     damaged_listing: 'exclude',
     fregfrom: vehicle.regFrom
   };
@@ -137,8 +145,10 @@ const getListings = async (baseURL, params) => {
       nbResults = pageRes.numberOfResults;
       pageCount = Math.ceil(nbResults/20);
       console.log({nbResults});
-      if(nbResults >= 400) {
+      if(nbResults > 800) {
         return { listings: null, nbResults };
+      } else if(nbResults > 400) {
+        pageCount = 20;
       }
     }
     listings = [...listings, ...pageRes.listings];
@@ -211,7 +221,7 @@ const saveRecordsToDB = async processedVehicles => {
       }
       if(duplicates.length > 0) {
         console.log(duplicates.length + ' DUPLICATES FOUND');
-        console.log(duplicates);
+        // console.log(duplicates);
       }
       await db.putVehicleRecords({ ...processedVehicle, records: filteredRecords });
     }

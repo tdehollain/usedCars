@@ -2,8 +2,8 @@
   "manualMode": true,
   "vehicles": [
     {
-      "timingDay": 1,
-      "timingHour": 11
+      "timingDay": 15,
+      "timingHour": 14
     }
   ]
 }
