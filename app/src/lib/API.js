@@ -106,13 +106,13 @@ const getVehicleRecords = async (title) => {
 };
 
 const getPowerKW = powerStr => {
-  if(!powerStr || powerStr.length === 0) return null;
+  if(!powerStr || typeof powerStr !== 'string' || powerStr.length === 0) return null;
   const splits = powerStr.split('KW');
   return parseInt(splits[0], 10);
 }
 
 const getPowerHp = powerStr => {
-  if(!powerStr || powerStr.length === 0) return null;
+  if(!powerStr || typeof powerStr !== 'string' || powerStr.length === 0) return null;
   const splits = powerStr.split('(');
   if(splits.length < 2) return null;
   const nextSplits = splits[1].split(' ');
