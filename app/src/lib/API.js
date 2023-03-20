@@ -99,11 +99,25 @@ const getVehicleRecords = async (title) => {
     age: parseInt(record.firstRegMonth, 10) && parseInt(record.firstRegYear, 10)
       ? currentNbOfMonths - ((parseInt(record.firstRegYear, 10) - 1) * 12 + parseInt(record.firstRegMonth, 10))
       : 0,
-    powerKW: parseInt(record.power.split(' kW')[0], 10),
-    powerHp: parseInt(record.power.split('(')[1].split(' ')[0], 10),
+    powerKW: getPowerKW(record.power),
+    powerHp: getPowerHp(record.power),
   }));
   return formattedRecords;
 };
+
+const getPowerKW = powerStr => {
+  if(!powerStr || powerStr.length === 0) return null;
+  const splits = powerStr.split('KW');
+  return parseInt(splits[0], 10);
+}
+
+const getPowerHp = powerStr => {
+  if(!powerStr || powerStr.length === 0) return null;
+  const splits = powerStr.split('(');
+  if(splits.length < 2) return null;
+  const nextSplits = splits[1].split(' ');
+  return parseInt(nextSplits[0], 10);
+}
 
 const getLatestVehicleRecords = async (title) => {
   const allRecords = await getVehicleRecords(title);

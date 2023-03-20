@@ -60,13 +60,19 @@ const getTiming = allVehicles => {
 		}
 	}
 
+	console.log({allVehicles: allVehicles.map(el => ({ timingDay: el.timingDay, timingHour: el.timingHour, count: el.lastCount }))});
+
+
 	for (const vehicle of allVehicles) {
 		for (const [index, value] of output.entries()) {
 			if (value.day === vehicle.timingDay && value.hour === vehicle.timingHour) {
-				output[index].count += vehicle.lastCount || 10;
+				const count = vehicle.lastCount === 'n/a' ? 10 : vehicle.lastCount;
+				output[index].count += count;
 			}
 		}
 	}
+
+	console.log({ output });
 
 	output.sort((a, b) => {
 		if (a.count === b.count) {
@@ -80,5 +86,8 @@ const getTiming = allVehicles => {
 		}
 	});
 
-	return { timingDay: output[0].day, timingHour: output[0].hour };
+	const res = { timingDay: output[0].day, timingHour: output[0].hour };
+	console.log(res);
+
+	return res;
 }

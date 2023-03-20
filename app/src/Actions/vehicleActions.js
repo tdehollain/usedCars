@@ -40,7 +40,7 @@ const fetchVehicleRecords = (vehicleName) => async (dispatch) => {
   try {
     allVehicleRecords = await API.getVehicleRecords(vehicleName);
   } catch (err) {
-    errorToaster.show({ message: `Error get vehicle records: ${err}`, intent: Intent.DANGER, icon: 'warning-sign' });
+    errorToaster.show({ message: `Error getting vehicle records: ${err}`, intent: Intent.DANGER, icon: 'warning-sign' });
     return;
   }
   const allYearMonths = [...new Set(allVehicleRecords.map((el) => el.yearmonth))].sort();
