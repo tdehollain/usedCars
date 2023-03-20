@@ -27,7 +27,7 @@
     "redux-thunk": "^2.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts --openssl-legacy-provider start",
     "build": "INLINE_RUNTIME_CHUNK=false REACT_APP_BUILD_NUMBER=$CODEBUILD_BUILD_NUMBER react-scripts --max_old_space_size=4096 build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
