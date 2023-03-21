@@ -65,9 +65,9 @@ const getTiming = allVehicles => {
 
 	for (const vehicle of allVehicles) {
 		for (const [index, value] of output.entries()) {
-			if (value.day === vehicle.timingDay && value.hour === vehicle.timingHour) {
-				const count = vehicle.lastCount === 'n/a' ? 10 : vehicle.lastCount;
-				output[index].count += count;
+			if (value.day === vehicle.timingDay && value.hour === (vehicle.timingHour || 0)) {
+				// const count = vehicle.lastCount === 'n/a' ? 10 : vehicle.lastCount;
+				output[index].count += 1;
 			}
 		}
 	}
@@ -85,6 +85,7 @@ const getTiming = allVehicles => {
 			return a.count - b.count;
 		}
 	});
+	console.log({ output });
 
 	const res = { timingDay: output[0].day, timingHour: output[0].hour };
 	console.log(res);
