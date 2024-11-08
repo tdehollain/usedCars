@@ -1,5 +1,9 @@
 const AWS = require('aws-sdk');
-const ddb = new AWS.DynamoDB.DocumentClient({ region: 'eu-west-1', apiVersion: '2012-08-10', convertEmptyValues: true });
+const ddb = new AWS.DynamoDB.DocumentClient({
+  region: 'eu-west-1',
+  apiVersion: '2012-08-10',
+  convertEmptyValues: true,
+});
 
 const vehicleListTable = process.env.VEHICLE_LIST_TABLE;
 const vehicleRecordsTable = process.env.VEHICLE_RECORDS_TABLE;
@@ -11,7 +15,7 @@ const scrapLogTable = process.env.SCRAP_LOG_TABLE;
 
 const getVehicleList = async function () {
   let params = {
-    TableName: vehicleListTable
+    TableName: vehicleListTable,
   };
   try {
     let rawResponse = await ddb.scan(params).promise();
@@ -28,14 +32,16 @@ const updateVehicle = async function (vehicle) {
 
   let params = {
     TableName: vehicleListTable,
-    Item: vehicleWithoutRecords
+    Item: vehicleWithoutRecords,
   };
 
   try {
     await ddb.put(params).promise();
     return;
   } catch (err) {
-    throw new Error(`Error updating vehicle "${vehicleWithoutRecords.title}": ${err.message}`);
+    throw new Error(
+      `Error updating vehicle "${vehicleWithoutRecords.title}": ${err.message}`
+    );
   }
 };
 
@@ -43,16 +49,18 @@ const updateVehicle = async function (vehicle) {
 //=====   Vehicle Records Table   =====
 //=====================================
 
-const putVehicleRecords = async vehicle => {
+const putVehicleRecords = async (vehicle) => {
   let { err, res } = await batchWriteItems(vehicle.records);
   if (err) {
-    throw new Error(`Error saving records for vehicle "${vehicle.title}": ${err}`);
+    throw new Error(
+      `Error saving records for vehicle "${vehicle.title}": ${err}`
+    );
   } else {
     return res;
   }
 };
 
-const batchWriteItems = async data => {
+const batchWriteItems = async (data) => {
   // Split the data into the number of concurrent processes
   // Only do it if there are at least 1000 records
   // if (data.length >= 500) {
@@ -94,7 +102,7 @@ const batchWriteItems = async data => {
   // }
 };
 
-const batchWriteItems_process = async data => {
+const batchWriteItems_process = async (data) => {
   // console.log(JSON.stringify(data));
   // split data in batches of 25 items
   let batchSize = 25;
@@ -103,19 +111,19 @@ const batchWriteItems_process = async data => {
 
   for (let i = 0; i < nbBatches; i++) {
     let currentBatch = data.slice(i * batchSize, (i + 1) * batchSize);
-    let currentBatchItems = currentBatch.map(el => {
+    let currentBatchItems = currentBatch.map((el) => {
       return {
         PutRequest: {
           // Item: stripEmptyStringAttributes(stripEmptyAttributes(el))
-          Item: el
-        }
+          Item: el,
+        },
       };
     });
     // console.log(JSON.stringify(currentBatchItems));
     let reqParams = {
       RequestItems: {
-        [vehicleRecordsTable]: currentBatchItems
-      }
+        [vehicleRecordsTable]: currentBatchItems,
+      },
     };
 
     let res;
@@ -131,55 +139,87 @@ const batchWriteItems_process = async data => {
       if (nbRetries > 0 && nbRetries % 10 === 0) {
         await sleep(500);
       }
-    } while (Object.entries(res.UnprocessedItems).length !== 0 && nbRetries <= 10);
+    } while (
+      Object.entries(res.UnprocessedItems).length !== 0 &&
+      nbRetries <= 10
+    );
 
     totalRetries += nbRetries;
     if (nbRetries > 0) console.log(`Batch #${i + 1}: ${nbRetries} retries.`);
 
     if (Object.entries(res.UnprocessedItems).length !== 0) {
-      return { err: `Error writing batch of data: still some UnprocessedItems after ${nbRetries} retries` };
+      return {
+        err: `Error writing batch of data: still some UnprocessedItems after ${nbRetries} retries`,
+      };
     }
   }
-  return { err: null, res: { success: true, nbItemsInserted: data.length, nbRetries: totalRetries } };
+  return {
+    err: null,
+    res: {
+      success: true,
+      nbItemsInserted: data.length,
+      nbRetries: totalRetries,
+    },
+  };
 };
 
 //================================
 //=====   Scrap Logs Table   =====
 //================================
 
-const getScrapLogs = async countHours => {
+const getScrapLogs = async (countHours) => {
   const timestampNow = new Date().getTime();
   const millisecondsInCountHours = (countHours + 1) * 60 * 60 * 1000; // adding 1hr to include the log of exactly countHours ago
   const timestampBefore = timestampNow - millisecondsInCountHours;
+  console.log({
+    timestampBefore: [
+      new Date(timestampBefore).toLocaleDateString(),
+      timestampBefore,
+    ],
+    timestampNow: [new Date(timestampNow).toLocaleDateString(), timestampNow],
+  });
 
-  let params = {
-    TableName: scrapLogTable
-  };
-  try {
-    let rawResponse = await ddb.scan(params).promise();
-    logs = rawResponse.Items;
-    logs = logs.filter(el => el.scrapDate > timestampBefore);
-    logs = logs.sort((a, b) => a.scrapDate - b.scrapDate);
-    return logs;
-  } catch (err) {
-    throw new Error('Error getting scrap logs: ' + err.message);
-  }
+  let allRecords = [];
+  let ExclusiveStartKey = undefined;
+  do {
+    let params = {
+      TableName: scrapLogTable,
+      FilterExpression: 'scrapDate BETWEEN :timestampBefore AND :timestampNow',
+      ExpressionAttributeValues: {
+        ':timestampBefore': timestampBefore,
+        ':timestampNow': timestampNow,
+      },
+      ExclusiveStartKey,
+    };
+    try {
+      let rawResponse = await ddb.scan(params).promise();
+      ExclusiveStartKey = rawResponse.LastEvaluatedKey;
+      allRecords = [...allRecords, ...rawResponse.Items];
+    } catch (err) {
+      throw new Error('Error getting scrap logs: ' + err.message);
+    }
+  } while (ExclusiveStartKey);
+  allRecords = allRecords.sort((a, b) => a.scrapDate - b.scrapDate);
+  return allRecords;
 };
 
 const writeToScrapLog = async (title, scrapDetails) => {
   let params = {
     TableName: scrapLogTable,
-    Item: { title, scrapDate: new Date().getTime(), log: scrapDetails }
+    Item: { title, scrapDate: new Date().getTime(), log: scrapDetails },
   };
   try {
     await ddb.put(params).promise();
     return;
   } catch (err) {
-    throw new Error(`Error writing to Scrap Log for vehicle "${title}": ${err.message}`);
+    throw new Error(
+      `Error writing to Scrap Log for vehicle "${title}": ${err.message}`
+    );
   }
 };
 
-const sleep = waitTimeInMs => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
+const sleep = (waitTimeInMs) =>
+  new Promise((resolve) => setTimeout(resolve, waitTimeInMs));
 
 const deleteVehicleRecords = async function (vehicleTitle, month) {
   let URL = baseURL + '/vehiclerecord';
@@ -188,9 +228,9 @@ const deleteVehicleRecords = async function (vehicleTitle, month) {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ vehicleTitle, month })
+      body: JSON.stringify({ vehicleTitle, month }),
     };
     let raw_response = await fetch(URL, options);
     let res = await raw_response.json();
@@ -211,5 +251,5 @@ module.exports = {
   putVehicleRecords,
   getScrapLogs,
   writeToScrapLog,
-  deleteVehicleRecords
+  deleteVehicleRecords,
 };
