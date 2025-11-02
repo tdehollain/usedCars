@@ -3,11 +3,20 @@ import { useSignIn } from '@clerk/clerk-react';
 import { isClerkAPIResponseError } from '@clerk/clerk-react/errors';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
-export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
   const { isLoaded, signIn, setActive } = useSignIn();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,7 +52,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     } catch (error) {
       if (isClerkAPIResponseError(error)) {
         const [firstError] = error.errors;
-        setErrorMessage(firstError?.longMessage ?? firstError?.message ?? 'Sign in failed.');
+        setErrorMessage(
+          firstError?.longMessage ?? firstError?.message ?? 'Sign in failed.'
+        );
       } else {
         setErrorMessage('Unexpected error while signing in.');
       }
@@ -74,7 +85,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     } catch (error) {
       if (isClerkAPIResponseError(error)) {
         const [firstError] = error.errors;
-        setErrorMessage(firstError?.longMessage ?? firstError?.message ?? 'Google sign in failed.');
+        setErrorMessage(
+          firstError?.longMessage ??
+            firstError?.message ??
+            'Google sign in failed.'
+        );
       } else {
         setErrorMessage('Unexpected error while signing in with Google.');
       }
@@ -87,7 +102,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardDescription>
+            Enter your email below to login to your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -108,7 +125,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                  <a
+                    href="#"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  >
                     Forgot your password?
                   </a>
                 </div>
@@ -126,13 +146,17 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 <Button type="submit" disabled={isSubmitting || !isLoaded}>
                   {isSubmitting ? 'Signing in...' : 'Login'}
                 </Button>
-                <Button variant="outline" type="button" disabled={isSubmitting || !isLoaded} onClick={handleGoogleSignIn}>
+                <Button
+                  variant="outline"
+                  type="button"
+                  disabled={isSubmitting || !isLoaded}
+                  onClick={handleGoogleSignIn}
+                >
                   Login with Google
                 </Button>
-                {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
-                <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
-                </FieldDescription>
+                {errorMessage ? (
+                  <p className="text-sm text-destructive">{errorMessage}</p>
+                ) : null}
               </Field>
             </FieldGroup>
           </form>
