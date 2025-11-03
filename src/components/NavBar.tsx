@@ -15,12 +15,16 @@ export function NavBar({ children }: NavBarProps) {
         <div className="flex h-14 items-center justify-between px-4 mx-auto">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
-              <img src="/911.png" alt="App icon" className="h-6 w-6" />
+              <img
+                src="/public/911.png"
+                alt="App icon"
+                className="h-16 w-16 filter invert"
+              />
               <Link
                 to="/"
                 className="text-xl font-bold text-foreground hover:text-foreground transition-colors"
               >
-                AppName
+                CarSight
               </Link>
             </div>
 
